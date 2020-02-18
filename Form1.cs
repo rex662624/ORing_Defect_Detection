@@ -4212,7 +4212,7 @@ namespace CherngerUI
 							{
 								TestCount_2++;
 								string Result = UpdateResult(OutputAI_2.Dequeue());
-								Value.Result_2.Enqueue(Result);
+								Value.Result_2.Enqueue("OK");//Result
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
 								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
@@ -4349,7 +4349,7 @@ namespace CherngerUI
 							{
 								TestCount_3++;
 								string Result = UpdateResult(OutputAI_3.Dequeue());
-								Value.Result_3.Enqueue(Result);
+								Value.Result_3.Enqueue("OK");
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_3, Result);
 								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_3, Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_3, TestCount_3.ToString());
@@ -4487,7 +4487,7 @@ namespace CherngerUI
 							{
 								TestCount_4++;
 								string Result = UpdateResult(OutputAI_4.Dequeue());
-								Value.Result_4.Enqueue(Result);
+								Value.Result_4.Enqueue("OK");
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_4, Result);
 								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_4, Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_4, TestCount_4.ToString());//label_test_4

@@ -27,7 +27,7 @@ from matplotlib import colors as mcolors
 import signal
 import sys
 
-
+Debug_Flag = 0
 
 Image_Number = 1
 WaitLimit = 2.0
@@ -145,7 +145,7 @@ WaitToDetect_Queue_Lock = threading.Lock()
 
 #================================================================================================
 
-number_of_image = 5000
+number_of_image = 50000
 Now_Image_Count = 0
 
 
@@ -181,7 +181,9 @@ Image_send_count4 = []
 Stop_Send_List4 = []
 
 
-
+PriorityQueue = [-1,-1,-1,-1]#從前到後表示是 priority 高~低的人
+Stop_Total_Count = [2**32-1,0,0,0,0] # index 用 1 2 3 4 比較好處理，故index 0 是用不到的位置
+CPU_send_schedule = []
 
 
 
@@ -251,8 +253,8 @@ class myThread1 (threading.Thread):
 
         
         for i in range(number_of_image):
-
-            print('============================== New Image')
+            if(Debug_Flag):
+                print('============================== New Image')
             #print("Now iter: ",i)
             global ReceiveByte_A_Time
             data = self.ConnectionFrom.recv(8)# receive一個數字，共8byte
@@ -263,11 +265,13 @@ class myThread1 (threading.Thread):
             #number_recv = int((int.from_bytes(data, "little"))/2048)+1
             #print('should recv: ',end = ' ')
             #print(number_recv ,end = ',  Recv:')
-            print(recvByte)
+            if(Debug_Flag):
+                print(recvByte)
             #======reeive 從哪一站來的
             data = self.ConnectionFrom.recv(8)# receive一個數字，共8byte
             From_Which_Stop = int(int.from_bytes(data, "little"))
-            print('Stop From:',From_Which_Stop)
+            if(Debug_Flag):
+                print('Stop From:',From_Which_Stop)
             #======
             while(True):
                 time.sleep(0)
@@ -289,7 +293,8 @@ class myThread1 (threading.Thread):
                  
                 global Now_Image_Count    
                 if (recvByte - self.AccuByte) <= ReceiveByte_A_Time :
-                    print("Byte Info:" ,recvByte,self.AccuByte,len(self.image_data))
+                    if(Debug_Flag):
+                        print("Byte Info:" ,recvByte,self.AccuByte,len(self.image_data))
                     data = self.ConnectionFrom.recv(recvByte - self.AccuByte)
                     self.image_data.extend(data)
                     #print("image data length ",len(image_data))
@@ -312,8 +317,8 @@ class myThread1 (threading.Thread):
                     WaitToDetect_Queue_Lock.acquire()
                     Wait_To_Detect_Pool.append(image)
                     Stop_List.append(From_Which_Stop)
-
                     #print("StopList" , Stop_List," New:",From_Which_Stop)
+                    #print("Ready queue=============",Stop_List)
                     WaitToDetect_Queue_Lock.release()
 
                     break #break from while loop
@@ -355,8 +360,12 @@ class myThread2 (threading.Thread):
         global Image_send_list4
         global Image_send_count4
         global OK_NG_List4
+        global CPU_send_schedule
 
-        if(self.threadID == 2):
+
+        
+        
+        if(self.threadID == 2):#stop1
             Stop_send_List = Stop_Send_List1
             Image_send_list = Image_send_list1
             Image_send_count = Image_send_count1
@@ -382,25 +391,32 @@ class myThread2 (threading.Thread):
         else:
             print("error: unexpected thread ID")
                 
-
         FinishSend = 0
         #for i in range(10):
-        while(FinishSend < number_of_image):
+        
+        while((FinishSend < number_of_image)):
+            
+            
             
             #num_bytes = i
 
             #print('Image_send_count', Image_send_count)
-
-            if(len(Image_send_count) == 0):
+            
+            if(len(CPU_send_schedule) == 0):
+                time.sleep(0)
+                pass
+            
+            elif(len(Image_send_count) == 0):
                 time.sleep(0)
                 #print('0', end = ' ')
                 pass
-            else:# if there is image ready to sends
-    
+            elif(self.threadID == (CPU_send_schedule[0] << 1)):# if there is image ready to sends
+                print("Send:========================",CPU_send_schedule)
+                #print("NowIndex:",NowSendIndex)
                 #print('send')
                 print(len(Image_send_count), " , ", len(Image_send_list))
-                
                 threadLock.acquire()
+                CPU_send_schedule = CPU_send_schedule[1:] 
                 Image = Image_send_list[-1]
                 Image_send_list[:] = Image_send_list[:-1]
                 num_bytes = 8
@@ -413,14 +429,16 @@ class myThread2 (threading.Thread):
                 #//python send rgb image
 
                 #plt.imsave('{}.jpg'.format(FinishSend),Image)
-                print(Image.shape)
+                if(Debug_Flag):
+                    print(Image.shape)
 
                 #num_bytes = Image.tobytes()
                 is_success, im_buf_arr = cv2.imencode(".jpg", Image)
                 num_bytes = im_buf_arr.tobytes()
                 
                 totalbyte = int(len(num_bytes))
-                print("total byte :",totalbyte," __from:",Stop)
+                if(Debug_Flag):
+                    print("total byte :",totalbyte," __from:",Stop)
 
                 #print(Image)
 
@@ -467,7 +485,8 @@ class myThread2 (threading.Thread):
 
 
 
-                print('SendOver, count: ',Total_Send_Time)
+                if(Debug_Flag):
+                    print('SendOver, count: ',Total_Send_Time)
                 FinishSend += 1
                 Image_send_count[:] = Image_send_count[:-1]
                 
@@ -502,6 +521,7 @@ class DetectThread (threading.Thread):
         global Image_send_list4
         global Image_send_count4
         global OK_NG_List4
+        global CPU_send_schedule
         
     
         #========================load model weight
@@ -520,7 +540,7 @@ class DetectThread (threading.Thread):
         print('======================load weight complete====================================')
         image = cv2.imread('0.jpg', cv2.IMREAD_GRAYSCALE)
         image = image.reshape(image.shape[0], image.shape[1], 1)
-        for i in range(6):
+        for i in range(2):#Modify here
             ImageDetectList = [image]
             results, final_image = model1.detect(ImageDetectList, verbose=1)
             results, final_image = model2.detect(ImageDetectList, verbose=1)
@@ -533,7 +553,7 @@ class DetectThread (threading.Thread):
         #print("Wait_To_Detect_Pool: ",np.array(Wait_To_Detect_Pool).shape)
 
         while(True):
-            time.sleep(0)
+            #time.sleep(0)
 
             if(len(Wait_To_Detect_Pool)>0):
                 #print("==========Variable List:===============")
@@ -544,32 +564,56 @@ class DetectThread (threading.Thread):
                 
                 # get the image and the stop number from the pool
                 WaitToDetect_Queue_Lock.acquire()
-                ImageDetectList = [Wait_To_Detect_Pool[-1]]#因為只有一個圖片，直接取-1會取出元素，但這個model吃的是list形式
-                print("len of image list:" , len(ImageDetectList))
-                Wait_To_Detect_Pool[:] = Wait_To_Detect_Pool[:-1]
-                From_Which_Stop = Stop_List[-1]
-                Stop_List[:] = Stop_List[:-1]
+                #=================================================算出下一個要detect誰
+                priority_index = np.argsort(Stop_Total_Count)
+                #print("==============================================",priority_index,"==========================================")
+
+                for i in range(4):
+                    nowindex = priority_index[i] #看stop1~stop4
+                    try:
+                        Incoming_Process_index = Stop_List.index(nowindex)
+                    except ValueError:
+                        Incoming_Process_index = -1
+                    
+                    if(Incoming_Process_index != -1):
+                        break
+
+
+                if(Debug_Flag):
+                    print("======================Stop_Total_Count ",Stop_Total_Count,"stoplist ",Stop_List," and it is stop",nowindex," priority index:",priority_index,"==============")
+                #=================================================
+                ImageDetectList = [Wait_To_Detect_Pool[Incoming_Process_index]]#因為只有一個圖片，直接取-1會取出元素，但這個model吃的是list形式
+                #print("len of image list:" , len(ImageDetectList))
+                Wait_To_Detect_Pool[:] = Wait_To_Detect_Pool[0:Incoming_Process_index]+Wait_To_Detect_Pool[Incoming_Process_index+1:]
+                From_Which_Stop = Stop_List[Incoming_Process_index]
+                Stop_List[:] = Stop_List[0:Incoming_Process_index]+Stop_List[Incoming_Process_index+1:]
                 WaitToDetect_Queue_Lock.release()
                 
                 start = time.time()
 
                 if(From_Which_Stop == 1):
-                    print("Detect by model1")
+                    if(Debug_Flag):
+                        print("Detect by model1 Now index = " , nowindex)
                     results, final_image = model1.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 2):
-                    print("Detect by model2")
+                    if(Debug_Flag):
+                        print("Detect by model2 = " , nowindex)
                     results, final_image = model2.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 3):
-                    print("Detect by model3")
+                    if(Debug_Flag):
+                        print("Detect by model3 = " , nowindex)
                     results, final_image = model3.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 4):
-                    print("Detect by model4")
+                    if(Debug_Flag):
+                        print("Detect by model4 = " , nowindex)
                     results, final_image = model4.detect(ImageDetectList, verbose=1)
                 else:
-                    print("Error: From the undefined stop")
+                    if(Debug_Flag):
+                        print("Error: From the undefined stop")
 
                 end = time.time()
-                print(end - start)                
+                if(Debug_Flag):
+                    print(end - start)                
                 
                 for i in range(Image_Number):
                     
@@ -577,7 +621,8 @@ class DetectThread (threading.Thread):
     
                     result_class = results[i]
                     Image_send = np.array(final_image)
-                    print(Image_send.shape)
+                    if(Debug_Flag):
+                        print(Image_send.shape)
                     '''
                     visualize.display_instances(ImageDetectList[i], result_class['rois'], result_class['masks'], result_class['class_ids'], ' ‏‏‎ ',
                                                 show_mask=None, show_bbox=False, scores=None, ax=ax)
@@ -592,11 +637,13 @@ class DetectThread (threading.Thread):
 
                     OK_NG_flag = -1
                     if(len(result_class['rois']) == 0):
-                        print("[OK]" + str(result_class['scores']))
+                        if(Debug_Flag):
+                            print("[OK]" + str(result_class['scores']))
                         OK_NG_flag = 0
                         
                     else:
-                        print("[NG]"+ str(result_class['scores']))
+                        if(Debug_Flag):
+                            print("[NG]"+ str(result_class['scores']))
                         OK_NG_flag = 1
                     
                     ###########
@@ -607,37 +654,50 @@ class DetectThread (threading.Thread):
                         Image_send_list = Image_send_list1
                         Stop_send_List = Stop_Send_List1
                         Image_send_count = Image_send_count1
-                        print("Detection 1 over ")
+                        Stop_Total_Count[1] += 1
+                        if(Debug_Flag):
+                            print("Detection 1 over ")
 
                     elif(From_Which_Stop == 2):
                         OK_NG_List = OK_NG_List2
                         Image_send_list = Image_send_list2
                         Stop_send_List = Stop_Send_List2
                         Image_send_count = Image_send_count2
-                        print("Detection 2 over ")
+                        Stop_Total_Count[2] += 1
+                        if(Debug_Flag):
+                            print("Detection 2 over ")
 
                     elif(From_Which_Stop == 3):
                         OK_NG_List = OK_NG_List3
                         Image_send_list = Image_send_list3
                         Stop_send_List = Stop_Send_List3
                         Image_send_count = Image_send_count3
-                        print("Detection 3 over ")
+                        Stop_Total_Count[3] += 1
+                        if(Debug_Flag):
+                            print("Detection 3 over ")
 
                     elif(From_Which_Stop == 4):
                         OK_NG_List = OK_NG_List4
                         Image_send_list = Image_send_list4
                         Stop_send_List = Stop_Send_List4
                         Image_send_count = Image_send_count4
-                        print("Detection 4 over ")
+                        Stop_Total_Count[4] += 1
+                        if(Debug_Flag):
+                            print("Detection 4 over ")
 
                     else:
-                        print("error: unexpected thread ID")
-                    print("========================================")
+                        if(Debug_Flag):
+                            print("error: unexpected thread ID")
+                    if(Debug_Flag):
+                        print("========================================")
 
                     threadLock.acquire()
                     OK_NG_List.append(OK_NG_flag)
                     Image_send_list.append(Image_send)
                     Stop_send_List.append(From_Which_Stop)# 紀錄每一個image 是來自哪一站
+                    CPU_send_schedule.append(From_Which_Stop)
+                    if(Debug_Flag):
+                        print(CPU_send_schedule)
                     Image_send_count.append(1)#每有一個圖片需要傳送就append 1 到這個list(in order to prevent the global variable and the local variable inconsistency)
 
                     #print("Local variable value: ", len(Image_send_count),", ",len(Image_send_list),", ",len(Stop_send_List),", ",len(OK_NG_List))
