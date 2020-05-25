@@ -2928,7 +2928,7 @@ namespace CherngerUI
 			
 		}
 		#endregion
-
+		//儲存圖 New
 		private void DoAoi_1(Mat Src, Mat Dst, int CameraID , string SaveMode)
 		{
             SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_1 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-1//", Picturetype.jpg);            
@@ -3949,7 +3949,7 @@ namespace CherngerUI
 				return "NULL";
 			}
 		}
-
+		//TREX
 		#region AI 1
 		private void SendAI_1(Mat Src , Mat Dst)
 		{
@@ -4028,7 +4028,7 @@ namespace CherngerUI
 						slice = recvMessage.Skip(16).Take(8).ToArray();
 						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
 						//==========================================================
-
+						++Num.TotalNumSave_1;
 						//Console.WriteLine(" ");
 						int Recv_a_time = 2048;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
@@ -4068,8 +4068,13 @@ namespace CherngerUI
 						//========================================================
 						this.Invoke((EventHandler)delegate
 						{
-							//Thread.Sleep(100);
-							BeginInvoke(new Action(() => { cherngerPictureBox1.Image = ImgAI_1.Dequeue().ToBitmap(); }));
+							Mat DST = ImgAI_1.Dequeue();
+							app.SavingMode = OK_NG_Flag.ToString();
+							//Thread.Sleep(50);
+							BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
+							#region 存圖
+							DoAoi_1(Src, Src, 1, app.SavingMode);
+							#endregion
 
 							#region 輸出結果
 							lock (OutputAI_1)
@@ -4096,6 +4101,7 @@ namespace CherngerUI
 			{ IsBackground = true }.Start();
 		}
 		#endregion
+
 
 		#region AI 2
 		private void SendAI_2(Mat Src, Mat Dst)
@@ -4169,7 +4175,7 @@ namespace CherngerUI
 						slice = recvMessage.Skip(16).Take(8).ToArray();
 						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
 						//==========================================================
-
+						++Num.TotalNumSave_2;
 						int Recv_a_time = 2048;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
 						int times = (int)Math.Ceiling(temp);
@@ -4205,8 +4211,14 @@ namespace CherngerUI
 						//========================================================
 						this.Invoke((EventHandler)delegate
 						{
+							Mat DST = ImgAI_2.Dequeue();
+							app.SavingMode = OK_NG_Flag.ToString();
 							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox2.Image = ImgAI_2.Dequeue().ToBitmap(); }));
+							BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
+							#region 存圖
+							DoAoi_2(Src, Src, 1, app.SavingMode);
+							#endregion
+
 							#region 輸出結果
 							lock (OutputAI_2)
 							{
@@ -4305,7 +4317,7 @@ namespace CherngerUI
 						slice = recvMessage.Skip(16).Take(8).ToArray();
 						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
 						//====================================================
-
+						++Num.TotalNumSave_3;
 
 						int Recv_a_time = 2048;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
@@ -4342,8 +4354,14 @@ namespace CherngerUI
 						//========================================================
 						this.Invoke((EventHandler)delegate
 						{
+							Mat DST = ImgAI_3.Dequeue();
+							app.SavingMode = OK_NG_Flag.ToString();
 							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox3.Image = ImgAI_3.Dequeue().ToBitmap(); }));
+							BeginInvoke(new Action(() => { cherngerPictureBox3.Image = DST.ToBitmap(); }));
+							#region 存圖
+							DoAoi_3(Src, Src, 1, app.SavingMode);
+							#endregion
+
 							#region 輸出結果
 							lock (OutputAI_3)
 							{
@@ -4441,7 +4459,7 @@ namespace CherngerUI
 						slice = recvMessage.Skip(16).Take(8).ToArray();
 						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
 						//========================================
-
+						++Num.TotalNumSave_4;
 
 						int Recv_a_time = 2048;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
@@ -4478,11 +4496,16 @@ namespace CherngerUI
 						//========================================================
 						this.Invoke((EventHandler)delegate
 						{
+							Mat DST = ImgAI_4.Dequeue();
+							app.SavingMode = OK_NG_Flag.ToString();
 							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox4.Image = ImgAI_4.Dequeue().ToBitmap(); }));
+							BeginInvoke(new Action(() => { cherngerPictureBox4.Image = DST.ToBitmap(); }));
+							#region TREX存圖
+							DoAoi_4(Src, Src, 1, app.SavingMode);
+							#endregion
 							#region 輸出結果
-							
-							
+
+
 							lock (OutputAI_4)
 							{
 								TestCount_4++;
@@ -4644,6 +4667,16 @@ namespace CherngerUI
 			{ IsBackground = true }.Start();
 		}
 		#endregion
+
+		private void radioButton4_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void radioButton5_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
 	}
 
 	#region 統計參數
