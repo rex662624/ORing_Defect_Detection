@@ -14,8 +14,8 @@ namespace TestStop1
             //量時間
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "117.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "138.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -23,7 +23,8 @@ namespace TestStop1
             {
                 fileindex++;
                 Mat src = Cv2.ImRead(filename, ImreadModes.Grayscale);
-                //Console.WriteLine(filename);
+
+                Console.WriteLine(filename);
                 Stop1_Detect(src, fileindex);
 
             }
@@ -40,21 +41,28 @@ namespace TestStop1
             watch.Start();
             //==========================algorithm===============================
 
-            //mask the iner part noise of src
+            //mask the inner part noise of src
             List<Point[]> contours_final = Mask_innercicle(ref src);
+
+            //Find outer defect
             int nLabels = 0;//number of labels
-            var stats = FindContour_and_outer_defect(src, contours_final,ref nLabels, fileindex);
+            var stats = FindContour_and_outer_defect(src, contours_final, ref nLabels, fileindex);
+
+            //MSER
+            My_MSER(5, 800, 5000, 1.5, ref src, ref vis_rgb);
+
+            // draw outer defect by stats
             for (int i = 0; i < nLabels; i++)
             {
                 int area = stats[i, 4];
                 if (area < 200000)
                 {
-                    vis_rgb.Rectangle(new Rect(stats[i,0], stats[i, 1],stats[i, 2],stats[i, 3]), Scalar.Green,3);
+                    vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
                 }
             }
 
             //src.SaveImage("./result/test" + fileindex + ".jpg");
-            vis_rgb.SaveImage("./result/test"+ fileindex + ".jpg");
+            vis_rgb.SaveImage("./result/test" + fileindex + ".jpg");
             //==================================================================
             watch.Stop();
 
@@ -62,6 +70,38 @@ namespace TestStop1
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 
         }
+        //MyMSER
+        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img,ref Mat img_rgb)
+        {
+            Point[][] contours;
+            Rect[] bboxes;
+            MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea,  maxArea: my_maxArea, maxVariation: my_maxVariation);
+            mser.DetectRegions(img, out contours, out bboxes);
+
+            foreach (Point[] now_contour in contours)
+            {
+                OpenCvSharp.Point[][] temp = new Point[1][];
+
+                Point[] Convex_hull = Cv2.ConvexHull(now_contour);
+                Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
+                
+                // Convex hull
+                temp[0] = Convex_hull;
+                Cv2.Polylines(img_rgb, temp, true, new Scalar(0,0,255),1);
+                //inside the area
+                Mat mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                Cv2.DrawContours(mask_img, temp, -1,1, thickness: -1);
+                Console.WriteLine(img.Mean(mask_img));
+                double min_value;
+                img.MinMaxLoc(out min_value, out _, out _, out _, mask_img);
+                Console.WriteLine(min_value);
+
+
+            }
+
+        }
+
+
         //mask the inner part of circle 
         static List<Point[]> Mask_innercicle(ref Mat img)
         {
