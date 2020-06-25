@@ -48,7 +48,7 @@ namespace TestStop1
             int nLabels = 0;//number of labels
             var stats = FindContour_and_outer_defect(src, contours_final, ref nLabels, fileindex);
 
-            //MSER
+            //MSER  
             My_MSER(5, 800, 5000, 1.5, ref src, ref vis_rgb);
 
             // draw outer defect by stats
@@ -70,6 +70,41 @@ namespace TestStop1
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 
         }
+
+        // MSER set shift image
+        static Mat[] set_shift_image(ref Mat img)
+        {
+            float[,,] data = new float[4, 2, 3] {   { { 1,0,15},    { 0,1,-15}  },
+                                                {   { 1,0,15},    { 0,1,15}   },
+                                                {   { 1,0,-15},   { 0,1,-15}  },
+                                                {   { 1,0,-15},   { 0,1,15}   }
+                                            };
+            
+            Mat[] out_image = new Mat[4];
+            for(int i = 0 ; i < 4 ; i++)
+            {
+                out_image[i] = new Mat(2, 3, MatType.CV_32F);
+                out_image[i].Set(0, 0, data[i, 0, 0]);
+                out_image[i].Set(0, 1, data[i, 0, 1]);
+                out_image[i].Set(0, 2, data[i, 0, 2]);
+                out_image[i].Set(1, 0, data[i, 1, 0]);
+                out_image[i].Set(1, 1, data[i, 1, 1]);
+                out_image[i].Set(1, 2, data[i, 1, 2]);
+                /*
+                Console.WriteLine(out_image[i].At<float>(0, 0));
+                Console.WriteLine(out_image[i].At<float>(0, 1));
+                Console.WriteLine(out_image[i].At<float>(0, 2));
+                Console.WriteLine(out_image[i].At<float>(1, 0));
+                Console.WriteLine(out_image[i].At<float>(1, 1));
+                Console.WriteLine(out_image[i].At<float>(1, 2));
+                */
+                
+            }
+
+            return out_image;
+
+        }
+        
         //MyMSER
         static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img,ref Mat img_rgb)
         {
@@ -77,7 +112,22 @@ namespace TestStop1
             Rect[] bboxes;
             MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea,  maxArea: my_maxArea, maxVariation: my_maxVariation);
             mser.DetectRegions(img, out contours, out bboxes);
+            
+            //====================================Local Majority Vote
 
+            // to speed up, create four shift image first
+            var shift_mat = set_shift_image(ref img);
+            Mat[] neighbor_img = new Mat[4];
+            for (int i = 0; i < 4; i++)
+            {
+                neighbor_img[i] = new Mat();
+                var imageCenter = new Point2f(img.Cols / 2f, img.Rows / 2f);
+                var rotationMat = Cv2.GetRotationMatrix2D(imageCenter, 100, 1.3);
+                Cv2.WarpAffine(img, neighbor_img[i], shift_mat[i], img.Size());
+                //neighbor_img[i].SaveImage("./shift_image" + i + ".jpg");
+            }
+            
+            //for each contour, apply local majority vote
             foreach (Point[] now_contour in contours)
             {
                 OpenCvSharp.Point[][] temp = new Point[1][];
@@ -86,16 +136,62 @@ namespace TestStop1
                 Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
                 
                 // Convex hull
-                temp[0] = Convex_hull;
-                Cv2.Polylines(img_rgb, temp, true, new Scalar(0,0,255),1);
+                temp[0] = Approx;
+                //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
                 //inside the area
+                double mean_in_area = 0, min_in_area = 0;
                 Mat mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-                Cv2.DrawContours(mask_img, temp, -1,1, thickness: -1);
-                Console.WriteLine(img.Mean(mask_img));
-                double min_value;
-                img.MinMaxLoc(out min_value, out _, out _, out _, mask_img);
-                Console.WriteLine(min_value);
+                Cv2.DrawContours(mask_img, temp, -1,255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+                mean_in_area = img.Mean(mask_img)[0];
+                img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+                Console.WriteLine(min_in_area + " " + mean_in_area);
 
+                //test 
+                /*
+                Mat mask2 = img.LessThan(230);
+                for (int i = 0; i < img.Cols; i++) {
+                    for (int j = 0; j < img.Rows; j++) 
+                        if(mask2.At<bool>(i, j)==false)
+                            Console.Write(mask2.At<bool>(i,j)+ " ");
+
+                    Console.Write("\n");
+
+                }
+                */
+                //neighbor
+                double[] mean_neighbor = { 255,255,255,255};
+                double[] min_neighbor = { 255, 255, 255, 255 };
+                for (int i = 0; i < 4; i++)
+                {
+                    //先把 img > 230 的變成 0，再餵進 shift 裡面
+                    //先把 mask 乘上另一個mask(>230的mask)
+                    //Mat mask_neighbor_img = neighbor_img[i].GreaterThan(0);
+                    //Console.WriteLine(mask_neighbor_img.At<int>(0,1));
+                    // create final mask
+                    Mat mask2 = neighbor_img[i].LessThan(225).ToMat();
+                    mask2.ConvertTo(mask2, MatType.CV_8U, 1.0 / 255.0);
+ 
+                    Mat mask_final = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                    mask_img.CopyTo(mask_final, mask2);
+
+                    //mask_final.SaveImage("./mask" + i + ".jpg");
+
+                    mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
+                    //compute min:
+                    //neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
+                    Console.WriteLine(min_neighbor[i] + " " + mean_neighbor[i]);
+
+                }
+                int vote = 0;
+                for(int i = 0; i < 4; i++)
+                {
+                    if (mean_in_area > mean_neighbor[i])
+                        vote++;
+                }
+                if (vote > 2 || min_in_area > 100 || mean_in_area > 130)
+                    continue;
+                else
+                    Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
 
             }
 
