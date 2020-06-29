@@ -5,7 +5,6 @@ import math
 import re
 import time
 import numpy as np
-import tensorflow as tf
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -15,91 +14,18 @@ import socket
 import threading
 import io
 from PIL import Image
-from mrcnn import utils
-from mrcnn import visualize
-from mrcnn.visualize import display_images
-import mrcnn.model as modellib
-from mrcnn.model import log
-import balloon
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib import colors as mcolors
 import signal
 import sys
+#===============detector
+from Stop3Detector import Stop3Detector
+from Stop4Detector import Stop4Detector
+
 
 Debug_Flag = 0
 
 Image_Number = 1
 WaitLimit = 2.0
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-# Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
-# Directory to save logs and trained model
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
-
-# Path to Ballon trained weights
-# You can download this file from the Releases page
-# https://github.com/matterport/Mask_RCNN/releases
-BALLON_WEIGHTS_PATH = "/path/to/mask_rcnn_balloon.h5"  # TODO: update this path
-
-config = balloon.BalloonConfig()
-BALLOON_DIR = os.path.join(ROOT_DIR, "samples\Lens\dataset\\")
-print(BALLOON_DIR)
-# Override the training configurations with a few
-# changes for inferencing.
-
-class InferenceConfig(config.__class__):
-    # Run detection on one image at a time
-    GPU_COUNT = 1
-    IMAGES_PER_GPU = Image_Number
-
-config = InferenceConfig()
-config.display()
-
-# Device to load the neural network on.
-# Useful if you're training a model on the same 
-# machine, in which case use CPU and leave the
-# GPU for training.
-DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0
-
-# Inspect the model in training or inference modes
-# values: 'inference' or 'training'
-# TODO: code for 'training' test mode not ready yet
-TEST_MODE = "inference"
-
-# Load validation dataset
-dataset = balloon.BalloonDataset()
-dataset.load_balloon(BALLOON_DIR, "val")
-
-# Must call before using the dataset
-dataset.prepare()
-
-print("Images: {}\nClasses: {}".format(len(dataset.image_ids), dataset.class_names))
-
-# Create model in inference mode
-
-
-def get_ax(rows=1, cols=1, size=16):
-    """Return a Matplotlib Axes array to be used in
-    all visualizations in the notebook. Provide a
-    central point to control graph sizes.
-    
-    Adjust the size attribute to control how big to render images
-    """
-    #fig = Figure()
-    #canvas = FigureCanvas(fig)
-    fig , ax = plt.subplots(rows, cols, figsize=(size*cols, size*rows))
-    return fig, ax
-
-    
-colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
-
-
-# Testing data Folder
-IMAGE_DIR = os.path.join(ROOT_DIR,"samples\Lens\dataset\\test")
- 
 #==============================================thread==================================================
 exitFlag = 0
 ReceiveByte_A_Time = 2048
@@ -501,6 +427,8 @@ class DetectThread (threading.Thread):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
+        self.stop3_detector = Stop3Detector()
+        self.stop4_detector = Stop4Detector()
 
     def run(self):
     
@@ -522,33 +450,6 @@ class DetectThread (threading.Thread):
         global Image_send_count4
         global OK_NG_List4
         global CPU_send_schedule
-        
-    
-        #========================load model weight
-        with tf.device(DEVICE):
-            model1 = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,config=config)
-            model2 = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,config=config)
-            model3 = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,config=config)
-            model4 = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR,config=config)
-    
-        # Load weights
-        #print("Loading weights ", weights_path)
-        model1.load_weights("C:\\Users\\Chernger\\Desktop\\Mask_RCNN-master\\logs\\GrayModel\\Model_Stop1.h5", by_name=True)
-        model2.load_weights("C:\\Users\\Chernger\\Desktop\\Mask_RCNN-master\\logs\\GrayModel\\Model_Stop2.h5", by_name=True)
-        model3.load_weights("C:\\Users\\Chernger\\Desktop\\Mask_RCNN-master\\logs\\GrayModel\\Model_Stop3.h5", by_name=True)
-        model4.load_weights("C:\\Users\\Chernger\\Desktop\\Mask_RCNN-master\\logs\\GrayModel\\Model_Stop4.h5", by_name=True)
-        print('======================load weight complete====================================')
-        image = cv2.imread('0.jpg', cv2.IMREAD_GRAYSCALE)
-        image = image.reshape(image.shape[0], image.shape[1], 1)
-        for i in range(2):#Modify here
-            ImageDetectList = [image]
-            results, final_image = model1.detect(ImageDetectList, verbose=1)
-            results, final_image = model2.detect(ImageDetectList, verbose=1)
-            results, final_image = model3.detect(ImageDetectList, verbose=1)
-            results, final_image = model4.detect(ImageDetectList, verbose=1)
-        
-
-        print('======================dummy data detect complete====================================')
         #========================detect and append image to sendqueue=======
         #print("Wait_To_Detect_Pool: ",np.array(Wait_To_Detect_Pool).shape)
 
@@ -594,19 +495,23 @@ class DetectThread (threading.Thread):
                 if(From_Which_Stop == 1):
                     if(Debug_Flag):
                         print("Detect by model1 Now index = " , nowindex)
-                    results, final_image = model1.detect(ImageDetectList, verbose=1)
+                    # results, final_image = model1.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 2):
                     if(Debug_Flag):
                         print("Detect by model2 = " , nowindex)
-                    results, final_image = model2.detect(ImageDetectList, verbose=1)
+                    # results, final_image = model2.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 3):
                     if(Debug_Flag):
                         print("Detect by model3 = " , nowindex)
-                    results, final_image = model3.detect(ImageDetectList, verbose=1)
+                    
+                    result, final_image = self.stop3_detector.detect(ImageDetectList[-1])
+                    # results, final_image = model3.detect(ImageDetectList, verbose=1)
                 elif(From_Which_Stop == 4):
                     if(Debug_Flag):
                         print("Detect by model4 = " , nowindex)
-                    results, final_image = model4.detect(ImageDetectList, verbose=1)
+
+                    result, final_image = self.stop4_detector.detect(ImageDetectList[-1])
+                    # results, final_image = model4.detect(ImageDetectList, verbose=1)
                 else:
                     if(Debug_Flag):
                         print("Error: From the undefined stop")
@@ -617,33 +522,14 @@ class DetectThread (threading.Thread):
                 
                 for i in range(Image_Number):
                     
-                    #fig, ax = get_ax(1)
-    
-                    result_class = results[i]
                     Image_send = np.array(final_image)
-                    if(Debug_Flag):
-                        print(Image_send.shape)
-                    '''
-                    visualize.display_instances(ImageDetectList[i], result_class['rois'], result_class['masks'], result_class['class_ids'], ' ‏‏‎ ',
-                                                show_mask=None, show_bbox=False, scores=None, ax=ax)
 
-                    canvas = FigureCanvas(fig)
-                    canvas.draw()
-
-                    width, height = fig.get_size_inches() * fig.get_dpi()
-                    Image_send = np.fromstring(canvas.tostring_rgb(), dtype='uint8').reshape(int(height), int(width), 3)
-                    print(Image_send.shape)
-                    '''
 
                     OK_NG_flag = -1
-                    if(len(result_class['rois']) == 0):
-                        if(Debug_Flag):
-                            print("[OK]" + str(result_class['scores']))
+                    if(result == 0):
                         OK_NG_flag = 0
                         
                     else:
-                        if(Debug_Flag):
-                            print("[NG]"+ str(result_class['scores']))
                         OK_NG_flag = 1
                     
                     ###########
