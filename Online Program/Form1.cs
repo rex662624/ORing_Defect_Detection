@@ -365,10 +365,10 @@ namespace CherngerUI
 					switch (OfflineTestStop.SelectedIndex)
 					{
 						case 0:
-							SendAI_1(Src, Src);
+							Stop1_Detector(Src, Src);
 							break;
 						case 1:
-							SendAI_2(Src, Src);
+							Stop2_Detector(Src, Src);
 							break;
 						case 2:
 							SendAI_3(Src, Src);
@@ -2568,7 +2568,7 @@ namespace CherngerUI
 						ThreadPool.QueueUserWorkItem((o) =>
 						{
 							DateTime T = DateTime.Now;
-							SendAI_1(Src, Dst);
+							Stop1_Detector(Src, Dst);
 							DateTime Now = DateTime.Now;
 							string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
 							Console.WriteLine("[CCD 1]: " + time_consuming + " ms");
@@ -2646,7 +2646,7 @@ namespace CherngerUI
 						ThreadPool.QueueUserWorkItem((o) => 
 						{
 							DateTime T = DateTime.Now;
-							SendAI_2(Src, Dst);
+							Stop2_Detector(Src, Dst);
 							DateTime Now = DateTime.Now;
 							string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
 							Console.WriteLine("[CCD 2]: " + time_consuming + " ms");
@@ -3691,7 +3691,7 @@ namespace CherngerUI
 				ThreadPool.QueueUserWorkItem((o) =>
 				{
 					DateTime T = DateTime.Now;
-					SendAI_1(Src1, Src1);
+					Stop1_Detector(Src1, Src1);
 					DateTime Now = DateTime.Now;
 					string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
 					Console.WriteLine("[CCD 1]: " + time_consuming + " ms");
@@ -3745,7 +3745,7 @@ namespace CherngerUI
 				ThreadPool.QueueUserWorkItem((o) =>
 				{
 					DateTime T = DateTime.Now;
-					SendAI_2(Src1, Src1);
+					Stop2_Detector(Src1, Src1);
 					DateTime Now = DateTime.Now;
 					string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
 					Console.WriteLine("[CCD 2]: " + time_consuming + " ms");
@@ -3962,300 +3962,476 @@ namespace CherngerUI
 				return "NULL";
 			}
 		}
+		#region Stop1 
+        // MSER set shift image
+        static Mat[] set_shift_image(ref Mat img)
+        {
+            float[,,] data = new float[4, 2, 3] {   { { 1,0,15},    { 0,1,-15}  },
+                                                {   { 1,0,15},    { 0,1,15}   },
+                                                {   { 1,0,-15},   { 0,1,-15}  },
+                                                {   { 1,0,-15},   { 0,1,15}   }
+                                            };
+
+            Mat[] out_image = new Mat[4];
+            for (int i = 0; i < 4; i++)
+            {
+                out_image[i] = new Mat(2, 3, MatType.CV_32F);
+                out_image[i].Set(0, 0, data[i, 0, 0]);
+                out_image[i].Set(0, 1, data[i, 0, 1]);
+                out_image[i].Set(0, 2, data[i, 0, 2]);
+                out_image[i].Set(1, 0, data[i, 1, 0]);
+                out_image[i].Set(1, 1, data[i, 1, 1]);
+                out_image[i].Set(1, 2, data[i, 1, 2]);
+                /*
+                Console.WriteLine(out_image[i].At<float>(0, 0));
+                Console.WriteLine(out_image[i].At<float>(0, 1));
+                Console.WriteLine(out_image[i].At<float>(0, 2));
+                Console.WriteLine(out_image[i].At<float>(1, 0));
+                Console.WriteLine(out_image[i].At<float>(1, 1));
+                Console.WriteLine(out_image[i].At<float>(1, 2));
+                */
+
+            }
+
+            return out_image;
+
+        }
+
+        //MyMSER
+        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag,out List<OpenCvSharp.Point[][]> final_area )
+        {
+            final_area = new List<OpenCvSharp.Point[][]>();
+			OpenCvSharp.Point[][] contours;
+            Rect[] bboxes;
+            MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
+            mser.DetectRegions(img, out contours, out bboxes);
+
+            //====================================Local Majority Vote
+
+            // to speed up, create four shift image first
+            var shift_mat = set_shift_image(ref img);
+            Mat[] neighbor_img = new Mat[4];
+            for (int i = 0; i < 4; i++)
+            {
+                neighbor_img[i] = new Mat();
+                var imageCenter = new Point2f(img.Cols / 2f, img.Rows / 2f);
+                var rotationMat = Cv2.GetRotationMatrix2D(imageCenter, 100, 1.3);
+                Cv2.WarpAffine(img, neighbor_img[i], shift_mat[i], img.Size());
+                //neighbor_img[i].SaveImage("./shift_image" + i + ".jpg");
+            }
+
+            //for each contour, apply local majority vote
+            foreach (OpenCvSharp.Point[] now_contour in contours)
+            {
+                OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+
+				OpenCvSharp.Point[] Convex_hull = Cv2.ConvexHull(now_contour);
+				OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
+
+                // Convex hull
+                temp[0] = Approx;
+                if (big_flag == 0)//small area: local majority vote
+                {
+                    //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                    //inside the area
+                    double mean_in_area = 0, min_in_area = 0;
+                    Mat mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                    Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+                    mean_in_area = img.Mean(mask_img)[0];
+                    img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+                    //Console.WriteLine(min_in_area + " " + mean_in_area);
+
+                    //test 
+                    /*
+                    Mat mask2 = img.LessThan(230);
+                    for (int i = 0; i < img.Cols; i++) {
+                        for (int j = 0; j < img.Rows; j++) 
+                            if(mask2.At<bool>(i, j)==false)
+                                Console.Write(mask2.At<bool>(i,j)+ " ");
+
+                        Console.Write("\n");
+
+                    }
+                    */
+                    //neighbor
+                    double[] mean_neighbor = { 255, 255, 255, 255 };
+                    double[] min_neighbor = { 255, 255, 255, 255 };
+                    for (int i = 0; i < 4; i++)
+                    {
+                        //先把 img > 230 的變成 0，再餵進 shift 裡面
+                        //先把 mask 乘上另一個mask(>230的mask)
+                        //Mat mask_neighbor_img = neighbor_img[i].GreaterThan(0);
+                        //Console.WriteLine(mask_neighbor_img.At<int>(0,1));
+                        // create final mask
+                        Mat mask2 = neighbor_img[i].LessThan(225).ToMat();
+                        mask2.ConvertTo(mask2, MatType.CV_8U, 1.0 / 255.0);
+
+                        Mat mask_final = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                        mask_img.CopyTo(mask_final, mask2);
+
+                        //mask_final.SaveImage("./mask" + i + ".jpg");
+
+                        mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
+                        //compute min:
+                        //neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
+                        //Console.WriteLine(min_neighbor[i] + " " + mean_neighbor[i]);
+
+                    }
+                    int vote = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (mean_in_area > mean_neighbor[i])
+                            vote++;
+                    }
+                    if (vote > 2 || min_in_area > 100 || mean_in_area > 130)
+                        continue;
+                    else
+                        //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                        final_area.Add(temp);
+
+                }
+                else
+                {
+                    //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                    final_area.Add(temp);
+                }
+            }
+            
+
+        }
+
+
+        //mask the inner part of circle 
+        static List<OpenCvSharp.Point[]> Mask_innercicle1(ref Mat img)
+        {
+
+            Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
+			OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchly;
+            Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+            // find final circle 
+            List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
+
+            foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                //if (np.array(contours[i]).shape[0] > 1500 and cv2.contourArea(contours[i]) < 5000000):
+                if (contour_now.Length > 1500 && Cv2.ContourArea(contour_now) < 5000000)
+                {
+                    contours_final.Add(contour_now);
+                }
+
+            }
+
+			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
+
+			OpenCvSharp.Point[] contours_approx_innercircle;
+
+            var contour_innercircle = contours_final[1];
+
+            //temp[0] = contour_now;
+
+            Point2f center;
+            float radius;
+            //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
+            contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
+            Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
+            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius, 255, thickness: -1);
+            //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
+
+            return contours_final;
+        }
+
+        //Find outer defect
+        static void FindContour_and_outer_defect(Mat img, List<OpenCvSharp.Point[]> contours_final, ref int nLabels, out int [,] stats)
+        {
+            // variable
+            OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+
+
+			// Convex hull
+			OpenCvSharp.Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
+            temp[0] = Convex_hull;
+            Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
+
+
+            // Contour
+            temp[0] = contours_final[0];
+            Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
+
+            // Subtraction 
+            Mat diff_image = convex_mask_img - contour_mask_img;
+
+
+            //Opening
+            Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
+            diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
+
+            //diff_image.SaveImage("./result/test" + fileindex + ".jpg");
+            //Connected Component
+            var labelMat = new MatOfInt();
+            var statsMat = new MatOfInt();// Row: number of labels Column: 5
+            var centroidsMat = new MatOfDouble();
+            nLabels = Cv2.ConnectedComponentsWithStats(diff_image, labelMat, statsMat, centroidsMat);
+
+            var labels = labelMat.ToRectangularArray();
+            stats = statsMat.ToRectangularArray();
+            var centroids = centroidsMat.ToRectangularArray();
+
+            
+
+        }
+		#endregion
 		//TREX
 		#region AI 1
-		private void SendAI_1(Mat Src , Mat Dst)
+		private void Stop1_Detector(Mat Src , Mat Dst)
 		{
-			new Thread(delegate ()//傳圖片的thread
+			Int64 OK_NG_Flag = 0 ;
+			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+			//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
+
+			var watch = new System.Diagnostics.Stopwatch();
+			watch.Start();
+			//==========================algorithm===============================
+
+			//mask the inner part noise of src
+			int nLabels = 0;//number of labels
+			int[,] stats = null;
+			Thread t3 = new Thread(delegate ()
 			{
-				lock (app.SendLock1)
+				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle1(ref Src);
+
+				//Find outer defect            
+				FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+			});
+			//MSER  
+			List<OpenCvSharp.Point[][]> MSER_Big = null;
+			List<OpenCvSharp.Point[][]> MSER_Small = null;
+			Thread t1 = new Thread(delegate ()
+			{
+				My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, out MSER_Big);
+			});
+
+			Thread t2 = new Thread(delegate ()
+			{
+				My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, out MSER_Small);
+			});
+
+			t1.Start();
+			t2.Start();
+			t3.Start();
+			t1.Join();
+			t2.Join();
+			t3.Join();
+
+			//OK or NG
+			if (MSER_Big.Count == 0 && MSER_Small.Count == 0 && nLabels <= 1)//nLabels 1 represent outer defect
+			{
+				//Console.WriteLine("OK");
+				OK_NG_Flag = 0 ;
+			}
+			else
+			{
+				//Console.WriteLine("NG");
+				OK_NG_Flag = 1;
+				// draw outer defect by stats
+				for (int i = 0; i < nLabels; i++)
 				{
-					
-				//======================================				
-				for (int i = 0; i < app.image_number; i++)
-				{//讀幾張圖片				 
-					//=======================讀圖片
-					MemoryStream Ms = new MemoryStream();
-					Cv2.ImEncode(".jpg", Src, out byte[] DATA);
-					Ms.Write(DATA, 0, DATA.Length);
-					Ms.Seek(0, SeekOrigin.Begin);
-					//Console.WriteLine("Memory length"+Ms.Length);
-					//=================================================
-
-					long contentLength = DATA.Length;//圖片有多少個byte
-					//Console.WriteLine("Image byte"+contentLength);
-
-					//傳影像給AI
-					socket1.Send(BitConverter.GetBytes(contentLength));
-
-					//要傳來自第幾站(1)
-					long Image_From = 1;
-
-					//跟AI說是第幾站
-					socket1.Send(BitConverter.GetBytes(Image_From));
-
-					while (true)
+					int area = stats[i, 4];
+					if (area < 200000)
 					{
-						//每次发送128字节
-						byte[] bits = new byte[2048];
-						int r = Ms.Read(bits, 0, bits.Length);
-						if (r <= 0)
-						{
-							Console.WriteLine("Memory read empty");
-							break;
-						}
-						socket1.Send(bits, r, SocketFlags.None);
-						//Console.WriteLine("send");
+						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
 					}
 				}
-				//======================================
-				//Console.WriteLine("SendOver1");
-
-					//socket.Close();
-				}
-			})
-			{ IsBackground = true }.Start();
-
-			new Thread(delegate ()//收已經處理完的圖片
-			{
-				lock (app.ReceiveLock1)
+				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 				{
-					//Console.WriteLine("StartReceive1");
-					for (int i = 0; i < app.image_number; i++)
-					{
-						/********************************************************************************************
-						* Receive 24 bytes a time, the fist 8 bytes represent "the total byte of image",			*
-						* and the following 8 bytes represent "the stop that the image from", the last				*
-						* 8 bytes represent the OK_NG flag. The reason why I receive 24 bytes insteads of			*
-						* receive 8 bytes 3 times is that it is less communication overhead, and it is less likely	*
-						* to loss the message on the internet.														*
-						********************************************************************************************/
-						//==========================================================
-						byte[] recvMessage = new byte[24];
-						socket1.Receive(recvMessage);
-						byte[] slice = new byte[8];
-						slice = recvMessage.Take(8).ToArray();
-						Int64 Recv_Byte = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(8).Take(8).ToArray();
-						Int64 Stop = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(16).Take(8).ToArray();
-						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
-						//==========================================================
-						++Num.TotalNumSave_1;
-						//Console.WriteLine(" ");
-						int Recv_a_time = 2048;
-						double temp = (double)Recv_Byte / (double)Recv_a_time;
-						int times = (int)Math.Ceiling(temp);
-						//Console.WriteLine("times"  + times);
-						int receivecount = 0;
-						MemoryStream ms = new MemoryStream();
-						int temp1 = 0;
-						while (receivecount < times)//收圖片
-						{
-							byte[] recvBuff = new byte[Recv_a_time];
-							int r = socket1.Receive(recvBuff, recvBuff.Length, SocketFlags.None);
-							temp1 += recvBuff.Length;
-							//Console.WriteLine(recvBuff.Length);
-							//Console.WriteLine(temp1 + "-");
-							Int64 Recv_Byte2 = BitConverter.ToInt64(recvBuff, 0);
-							//Console.WriteLine("2");
-							//Console.WriteLine(Recv_Byte2);
-							if (r <= 0)
-							{
-								Console.WriteLine("empty receive c#");
-								break;
-							}
-							ms.Write(recvBuff, 0, r);
-							//Console.WriteLine("3");
-							receivecount += 1;
-							//Console.WriteLine("4");
-						}
-
-						//Dst = Mat.FromStream(ms, ImreadModes.Color);//圖片在這裡
-
-						//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
-						//byte[] OK_NG_Flag_Buf = new byte[8];
-						ImgAI_1.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
-						OutputAI_1.Enqueue(OK_NG_Flag);
-						Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag1: " + OK_NG_Flag + "Stop: " + Stop);
-						//========================================================
-						this.Invoke((EventHandler)delegate
-						{
-							Mat DST = ImgAI_1.Dequeue();
-							app.SavingMode = OK_NG_Flag.ToString();
-							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
-							#region 存圖
-							DoAoi_1(Src, Src, 1, app.SavingMode);
-							#endregion
-
-							#region 輸出結果
-							lock (OutputAI_1)
-							{
-								TestCount_1++;
-								string Result = UpdateResult(OutputAI_1.Dequeue());
-								Value.Result_1.Enqueue(Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_1, Result);
-								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_1, Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_1, TestCount_1.ToString());
-								UpdateLabelDivision(Result, 0);
-								//Work_5_AI();
-							}							
-							#endregion
-
-						});
-
-						ms.Flush();
-						ms.Close();
-						ms.Dispose();
-					}
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
 				}
-			})
-			{ IsBackground = true }.Start();
+				foreach (OpenCvSharp.Point[][] temp in MSER_Small)
+				{
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+				}
+			}
+			//==================================================================
+			watch.Stop();
+
+			//印出時間
+			Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
+			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
+			//byte[] OK_NG_Flag_Buf = new byte[8];
+			ImgAI_1.Enqueue(vis_rgb);
+			OutputAI_1.Enqueue(OK_NG_Flag);
+			//========================================================
+			this.Invoke((EventHandler)delegate
+			{
+				Mat DST = ImgAI_1.Dequeue();
+				app.SavingMode = OK_NG_Flag.ToString();
+				//Thread.Sleep(50);
+				BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
+				#region 存圖
+				DoAoi_1(Src, Src, 1, app.SavingMode);
+				#endregion
+
+				#region 輸出結果
+				lock (OutputAI_1)
+				{
+					TestCount_1++;
+					string Result = UpdateResult(OutputAI_1.Dequeue());
+					Value.Result_1.Enqueue(Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_1, Result);
+					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_1, Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_1, TestCount_1.ToString());
+					UpdateLabelDivision(Result, 0);
+					//Work_5_AI();
+				}							
+				#endregion
+
+			});
+
 		}
 		#endregion
 
+		//mask the inner part of circle 
+		static List<OpenCvSharp.Point[]> Mask_innercicle2(ref Mat img)
+		{
+
+			Mat thresh1 = img.Threshold(230, 255, ThresholdTypes.Binary);
+			OpenCvSharp.Point[][] contours;
+			HierarchyIndex[] hierarchly;
+			Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+			// find final circle 
+			List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
+
+			foreach (OpenCvSharp.Point[] contour_now in contours)
+			{
+				if (Cv2.ContourArea(contour_now) > 1000000 && Cv2.ContourArea(contour_now) < 2500000)
+				{
+					contours_final.Add(contour_now);
+				}
+
+			}
+
+			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
+
+			OpenCvSharp.Point[] contours_approx_innercircle;
+
+			var contour_innercircle = contours_final[1];
+
+			//temp[0] = contour_now;
+
+			Point2f center;
+			float radius;
+			//Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
+			contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
+			Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
+			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius, 255, thickness: -1);
+			//Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
+
+			return contours_final;
+		}
 
 		#region AI 2
-		private void SendAI_2(Mat Src, Mat Dst)
+		private void Stop2_Detector(Mat Src, Mat Dst)
 		{
-			new Thread(delegate ()//傳圖片的thread
+			Int64 OK_NG_Flag = 0;
+			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+			//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
+
+			var watch = new System.Diagnostics.Stopwatch();
+			watch.Start();
+			//==========================algorithm===============================
+
+			//mask the inner part noise of src
+			int nLabels = 0;//number of labels
+			int[,] stats = null;
+			Thread t3 = new Thread(delegate ()
 			{
-				lock (app.SendLock2)
+				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
+
+				//Find outer defect            
+				FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+			});
+			//MSER  
+			//=============difference from stop1
+			Cv2.GaussianBlur(Src,Src,new OpenCvSharp.Size(3,3), 0, 0);
+			//================
+			List<OpenCvSharp.Point[][]> MSER_Big = null;
+			Thread t1 = new Thread(delegate ()
+			{
+				My_MSER(6, 200, 20000, 1, ref Src, ref vis_rgb, 0, out MSER_Big);
+			});
+
+			t1.Start();
+			t3.Start();
+			t1.Join();
+			t3.Join();
+
+			//OK or NG
+			if (MSER_Big.Count == 0 && nLabels <= 1)//nLabels 1 represent outer defect
+			{
+				//Console.WriteLine("OK");
+				OK_NG_Flag = 0;
+			}
+			else
+			{
+				//Console.WriteLine("NG");
+				OK_NG_Flag = 1;
+				// draw outer defect by stats
+				for (int i = 0; i < nLabels; i++)
 				{
-					//======================================
-					for (int i = 0; i < app.image_number; i++)
-					{//讀幾張圖片				 
-					 //=======================讀圖片
-						MemoryStream Ms = new MemoryStream();
-						Cv2.ImEncode(".jpg", Src, out byte[] DATA);
-						Ms.Write(DATA, 0, DATA.Length);
-						Ms.Seek(0, SeekOrigin.Begin);
-						//Console.WriteLine("Memory length"+Ms.Length);
-						//=================================================
-
-						long contentLength = DATA.Length;//圖片有多少個byte
-						//Console.WriteLine("Image byte" + contentLength);
-
-						//傳影像給AI
-						socket2.Send(BitConverter.GetBytes(contentLength));
-
-						//要傳來自第幾站(2)
-						long Image_From = 2;
-
-						//跟AI說是第幾站
-						socket2.Send(BitConverter.GetBytes(Image_From));
-
-						while (true)
-						{
-							//每次发送128字节
-							byte[] bits = new byte[2048];
-							int r = Ms.Read(bits, 0, bits.Length);
-							if (r <= 0)
-							{
-								Console.WriteLine("Memory read empty");
-								break;
-							}
-							socket2.Send(bits, r, SocketFlags.None);
-							//Console.WriteLine("send");
-						}
-					}
-					//======================================
-					//Console.WriteLine("SendOver2");
-				}
-
-
-				//socket.Close();
-			})
-			{ IsBackground = true }.Start();
-
-			new Thread(delegate ()//收已經處理完的圖片
-			{
-			lock (app.ReceiveLock2)
-			{
-				//Console.WriteLine("StartReceive2");
-					for (int i = 0; i < app.image_number; i++)
+					int area = stats[i, 4];
+					if (area < 200000)
 					{
-
-						//==========================================================
-						byte[] recvMessage = new byte[24];
-						socket2.Receive(recvMessage);
-						byte[] slice = new byte[8];
-						slice = recvMessage.Take(8).ToArray();
-						Int64 Recv_Byte = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(8).Take(8).ToArray();
-						Int64 Stop = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(16).Take(8).ToArray();
-						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
-						//==========================================================
-						++Num.TotalNumSave_2;
-						int Recv_a_time = 2048;
-						double temp = (double)Recv_Byte / (double)Recv_a_time;
-						int times = (int)Math.Ceiling(temp);
-						int receivecount = 0;
-						MemoryStream ms = new MemoryStream();
-
-						while (receivecount < times)//收圖片
-						{
-							byte[] recvBuff = new byte[Recv_a_time];
-							int r = socket2.Receive(recvBuff, recvBuff.Length, SocketFlags.None);
-
-							//Console.WriteLine(recvBuff.Length);
-							Int64 Recv_Byte2 = BitConverter.ToInt64(recvBuff, 0);
-							//Console.WriteLine(Recv_Byte2);
-							if (r <= 0)
-							{
-								Console.WriteLine("empty receive c#");
-								break;
-							}
-							ms.Write(recvBuff, 0, r);
-							receivecount += 1;
-						}
-
-						//Dst = Mat.FromStream(ms, ImreadModes.Color);//圖片在這裡
-
-						//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
-						//byte[] OK_NG_Flag_Buf = new byte[8];
-						
-						ImgAI_2.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
-						OutputAI_2.Enqueue(OK_NG_Flag);
-
-						Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag2: " + OK_NG_Flag + "Stop: " + Stop);
-						//========================================================
-						this.Invoke((EventHandler)delegate
-						{
-							Mat DST = ImgAI_2.Dequeue();
-							app.SavingMode = OK_NG_Flag.ToString();
-							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
-							#region 存圖
-							DoAoi_2(Src, Src, 1, app.SavingMode);
-							#endregion
-
-							#region 輸出結果
-							lock (OutputAI_2)
-							{
-								TestCount_2++;
-								string Result = UpdateResult(OutputAI_2.Dequeue());
-								Value.Result_2.Enqueue("OK");//Result
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
-								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
-
-								UpdateLabelDivision(Result, 1);
-								//Work_5_AI();
-							}
-							#endregion
-
-						});
-
-						ms.Flush();
-						ms.Close();
-						ms.Dispose();
+						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
 					}
 				}
-			})
-			{ IsBackground = true }.Start();
+				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
+				{
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+				}
+
+			}
+			//==================================================================
+			watch.Stop();
+
+			//印出時間
+			Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
+			ImgAI_2.Enqueue(vis_rgb);
+			OutputAI_2.Enqueue(OK_NG_Flag);
+
+			//========================================================
+			this.Invoke((EventHandler)delegate
+			{
+				Mat DST = ImgAI_2.Dequeue();
+				app.SavingMode = OK_NG_Flag.ToString();
+				//Thread.Sleep(50);
+				BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
+				#region 存圖
+				DoAoi_2(Src, Src, 1, app.SavingMode);
+				#endregion
+
+				#region 輸出結果
+				lock (OutputAI_2)
+				{
+					TestCount_2++;
+					string Result = UpdateResult(OutputAI_2.Dequeue());
+					Value.Result_2.Enqueue(Result);//Result
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
+					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
+
+					UpdateLabelDivision(Result, 1);
+					//Work_5_AI();
+				}
+				#endregion
+
+			});
+
 		}
 		#endregion
 
@@ -4380,7 +4556,7 @@ namespace CherngerUI
 							{
 								TestCount_3++;
 								string Result = UpdateResult(OutputAI_3.Dequeue());
-								Value.Result_3.Enqueue("OK");
+								Value.Result_3.Enqueue(Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_3, Result);
 								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_3, Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_3, TestCount_3.ToString());
@@ -4523,7 +4699,7 @@ namespace CherngerUI
 							{
 								TestCount_4++;
 								string Result = UpdateResult(OutputAI_4.Dequeue());
-								Value.Result_4.Enqueue("OK");
+								Value.Result_4.Enqueue(Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_4, Result);
 								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_4, Result);
 								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_4, TestCount_4.ToString());//label_test_4

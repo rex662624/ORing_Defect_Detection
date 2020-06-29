@@ -109,8 +109,8 @@ class Stop3Detector():
         for i in range(len(degree_1phase_list)):#第一階段有問題的degree，第二階段看看是不是真的有問題
             degree = degree_1phase_list[i]
             now_value = all_min_list[degree]
-            prev_value = all_min_list[degree-1]
-            next_value = all_min_list[degree+1]
+            prev_value = all_min_list[(degree-1)%720]
+            next_value = all_min_list[(degree+1)%720]
             
             if(abs(float(prev_value)-float(now_value))>threshold_2phase and abs(float(next_value) - float(now_value))>threshold_2phase):
                 cv2.line(backtorgb,(inner_x[degree],inner_y[degree]),(x[degree],y[degree]),255,2)
