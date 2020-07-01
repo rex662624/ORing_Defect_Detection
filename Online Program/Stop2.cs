@@ -14,8 +14,8 @@ namespace Stop2
             //量時間
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "113.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "12.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -25,13 +25,13 @@ namespace Stop2
                 Mat src = Cv2.ImRead(filename, ImreadModes.Grayscale);
 
                 Console.WriteLine(filename);
-                Stop1_Detect(src, fileindex);
+                Stop2_Detector(src, filename.Substring(9));
 
             }
 
             Console.ReadLine();
         }
-        private void Stop2_Detector(Mat Src, Mat Dst)
+        static void Stop2_Detector(Mat Src, string filename)
         {
             Int64 OK_NG_Flag = 0;
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
@@ -58,7 +58,7 @@ namespace Stop2
             List<OpenCvSharp.Point[][]> MSER_Big = null;
             Thread t1 = new Thread(delegate ()
             {
-                My_MSER(6, 200, 20000, 1, ref Src, ref vis_rgb, 0, out MSER_Big);
+                My_MSER(6, 200, 20000, 1, ref Src, ref vis_rgb, 1, out MSER_Big);
             });
 
             t1.Start();
@@ -87,13 +87,13 @@ namespace Stop2
                 }
                 foreach (OpenCvSharp.Point[][] temp in MSER_Big)
                 {
-                    Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                    Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 2);
                 }
 
             }
             //==================================================================
+            vis_rgb.SaveImage("./result/test" + filename);
             watch.Stop();
-
             //印出時間
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 
@@ -201,11 +201,13 @@ namespace Stop2
             foreach (Point[] now_contour in contours)
             {
                 OpenCvSharp.Point[][] temp = new Point[1][];
+                OpenCvSharp.Point[][] add_convex_hull = new Point[1][];//We need to draw the bounding box of the defect, so using convex hull is needed.
 
                 Point[] Convex_hull = Cv2.ConvexHull(now_contour);
                 Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
 
                 // Convex hull
+                add_convex_hull[0] = Convex_hull;
                 temp[0] = Approx;
                 if (big_flag == 0)//small area: local majority vote
                 {
@@ -264,19 +266,19 @@ namespace Stop2
                         continue;
                     else
                         //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                        final_area.Add(temp);
+                        final_area.Add(add_convex_hull);
 
                 }
                 else
                 {
                     //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                    final_area.Add(temp);
+                    final_area.Add(add_convex_hull);
                 }
             }
 
 
         }
-        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, int fileindex, out int[,] stats)
+        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, out int[,] stats)
         {
             // variable
             OpenCvSharp.Point[][] temp = new Point[1][];
