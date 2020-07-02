@@ -35,6 +35,7 @@ namespace CherngerUI
 
         //Mat ReTestSrc = new Mat();
 		DefectSettings DefectUI = new DefectSettings();
+		ImageProcessing_DefectSetting Image_Processing_Defect_Config = new ImageProcessing_DefectSetting();
 		//TimeSpan ProductCounter = new TimeSpan();
 
 		//=========socket===========
@@ -195,6 +196,9 @@ namespace CherngerUI
 			bool.TryParse(SetupIniIP.IniReadValue("OD", "Inspect", CherngerUI.app.DefectSettingpath), out CherngerUI.Value.ODApply);
 			bool.TryParse(SetupIniIP.IniReadValue("ID", "Inspect", CherngerUI.app.DefectSettingpath), out CherngerUI.Value.IDApply);
 
+			//Image Processing Config
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.black_defect_area_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.black_defect_area_max);
 
 			#endregion
 
@@ -1208,7 +1212,10 @@ namespace CherngerUI
 		//瑕疵設定參數按鈕
 		private void InspectSettingBtn_Click(object sender, EventArgs e)
 		{
-			DefectUI.ShowDialog();
+			//原本至右的瑕疵設定
+			//DefectUI.ShowDialog();
+			Image_Processing_Defect_Config.ShowDialog();
+			Console.WriteLine("Config: " + CherngerUI.ImageProcessingDefect_Value.black_defect_area_min+", "+ CherngerUI.ImageProcessingDefect_Value.black_defect_area_max);
 		}
 
 		//重工數量textbox
@@ -4590,6 +4597,7 @@ namespace CherngerUI
 		#region AI 4
 		private void Stop4_Detector(Mat Src, Mat Dst)
 		{
+			
 			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 			int OK_NG_Flag = 0;
 			//==================================================find real oring===============================================
@@ -5067,6 +5075,11 @@ namespace CherngerUI
 	#region 系統參數
 	public class app //global variable在這裡宣告
 	{
+		//===================DefectImageProcessingConfig===================================
+		public static string Image_ProcssingDefect_Config_Initial = System.IO.Directory.GetCurrentDirectory() + @"\config_Initial\Image_ProcssingDefect_Config.ini";//原廠設定
+		public static string Image_ProcssingDefect_Config = System.IO.Directory.GetCurrentDirectory() + @"\config\Image_ProcssingDefect_Config.ini";
+		//=================================================================================
+
 		public const byte MaxCameraCount = 4;                           // 最大攝影機數量
 		public static bool Run = false;                                 // app運作狀態
 		public static int TakePic = 0;                                  // 第一張照片拍照狀態
@@ -5178,7 +5191,16 @@ namespace CherngerUI
 		#endregion
 	}
 	#endregion
+	public class ImageProcessingDefect_Value
+	{
+		//Stop1
+		//Stop2
+		//Stop3
+		//Stop4
+		public static int black_defect_area_min = 0;
+		public static int black_defect_area_max = 0;
 
+	}
 	#region 檢測參數
 	public class Value
 	{
