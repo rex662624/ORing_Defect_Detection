@@ -299,11 +299,13 @@ namespace CherngerUI
 			socket2.Connect(ipep2);
 			socket3.Connect(ipep3);
 			socket4.Connect(ipep4);
-
+			
 			Mat dummy_stop3 = Cv2.ImRead("dummy_stop3_1.jpg", ImreadModes.Grayscale);
+			//Mat dummy_stop2 = Cv2.ImRead("dummy_stop2.jpg", ImreadModes.Grayscale);
 			for (int i = 0; i < 3; i++)
 			{
 				Dummy_Data(dummy_stop3, dummy_stop3,3);
+				//Stop2_Detector(dummy_stop2, dummy_stop2);
 
 			}
 			#endregion
