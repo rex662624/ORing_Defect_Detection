@@ -292,13 +292,38 @@ namespace CherngerUI
 
 			OfflinePathBox.Text = app.OfflineImagePath;
 
-			//Ai 初始化
+			//Ai 初始化 並先用 Dummy Data 傳輸
 
 			#region AI連線
 			socket1.Connect(ipep1);
 			socket2.Connect(ipep2);
 			socket3.Connect(ipep3);
 			socket4.Connect(ipep4);
+
+			Mat dummy_stop3 = Cv2.ImRead("dummy_stop3_1.jpg", ImreadModes.Grayscale);
+			Mat dummy_stop3_2 = Cv2.ImRead("dummy_stop3_2.jpg", ImreadModes.Grayscale);
+			Mat dummy_stop3_3 = Cv2.ImRead("dummy_stop3_3.jpg", ImreadModes.Grayscale);
+			Mat dummy_stop3_4 = Cv2.ImRead("dummy_stop3_4.jpg", ImreadModes.Grayscale);
+			Mat dummy_stop4 = Cv2.ImRead("dummy_stop4.jpg", ImreadModes.Grayscale);
+
+			for (int i = 0; i < 3; i++)
+			{
+				Dummy_Data(dummy_stop3, dummy_stop3,3);
+				Dummy_Data(dummy_stop4, dummy_stop4,4);
+
+				
+				//SendAI_3(dummy_stop3, dummy_stop3);
+				//SendAI_3(dummy_stop3_2, dummy_stop3_2);
+				//SendAI_3(dummy_stop3_3, dummy_stop3_3);
+				//SendAI_3(dummy_stop3_4, dummy_stop3_4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				//SendAI_4(dummy_stop4, dummy_stop4);
+				
+			}
 			#endregion
 
 		}
@@ -2215,7 +2240,7 @@ namespace CherngerUI
 				while (true)
 				{
 					//每次发送128字节
-					byte[] bits = new byte[2048];
+					byte[] bits = new byte[16384];
 					int r = Ms.Read(bits, 0, bits.Length);
 					if (r <= 0)
 					{
@@ -2243,7 +2268,7 @@ namespace CherngerUI
 				Int64 Recv_Byte = BitConverter.ToInt64(recvMessage, 0);
 				Console.WriteLine(Recv_Byte);
 
-				int Recv_a_time = 2048;
+				int Recv_a_time = 16384;
 				double temp = (double)Recv_Byte / (double)Recv_a_time;
 				int times = (int)Math.Ceiling(temp);
 				int receivecount = 0;
@@ -2262,7 +2287,7 @@ namespace CherngerUI
 					if (r <= 0)
 					{
 						Console.WriteLine("empty receive c#");
-						break;
+						continue;
 					}
 					ms.Write(recvBuff, 0, r);
 					receivecount += 1;
@@ -3580,7 +3605,7 @@ namespace CherngerUI
 					while (true)
 					{
 						//每次发送128字节
-						byte[] bits = new byte[2048];
+						byte[] bits = new byte[16384];
 						int r = fs[i].Read(bits, 0, bits.Length);
 						if (r <= 0) break;
 						socket.Send(bits, r, SocketFlags.None);
@@ -3617,7 +3642,7 @@ namespace CherngerUI
 					Int64 Recv_Byte = BitConverter.ToInt64(recvMessage, 0);
 					Console.WriteLine(Recv_Byte);
 
-					int Recv_a_time = 2048;
+					int Recv_a_time = 16384;
 					double temp = (double)Recv_Byte / (double)Recv_a_time;
 					int times = (int)Math.Ceiling(temp);
 					int receivecount = 0;
@@ -3638,7 +3663,7 @@ namespace CherngerUI
 						if (r <= 0)
 						{
 							Console.WriteLine("empty receive c#");
-							break;
+							continue;
 						}
 						ms.Write(recvBuff, 0, r);
 						receivecount += 1;
@@ -4469,7 +4494,7 @@ namespace CherngerUI
 						while (true)
 						{
 							//每次发送128字节
-							byte[] bits = new byte[2048];
+							byte[] bits = new byte[16384];
 							int r = Ms.Read(bits, 0, bits.Length);
 							if (r <= 0)
 							{
@@ -4508,12 +4533,12 @@ namespace CherngerUI
 						//====================================================
 						++Num.TotalNumSave_3;
 
-						int Recv_a_time = 2048;
+						int Recv_a_time = 16384;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
 						int times = (int)Math.Ceiling(temp);
 						int receivecount = 0;
 						MemoryStream ms = new MemoryStream();
-
+						//Console.WriteLine("times::"+times);
 						while (receivecount < times)//收圖片
 						{
 							byte[] recvBuff = new byte[Recv_a_time];
@@ -4525,7 +4550,7 @@ namespace CherngerUI
 							if (r <= 0)
 							{
 								Console.WriteLine("empty receive c#");
-								break;
+								continue;
 							}
 							ms.Write(recvBuff, 0, r);
 							receivecount += 1;
@@ -4535,8 +4560,8 @@ namespace CherngerUI
 
 						//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 						//byte[] OK_NG_Flag_Buf = new byte[8];
-						
-						ImgAI_3.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
+						//ImgAI_3.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
+						ImgAI_3.Enqueue(Mat.FromImageData(ms.ToArray(), ImreadModes.Unchanged));
 						OutputAI_3.Enqueue(OK_NG_Flag);
 
 						Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag3: " + OK_NG_Flag + "Stop: " + Stop);
@@ -4611,7 +4636,7 @@ namespace CherngerUI
 						while (true)
 						{
 							//每次发送128字节
-							byte[] bits = new byte[2048];
+							byte[] bits = new byte[16384];
 							int r = Ms.Read(bits, 0, bits.Length);
 							if (r <= 0)
 							{
@@ -4650,7 +4675,7 @@ namespace CherngerUI
 						//========================================
 						++Num.TotalNumSave_4;
 
-						int Recv_a_time = 2048;
+						int Recv_a_time = 16384;
 						double temp = (double)Recv_Byte / (double)Recv_a_time;
 						int times = (int)Math.Ceiling(temp);
 						int receivecount = 0;
@@ -4667,7 +4692,7 @@ namespace CherngerUI
 							if (r <= 0)
 							{
 								Console.WriteLine("empty receive c#");
-								break;
+								continue;
 							}
 							ms.Write(recvBuff, 0, r);
 							receivecount += 1;
@@ -4677,8 +4702,10 @@ namespace CherngerUI
 
 						//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 						//byte[] OK_NG_Flag_Buf = new byte[8];
-
-						ImgAI_4.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
+						//ms.Position = 0;
+						Mat receive_image = Mat.FromImageData(ms.ToArray(), ImreadModes.Unchanged);
+						ImgAI_4.Enqueue(receive_image);
+						//ImgAI_4.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
 						OutputAI_4.Enqueue(OK_NG_Flag);
 
 						Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag4: " + OK_NG_Flag + "Stop: " + Stop);
@@ -4714,6 +4741,127 @@ namespace CherngerUI
 						ms.Flush();
 						ms.Close();
 						ms.Dispose();
+					}
+				}
+			})
+			{ IsBackground = true }.Start();
+		}
+		#endregion
+
+		#region Dummy_Data
+		private void Dummy_Data(Mat Src, Mat Dst, int Stop)
+		{
+			var sendlock = app.SendLock3;
+			var socket = socket3;
+			var receivelock = app.ReceiveLock3;
+			if (Stop == 3)
+			{
+				sendlock = app.SendLock3;
+				receivelock = app.ReceiveLock3;
+				socket = socket3;
+
+			}
+			else if (Stop == 4)
+			{
+				sendlock = app.SendLock4;
+				receivelock = app.ReceiveLock4;
+				socket = socket4;
+			}
+
+			new Thread(delegate ()//傳圖片的thread
+			{
+				lock (sendlock)
+				{
+					//======================================				
+					for (int i = 0; i < app.image_number; i++)
+					{//讀幾張圖片				 
+					 //=======================讀圖片
+						MemoryStream Ms = new MemoryStream();
+						Cv2.ImEncode(".jpg", Src, out byte[] DATA);
+						Ms.Write(DATA, 0, DATA.Length);
+						Ms.Seek(0, SeekOrigin.Begin);
+						//Console.WriteLine("Memory length"+Ms.Length);
+						//=================================================
+
+						long contentLength = DATA.Length;//圖片有多少個byte
+														 //Console.WriteLine("Image byte" + contentLength);
+
+						//傳影像給AI
+						socket.Send(BitConverter.GetBytes(contentLength));
+
+						//要傳來自第幾站(3)
+						long Image_From = Stop;
+
+						//跟AI說是第幾站
+						socket.Send(BitConverter.GetBytes(Image_From));
+
+						while (true)
+						{
+							//每次发送128字节
+							byte[] bits = new byte[16384];
+							int r = Ms.Read(bits, 0, bits.Length);
+							if (r <= 0)
+							{
+								Console.WriteLine("Memory read empty");
+								break;
+							}
+							socket.Send(bits, r, SocketFlags.None);
+							//Console.WriteLine("send");
+						}
+					}
+					//======================================
+					//Console.WriteLine("SendOver3");
+				}
+
+				//socket.Close();
+			})
+			{ IsBackground = true }.Start();
+
+			new Thread(delegate ()//收已經處理完的圖片
+			{
+				lock (receivelock)
+				{
+					for (int i = 0; i < app.image_number; i++)
+					{
+						//=====================================================
+						byte[] recvMessage = new byte[24];
+						socket.Receive(recvMessage);
+						byte[] slice = new byte[8];
+						slice = recvMessage.Take(8).ToArray();
+						Int64 Recv_Byte = BitConverter.ToInt64(slice, 0);
+						slice = recvMessage.Skip(8).Take(8).ToArray();
+						Int64 Stop_receive = BitConverter.ToInt64(slice, 0);
+						slice = recvMessage.Skip(16).Take(8).ToArray();
+						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
+						//====================================================
+						if (Stop == 3)
+							++Num.TotalNumSave_3;
+						else if (Stop == 4)
+							++Num.TotalNumSave_4;
+
+						int Recv_a_time = 16384;
+						double temp = (double)Recv_Byte / (double)Recv_a_time;
+						int times = (int)Math.Ceiling(temp);
+						int receivecount = 0;
+						MemoryStream ms = new MemoryStream();
+
+						while (receivecount < times)//收圖片
+						{
+							byte[] recvBuff = new byte[Recv_a_time];
+							int r = socket.Receive(recvBuff, recvBuff.Length, SocketFlags.None);
+
+							//Console.WriteLine(recvBuff.Length);
+							Int64 Recv_Byte2 = BitConverter.ToInt64(recvBuff, 0);
+							//Console.WriteLine(Recv_Byte2);
+							if (r <= 0)
+							{
+								Console.WriteLine("empty receive c#");
+								continue;
+							}
+							ms.Write(recvBuff, 0, r);
+							receivecount += 1;
+						}
+
 					}
 				}
 			})
@@ -4761,7 +4909,7 @@ namespace CherngerUI
 					while (true)
 					{
 						//每次发送128字节
-						byte[] bits = new byte[2048];
+						byte[] bits = new byte[16384];
 						int r = Ms.Read(bits, 0, bits.Length);
 						if (r <= 0)
 						{
@@ -4798,7 +4946,7 @@ namespace CherngerUI
 					Int64 Stop = BitConverter.ToInt64(recvMessage, 0);
 					Console.WriteLine(Stop);
 
-					int Recv_a_time = 2048;
+					int Recv_a_time = 16384;
 					double temp = (double)Recv_Byte / (double)Recv_a_time;
 					int times = (int)Math.Ceiling(temp);
 					int receivecount = 0;
@@ -4817,7 +4965,7 @@ namespace CherngerUI
 						if (r <= 0)
 						{
 							Console.WriteLine("empty receive c#");
-							break;
+							continue;
 						}
 						ms.Write(recvBuff, 0, r);
 						receivecount += 1;
@@ -4863,6 +5011,16 @@ namespace CherngerUI
 		}
 
 		private void radioButton5_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+		{
+
+		}
+
+		private void groupBox26_Enter(object sender, EventArgs e)
 		{
 
 		}

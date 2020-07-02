@@ -30,10 +30,10 @@
         {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-			System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-			System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-			System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+			System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+			System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+			System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
 			this.panel1 = new BSE.Windows.Forms.Panel();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.xPanderPanelList1 = new BSE.Windows.Forms.XPanderPanelList();
@@ -411,13 +411,12 @@
 			this.xPanderPanel1.CustomColors.FlatCaptionGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
 			this.xPanderPanel1.CustomColors.FlatCaptionGradientEnd = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(252)))), ((int)(((byte)(252)))));
 			this.xPanderPanel1.CustomColors.InnerBorderColor = System.Drawing.SystemColors.Window;
-			this.xPanderPanel1.Expand = true;
 			this.xPanderPanel1.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
 			this.xPanderPanel1.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.xPanderPanel1.Image = null;
 			this.xPanderPanel1.Name = "xPanderPanel1";
 			this.xPanderPanel1.PanelStyle = BSE.Windows.Forms.PanelStyle.Office2007;
-			this.xPanderPanel1.Size = new System.Drawing.Size(331, 407);
+			this.xPanderPanel1.Size = new System.Drawing.Size(331, 28);
 			this.xPanderPanel1.TabIndex = 0;
 			this.xPanderPanel1.Text = "檢測設定";
 			this.xPanderPanel1.ToolTipTextCloseIcon = null;
@@ -1378,11 +1377,12 @@
 			this.xPanderPanel5.CustomColors.FlatCaptionGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
 			this.xPanderPanel5.CustomColors.FlatCaptionGradientEnd = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(252)))), ((int)(((byte)(252)))));
 			this.xPanderPanel5.CustomColors.InnerBorderColor = System.Drawing.SystemColors.Window;
+			this.xPanderPanel5.Expand = true;
 			this.xPanderPanel5.ForeColor = System.Drawing.SystemColors.ControlText;
 			this.xPanderPanel5.Image = null;
 			this.xPanderPanel5.Name = "xPanderPanel5";
 			this.xPanderPanel5.PanelStyle = BSE.Windows.Forms.PanelStyle.Office2007;
-			this.xPanderPanel5.Size = new System.Drawing.Size(331, 25);
+			this.xPanderPanel5.Size = new System.Drawing.Size(331, 404);
 			this.xPanderPanel5.TabIndex = 4;
 			this.xPanderPanel5.Text = "數據設定";
 			this.xPanderPanel5.ToolTipTextCloseIcon = null;
@@ -1642,6 +1642,7 @@
 			this.groupBox26.TabIndex = 5;
 			this.groupBox26.TabStop = false;
 			this.groupBox26.Text = "最近檢測照片";
+			this.groupBox26.Enter += new System.EventHandler(this.groupBox26_Enter);
 			// 
 			// tableLayoutPanel1
 			// 
@@ -1683,6 +1684,7 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 296F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(171, 318);
 			this.tableLayoutPanel1.TabIndex = 0;
+			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
 			// 
 			// NGBlow
 			// 
@@ -3131,23 +3133,23 @@
 			// 
 			// chart1
 			// 
-			chartArea2.Name = "ChartArea1";
-			this.chart1.ChartAreas.Add(chartArea2);
-			legend2.Name = "Legend1";
-			this.chart1.Legends.Add(legend2);
+			chartArea1.Name = "ChartArea1";
+			this.chart1.ChartAreas.Add(chartArea1);
+			legend1.Name = "Legend1";
+			this.chart1.Legends.Add(legend1);
 			this.chart1.Location = new System.Drawing.Point(13, 34);
 			this.chart1.Name = "chart1";
-			series2.ChartArea = "ChartArea1";
-			series2.Legend = "Legend1";
-			series2.Name = "Series1";
-			this.chart1.Series.Add(series2);
+			series1.ChartArea = "ChartArea1";
+			series1.Legend = "Legend1";
+			series1.Name = "Series1";
+			this.chart1.Series.Add(series1);
 			this.chart1.Size = new System.Drawing.Size(326, 198);
 			this.chart1.TabIndex = 163;
 			this.chart1.Text = "chart1";
-			title2.Alignment = System.Drawing.ContentAlignment.TopLeft;
-			title2.Name = "Title1";
-			title2.Text = "Pcs / 分鐘";
-			this.chart1.Titles.Add(title2);
+			title1.Alignment = System.Drawing.ContentAlignment.TopLeft;
+			title1.Name = "Title1";
+			title1.Text = "Pcs / 分鐘";
+			this.chart1.Titles.Add(title1);
 			// 
 			// groupBox12
 			// 
