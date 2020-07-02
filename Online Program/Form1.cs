@@ -301,28 +301,10 @@ namespace CherngerUI
 			socket4.Connect(ipep4);
 
 			Mat dummy_stop3 = Cv2.ImRead("dummy_stop3_1.jpg", ImreadModes.Grayscale);
-			Mat dummy_stop3_2 = Cv2.ImRead("dummy_stop3_2.jpg", ImreadModes.Grayscale);
-			Mat dummy_stop3_3 = Cv2.ImRead("dummy_stop3_3.jpg", ImreadModes.Grayscale);
-			Mat dummy_stop3_4 = Cv2.ImRead("dummy_stop3_4.jpg", ImreadModes.Grayscale);
-			Mat dummy_stop4 = Cv2.ImRead("dummy_stop4.jpg", ImreadModes.Grayscale);
-
 			for (int i = 0; i < 3; i++)
 			{
 				Dummy_Data(dummy_stop3, dummy_stop3,3);
-				Dummy_Data(dummy_stop4, dummy_stop4,4);
 
-				
-				//SendAI_3(dummy_stop3, dummy_stop3);
-				//SendAI_3(dummy_stop3_2, dummy_stop3_2);
-				//SendAI_3(dummy_stop3_3, dummy_stop3_3);
-				//SendAI_3(dummy_stop3_4, dummy_stop3_4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				//SendAI_4(dummy_stop4, dummy_stop4);
-				
 			}
 			#endregion
 
@@ -399,7 +381,7 @@ namespace CherngerUI
 							SendAI_3(Src, Src);
 							break;
 						case 3:
-							SendAI_4(Src, Src);
+							Stop4_Detector(Src, Src);
 							break;
 						default:
 							MessageBox.Show("錯誤" , "ERROR" , MessageBoxButtons.OK , MessageBoxIcon.Error);
@@ -2819,7 +2801,7 @@ namespace CherngerUI
 						ThreadPool.QueueUserWorkItem((o) => 
 						{
 							DateTime T = DateTime.Now;
-							SendAI_4(Src, Dst);
+							Stop4_Detector(Src, Dst);
 
 							DateTime Now = DateTime.Now;
 							string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
@@ -3875,7 +3857,7 @@ namespace CherngerUI
 				ThreadPool.QueueUserWorkItem((o) =>
 				{
 					DateTime T = DateTime.Now;
-					SendAI_4(Src1, Src1);
+					Stop4_Detector(Src1, Src1);
 					DateTime Now = DateTime.Now;
 					string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
 					Console.WriteLine("[CCD 4]: " + time_consuming + " ms");
@@ -4604,147 +4586,126 @@ namespace CherngerUI
 		#endregion
 
 		#region AI 4
-		private void SendAI_4(Mat Src, Mat Dst)
+		private void Stop4_Detector(Mat Src, Mat Dst)
 		{
-			new Thread(delegate ()//傳圖片的thread
+			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+			int OK_NG_Flag = 0;
+			//==================================================find real oring===============================================
+			OpenCvSharp.Point[][] contours;
+			HierarchyIndex[] hierarchly;
+			Mat thresh1 = Src.Threshold(240, 255, ThresholdTypes.Binary);
+			Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+			// find final circle 
+			List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
+			List<OpenCvSharp.Point[]> approx_list = new List<OpenCvSharp.Point[]>();
+
+			foreach (OpenCvSharp.Point[] contour_now in contours)
 			{
-				lock (app.SendLock4)
+				if (Cv2.ContourArea(contour_now) > 300000 && Cv2.ContourArea(contour_now) < 800000)
 				{
-					//======================================				
-					for (int i = 0; i < app.image_number; i++)
-					{//讀幾張圖片				 
-					 //=======================讀圖片
-						MemoryStream Ms = new MemoryStream();
-						Cv2.ImEncode(".jpg", Src, out byte[] DATA);
-						Ms.Write(DATA, 0, DATA.Length);
-						Ms.Seek(0, SeekOrigin.Begin);
-						//Console.WriteLine("Memory length"+Ms.Length);
-						//=================================================
-
-						long contentLength = DATA.Length;//圖片有多少個byte
-						//Console.WriteLine("Image byte" + contentLength);
-
-						//傳影像給AI
-						socket4.Send(BitConverter.GetBytes(contentLength));
-
-						//要傳來自第幾站(4)
-						long Image_From = 4;
-
-						//跟AI說是第幾站
-						socket4.Send(BitConverter.GetBytes(Image_From));
-
-						while (true)
-						{
-							//每次发送128字节
-							byte[] bits = new byte[16384];
-							int r = Ms.Read(bits, 0, bits.Length);
-							if (r <= 0)
-							{
-								Console.WriteLine("Memory read empty");
-								break;
-							}
-							socket4.Send(bits, r, SocketFlags.None);
-							//Console.WriteLine("send");
-						}
-					}
-					//======================================
-					//Console.WriteLine("SendOver4");
+					contours_final.Add(contour_now);
+					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.5, true);
+					approx_list.Add(approx);
 				}
 
-				//socket.Close();
-			})
-			{ IsBackground = true }.Start();
+			}
+			//==================================================outer cirle - inner circle=====================================
 
-			new Thread(delegate ()//收已經處理完的圖片
+			// variable
+			OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+
+			// inner contour
+			Mat inner_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+			OpenCvSharp.Point[] inner_contour = Cv2.ConvexHull(approx_list[1]);
+			temp[0] = inner_contour;
+			Cv2.DrawContours(inner_contour_img, temp, -1, 255, -1);
+
+			// outer contour
+			Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+			OpenCvSharp.Point[] outer_contour = Cv2.ConvexHull(approx_list[0]);
+			temp[0] = outer_contour;
+			Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+
+
+			//outer contour2 in order to make mask area = 255
+			Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
+			OpenCvSharp.Point[] outer_contour2 = Cv2.ConvexHull(approx_list[0]);
+			temp[0] = outer_contour2;
+			Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
+
+			//outer - inner
+			Mat diff_mask = outer_contour_img - inner_contour_img;
+			Mat diff_mask2 = inner_contour_img + outer_contour_img2;
+
+			Mat image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+			Src.CopyTo(image, diff_mask);
+			//in order to make mask area = 255
+			image = image + diff_mask2;
+
+			//image.SaveImage("./mask.jpg");
+			//================================use threshold to find defect==========================================
+			OpenCvSharp.Point[][] contours2;
+			HierarchyIndex[] hierarchly2;
+			Mat thresh2 = image.Threshold(85, 255, ThresholdTypes.BinaryInv);
+
+			Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
+			thresh2 = thresh2.MorphologyEx(MorphTypes.Dilate, kernel);
+
+			Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+
+
+			foreach (OpenCvSharp.Point[] contour_now in contours2)
 			{
-				lock (app.ReceiveLock4)
+				if (Cv2.ContourArea(contour_now) > 0 && Cv2.ContourArea(contour_now) < 20000)
 				{
-					Console.WriteLine("StartReceive4");
-					for (int i = 0; i < app.image_number; i++)
-					{
-						//========================================
-						byte[] recvMessage = new byte[24];
-						socket4.Receive(recvMessage);
-						byte[] slice = new byte[8];
-						slice = recvMessage.Take(8).ToArray();
-						Int64 Recv_Byte = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(8).Take(8).ToArray();
-						Int64 Stop = BitConverter.ToInt64(slice, 0);
-						slice = recvMessage.Skip(16).Take(8).ToArray();
-						Int64 OK_NG_Flag = BitConverter.ToInt64(slice, 0);
-						//========================================
-						++Num.TotalNumSave_4;
-
-						int Recv_a_time = 16384;
-						double temp = (double)Recv_Byte / (double)Recv_a_time;
-						int times = (int)Math.Ceiling(temp);
-						int receivecount = 0;
-						MemoryStream ms = new MemoryStream();
-
-						while (receivecount < times)//收圖片
-						{
-							byte[] recvBuff = new byte[Recv_a_time];
-							int r = socket4.Receive(recvBuff, recvBuff.Length, SocketFlags.None);
-
-							//Console.WriteLine(recvBuff.Length);
-							Int64 Recv_Byte2 = BitConverter.ToInt64(recvBuff, 0);
-							//Console.WriteLine(Recv_Byte2);
-							if (r <= 0)
-							{
-								Console.WriteLine("empty receive c#");
-								continue;
-							}
-							ms.Write(recvBuff, 0, r);
-							receivecount += 1;
-						}
-
-						//Dst = Mat.FromStream(ms, ImreadModes.Color);//圖片在這裡
-
-						//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
-						//byte[] OK_NG_Flag_Buf = new byte[8];
-						//ms.Position = 0;
-						Mat receive_image = Mat.FromImageData(ms.ToArray(), ImreadModes.Unchanged);
-						ImgAI_4.Enqueue(receive_image);
-						//ImgAI_4.Enqueue(Mat.FromStream(ms, ImreadModes.Grayscale));
-						OutputAI_4.Enqueue(OK_NG_Flag);
-
-						Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag4: " + OK_NG_Flag + "Stop: " + Stop);
-						//========================================================
-						this.Invoke((EventHandler)delegate
-						{
-							Mat DST = ImgAI_4.Dequeue();
-							app.SavingMode = OK_NG_Flag.ToString();
-							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox4.Image = DST.ToBitmap(); }));
-							#region TREX存圖
-							DoAoi_4(Src, Src, 1, app.SavingMode);
-							#endregion
-							#region 輸出結果
-
-
-							lock (OutputAI_4)
-							{
-								TestCount_4++;
-								string Result = UpdateResult(OutputAI_4.Dequeue());
-								Value.Result_4.Enqueue(Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_4, Result);
-								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_4, Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_4, TestCount_4.ToString());//label_test_4
-
-								UpdateLabelDivision(Result, 3);
-								//Work_5_AI();
-							}
-							#endregion
-
-						});
-
-						ms.Flush();
-						ms.Close();
-						ms.Dispose();
-					}
+					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+					temp[0] = approx;
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+					OK_NG_Flag = 1;
 				}
-			})
-			{ IsBackground = true }.Start();
+
+			}
+
+
+			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
+			//byte[] OK_NG_Flag_Buf = new byte[8];
+			//ms.Position = 0;
+			ImgAI_4.Enqueue(vis_rgb);
+			OutputAI_4.Enqueue(OK_NG_Flag);
+			//========================================================
+			this.Invoke((EventHandler)delegate
+			{
+				Mat DST = ImgAI_4.Dequeue();
+				app.SavingMode = OK_NG_Flag.ToString();
+				//Thread.Sleep(50);
+				BeginInvoke(new Action(() => { cherngerPictureBox4.Image = DST.ToBitmap(); }));
+				
+				#region TREX存圖
+				DoAoi_4(Src, Src, 1, app.SavingMode);
+				#endregion
+				#region 輸出結果
+
+
+				lock (OutputAI_4)
+				{
+					TestCount_4++;
+					string Result = UpdateResult(OutputAI_4.Dequeue());
+					Value.Result_4.Enqueue(Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_4, Result);
+					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_4, Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_4, TestCount_4.ToString());//label_test_4
+
+					UpdateLabelDivision(Result, 3);
+					//Work_5_AI();
+				}
+				#endregion
+
+			});
+			
+				
+
 		}
 		#endregion
 
