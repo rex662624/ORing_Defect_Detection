@@ -38,6 +38,12 @@ class Stop3Detector():
         #==========================================find outer circle==============================================
         ret, thresh1 = cv2.threshold(image, 110, 255, cv2.THRESH_BINARY_INV)
 
+        # avoid exception due to index out of range
+        
+        if(len(approx_list)==0):
+            OK_NG_flag = 1
+            return OK_NG_flag, cv2.cvtColor(backtorgb,cv2.COLOR_RGB2GRAY)
+
         c,r = cv2.minEnclosingCircle(approx_list[0])
         r = int(r)
         cx = int(c[0])
@@ -73,7 +79,7 @@ class Stop3Detector():
             
             #============shot from center
             
-        threshold_1phase = 30
+        threshold_1phase = 100
         threshold_2phase = 10
         all_diff_list = []
         all_min_list = []
@@ -95,25 +101,31 @@ class Stop3Detector():
             diff_list = diff_list[1::2]
             
             if(len(peaks)==0 or len(valley)==0 ):#如果沒找到local min 和max
-                cv2.line(backtorgb,(inner_x[degree],inner_y[degree]),(x[degree],y[degree]),255,2)
-                cv2.circle(backtorgb,(x[degree],y[degree]),30, (0,255 ,255), 5)
+                all_diff_list.append(-1)
+                all_min_list.append(-1)
                 continue
                 
             now_diff = max(diff_list)
             all_diff_list.append(now_diff)
             all_min_list.append(min(pass_list[valley]))
             
-            if((min(pass_list[valley])>120 or now_diff<threshold_1phase)): #如果最小的值>120
+            #如果valley pixel>120 或差值<某個值
+            if((min(pass_list[valley])>120 or now_diff<threshold_1phase)): 
                 degree_1phase_list.append(degree)
-            
-        for i in range(len(degree_1phase_list)):#第一階段有問題的degree，第二階段看看是不是真的有問題
+                
+        #第一階段有問題的degree，第二階段看看是不是真的有問題        
+        for i in range(len(degree_1phase_list)):
             degree = degree_1phase_list[i]
-            now_value = all_min_list[degree]
-            prev_value = all_min_list[(degree-1)%720]
-            next_value = all_min_list[(degree+1)%720]
+            now_valley_value = all_min_list[degree]
+            prev_valley_value = all_min_list[(degree+5)%720]
+            next_valley_value = all_min_list[(degree-5)%720]
+
+            now_peak_valley_difference = all_diff_list[degree]
+            prev_peak_valley_difference = all_diff_list[(degree+5)%int(360//degree_delta)]
+            next_peak_valley_difference = all_diff_list[(degree-5)%int(360//degree_delta)]
             
-            if(abs(float(prev_value)-float(now_value))>threshold_2phase and abs(float(next_value) - float(now_value))>threshold_2phase):
-                cv2.line(backtorgb,(inner_x[degree],inner_y[degree]),(x[degree],y[degree]),255,2)
+            if(((float(now_valley_value)-float(prev_valley_value)) + (float(now_valley_value) - float(next_valley_value))>30)
+            and ((float(prev_peak_valley_difference)-float(now_peak_valley_difference))+(float(next_peak_valley_difference)-float(now_peak_valley_difference)))>20):
                 cv2.circle(backtorgb,(x[degree],y[degree]),30, (0,255 ,255), 5)
                 OK_NG_flag = 1
         

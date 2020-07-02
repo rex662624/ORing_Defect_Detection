@@ -28,7 +28,7 @@ WaitLimit = 2.0
 
 #==============================================thread==================================================
 exitFlag = 0
-ReceiveByte_A_Time = 2048
+ReceiveByte_A_Time = 16384
 #image_data =  bytearray()
 
 #=====================Create a TCP/IP socket
@@ -188,7 +188,7 @@ class myThread1 (threading.Thread):
             #print('received "%s"' % (int.from_bytes(data, "little")))
 
             recvByte = int(int.from_bytes(data, "little"))
-            #number_recv = int((int.from_bytes(data, "little"))/2048)+1
+            #number_recv = int((int.from_bytes(data, "little"))/16384)+1
             #print('should recv: ',end = ' ')
             #print(number_recv ,end = ',  Recv:')
             if(Debug_Flag):
@@ -369,7 +369,7 @@ class myThread2 (threading.Thread):
                 #print(Image)
 
                 Accu_Send_Time = 0
-                Send_One_Time  = 2048
+                Send_One_Time  = 16384
 
                 Total_Send_Time = math.ceil(totalbyte/Send_One_Time)
 
@@ -429,6 +429,19 @@ class DetectThread (threading.Thread):
         self.name = name
         self.stop3_detector = Stop3Detector()
         self.stop4_detector = Stop4Detector()
+        image1 = cv2.imread('stop3.jpg', cv2.IMREAD_GRAYSCALE)
+        image2 = cv2.imread('stop4.jpg', cv2.IMREAD_GRAYSCALE)
+        
+        image1 = image1.reshape(image1.shape[0], image1.shape[1], 1)
+        image2 = image2.reshape(image2.shape[0], image2.shape[1], 1)
+
+        for i in range(3):#Modify here
+            
+            result, final_image = self.stop3_detector.detect(image1)
+            result, final_image = self.stop4_detector.detect(image2)
+        
+
+        print('======================dummy data detect complete====================================')
 
     def run(self):
     
