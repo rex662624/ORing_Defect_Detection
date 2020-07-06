@@ -197,8 +197,14 @@ namespace CherngerUI
 			bool.TryParse(SetupIniIP.IniReadValue("ID", "Inspect", CherngerUI.app.DefectSettingpath), out CherngerUI.Value.IDApply);
 
 			//Image Processing Config
-			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.black_defect_area_min);
-			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.black_defect_area_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius);
+			int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius);
+			int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
 
 			#endregion
 
@@ -1066,6 +1072,26 @@ namespace CherngerUI
 					SetupIniIP.IniWriteValue("OD", "Inspect", Value.ODApply.ToString(), app.DefectSettingpath);
 					SetupIniIP.IniWriteValue("ID", "Inspect", Value.IDApply.ToString(), app.DefectSettingpath);
 
+					//Image processing initial value
+					int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius);
+					int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min);
+					int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max);
+					int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius);
+					int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min);
+					int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max);
+					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
+					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
+
+					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop1", "inner_circle_radius", CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+
+					SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop2", "inner_circle_radius", CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+
+					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					#endregion
 
 					MessageBox.Show("已成功還原成出廠數值！", "系統", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1215,7 +1241,6 @@ namespace CherngerUI
 			//原本至右的瑕疵設定
 			//DefectUI.ShowDialog();
 			Image_Processing_Defect_Config.ShowDialog();
-			Console.WriteLine("Config: " + CherngerUI.ImageProcessingDefect_Value.black_defect_area_min+", "+ CherngerUI.ImageProcessingDefect_Value.black_defect_area_max);
 		}
 
 		//重工數量textbox
@@ -5194,11 +5219,19 @@ namespace CherngerUI
 	public class ImageProcessingDefect_Value
 	{
 		//Stop1
+		public static int stop1_inner_circle_radius = 0;
+		public static int stop1_out_defect_size_min = 0;
+		public static int stop1_out_defect_size_max = 20000;
+
 		//Stop2
+		public static int stop2_inner_circle_radius = 0;
+		public static int stop2_out_defect_size_min = 0;
+		public static int stop2_out_defect_size_max = 20000;
 		//Stop3
+
 		//Stop4
-		public static int black_defect_area_min = 0;
-		public static int black_defect_area_max = 0;
+		public static int stop4_black_defect_area_min = 0;
+		public static int stop4_black_defect_area_max = 0;
 
 	}
 	#region 檢測參數
