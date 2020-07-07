@@ -262,7 +262,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-			this.ClientSize = new System.Drawing.Size(605, 939);
+			this.ClientSize = new System.Drawing.Size(605, 953);
 			this.Controls.Add(save_4_stop_config);
 			this.Controls.Add(this.Stop4);
 			this.Controls.Add(this.Stop2);
