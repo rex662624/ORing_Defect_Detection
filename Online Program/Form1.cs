@@ -4177,7 +4177,7 @@ namespace CherngerUI
             //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
             contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
             Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius, 255, thickness: -1);
+            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
             //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
             return contours_final;
@@ -4281,7 +4281,7 @@ namespace CherngerUI
 				for (int i = 0; i < nLabels; i++)
 				{
 					int area = stats[i, 4];
-					if (area < 200000)
+					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min)
 					{
 						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
 					}
@@ -4369,7 +4369,7 @@ namespace CherngerUI
 			//Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
 			contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
 			Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius, 255, thickness: -1);
+			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius), 255, thickness: -1);
 			//Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
 			return contours_final;
@@ -4425,7 +4425,7 @@ namespace CherngerUI
 				for (int i = 0; i < nLabels; i++)
 				{
 					int area = stats[i, 4];
-					if (area < 200000)
+					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
 					{
 						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
 					}
@@ -4693,7 +4693,7 @@ namespace CherngerUI
 
 			foreach (OpenCvSharp.Point[] contour_now in contours2)
 			{
-				if (Cv2.ContourArea(contour_now) > 0 && Cv2.ContourArea(contour_now) < 20000)
+				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min && Cv2.ContourArea(contour_now) < 20000 && Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max)
 				{
 					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
 					temp[0] = approx;
