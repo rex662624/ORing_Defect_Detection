@@ -14,8 +14,8 @@ namespace Stop2
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "11.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "22.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -210,9 +210,9 @@ namespace Stop2
                 // if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
                 RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
                 //Console.WriteLine(rotateRect.Size.Height/ rotateRect.Size.Width);
-                if (Cv2.ContourArea(Approx) < 500 || (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx))<2 || (rotateRect.Size.Height / rotateRect.Size.Width )<0.1|| (rotateRect.Size.Height / rotateRect.Size.Width) > 10)
+                if (Cv2.ContourArea(Approx) < 500 || (rotateRect.Size.Height / rotateRect.Size.Width )<0.1|| (rotateRect.Size.Height / rotateRect.Size.Width) > 10)
                     continue;
-                Console.WriteLine("Width/Height Ratio: "+ rotateRect.Size.Width / rotateRect.Size.Height + " Len/area Ratio: " + (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) + " Area: " + Cv2.ContourArea(Approx));
+                //Console.WriteLine("Width/Height Ratio: "+ rotateRect.Size.Width / rotateRect.Size.Height + " Len/area Ratio: " + (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) + " Area: " + Cv2.ContourArea(Approx));
 
                 //===============================local majority vote===============================
                 // Convex hull
