@@ -200,11 +200,18 @@ namespace CherngerUI
 			int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius);
 			int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min);
 			int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop1", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio);
+
 			int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius);
 			int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min);
 			int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min);
+			int.TryParse(SetupIniIP.IniReadValue("Stop2", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio);
+
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 
 			#endregion
 
@@ -1078,22 +1085,34 @@ namespace CherngerUI
 					int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius);
 					int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min);
 					int.TryParse(SetupIniIP.IniReadValue("Stop1", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max);
+					int.TryParse(SetupIniIP.IniReadValue("Stop1", "inner_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min);
+					int.TryParse(SetupIniIP.IniReadValue("Stop1", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio);
+
 					int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_circle_radius", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius);
 					int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min);
 					int.TryParse(SetupIniIP.IniReadValue("Stop2", "outer_defect_size_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max);
+					int.TryParse(SetupIniIP.IniReadValue("Stop2", "inner_defect_size_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min);
+					int.TryParse(SetupIniIP.IniReadValue("Stop2", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio);
+
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
+					int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 
 					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop1", "inner_circle_radius", CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop1", "inner_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop1", "arclength_area_ratio", CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 
 					SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop2", "inner_circle_radius", CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop2", "inner_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop2", "arclength_area_ratio", CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 
 					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop4", "arclength_area_ratio", CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					#endregion
 
 					MessageBox.Show("已成功還原成出廠數值！", "系統", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -4068,7 +4087,7 @@ namespace CherngerUI
         }
 
         //MyMSER
-        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag,out List<OpenCvSharp.Point[][]> final_area, int vote_threshold = 2,int min_in_area_threshold = 100,int mean_in_area_threshold = 130)
+        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag, int stop,out List<OpenCvSharp.Point[][]> final_area, int vote_threshold = 2,int min_in_area_threshold = 100,int mean_in_area_threshold = 130)
         {
             final_area = new List<OpenCvSharp.Point[][]>();
 			OpenCvSharp.Point[][] contours;
@@ -4096,8 +4115,20 @@ namespace CherngerUI
 				//OpenCvSharp.Point[] Convex_hull = Cv2.ConvexHull(now_contour);
 				OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
 
-                // Convex hull
-                temp[0] = Approx;
+				//===============================threshold for arc length and area===============================
+				// if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
+				RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
+				if(stop==1)
+					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min && (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx))< CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
+						continue;
+				else if(stop==2)
+					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min && (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
+						continue;
+
+				//===============================local majority vote===============================
+
+				// Convex hull
+				temp[0] = Approx;
                 if (big_flag == 0)//small area: local majority vote
                 {
                     //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
@@ -4279,12 +4310,12 @@ namespace CherngerUI
 			List<OpenCvSharp.Point[][]> MSER_Small = null;
 			Thread t1 = new Thread(delegate ()
 			{
-				My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, out MSER_Big);
+				My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
 			});
 
 			Thread t2 = new Thread(delegate ()
 			{
-				My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, out MSER_Small);
+				My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, 1, out MSER_Small);
 			});
 
 			t1.Start();
@@ -4426,7 +4457,7 @@ namespace CherngerUI
 			List<OpenCvSharp.Point[][]> MSER_Big = null;
 			Thread t1 = new Thread(delegate ()
 			{
-				My_MSER(6, 200, 20000, 1.2, ref Src, ref vis_rgb, 0, out MSER_Big,vote_threshold:1, min_in_area_threshold:110, mean_in_area_threshold:130);
+				My_MSER(6, 200, 20000, 1.2, ref Src, ref vis_rgb, 0, 2, out MSER_Big,vote_threshold:1, min_in_area_threshold:110, mean_in_area_threshold:130);
 			});
 
 			t1.Start();
@@ -4714,7 +4745,10 @@ namespace CherngerUI
 
 			foreach (OpenCvSharp.Point[] contour_now in contours2)
 			{
-				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min && Cv2.ContourArea(contour_now) < 20000 && Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max)
+				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min && 
+					Cv2.ContourArea(contour_now) < 20000 && 
+					Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&  
+					(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
 				{
 					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
 					temp[0] = approx;
@@ -5240,16 +5274,21 @@ namespace CherngerUI
 		public static int stop1_inner_circle_radius = 0;
 		public static int stop1_out_defect_size_min = 0;
 		public static int stop1_out_defect_size_max = 20000;
+		public static int stop1_inner_defect_size_min = 500;
+		public static int stop1_arclength_area_ratio = 5;
 
 		//Stop2
 		public static int stop2_inner_circle_radius = 0;
 		public static int stop2_out_defect_size_min = 0;
 		public static int stop2_out_defect_size_max = 20000;
+		public static int stop2_inner_defect_size_min = 500;
+		public static int stop2_arclength_area_ratio = 5;
 		//Stop3
 
 		//Stop4
 		public static int stop4_black_defect_area_min = 0;
 		public static int stop4_black_defect_area_max = 0;
+		public static int stop4_arclength_area_ratio = 5;
 
 	}
 	#region 檢測參數

@@ -24,15 +24,21 @@ namespace UnionAoi
 			Stop1_max_outer_defect.Text = CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max.ToString();
 			Stop1_min_outer_defect.Text = CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min.ToString();
 			Stop1_ignore_inner_circle.Text = CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius.ToString();
+			Stop1_min_inner_defect_size.Text = CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min.ToString();
+			Stop1_arclength_area_ratio.Text = CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio.ToString();
+
 
 			//Stop2
 			Stop2_max_outer_defect.Text = CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max.ToString();
 			Stop2_min_outer_defect.Text = CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min.ToString();
 			Stop2_ignore_inner_circle.Text = CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius.ToString();
-			
+			Stop2_min_inner_defect_size.Text = CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min.ToString();
+			Stop2_arclength_area_ratio.Text = CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio.ToString();
+
 			//Stop4 
 			Stop4_max_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString();
 			Stop4_min_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString();
+			Stop4_arclength_area_ratio.Text = CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio.ToString();
 		}
 
 		private void groupBox1_Enter(object sender, EventArgs e)
@@ -63,6 +69,10 @@ namespace UnionAoi
 				int.TryParse(Stop4_max_area.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
 			}
 
+			if (Stop4_arclength_area_ratio.Text != string.Empty)
+			{
+				int.TryParse(Stop4_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
+			}
 		}
 
 		private void save_4_stop_config_Click(object sender, EventArgs e)
@@ -71,13 +81,19 @@ namespace UnionAoi
 			SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_max", Stop1_max_outer_defect.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_min", Stop1_min_outer_defect.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop1", "inner_circle_radius", Stop1_ignore_inner_circle.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop1", "inner_defect_size_min", Stop1_min_inner_defect_size.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop1", "arclength_area_ratio", Stop1_arclength_area_ratio.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 
 			SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_max", Stop2_max_outer_defect.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop2", "outer_defect_size_min", Stop2_min_outer_defect.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop2", "inner_circle_radius", Stop2_ignore_inner_circle.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop2", "inner_defect_size_min", Stop2_min_inner_defect_size.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop2", "arclength_area_ratio", Stop2_arclength_area_ratio.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+
 
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", Stop4_min_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", Stop4_max_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop4", "arclength_area_ratio", Stop4_arclength_area_ratio.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 		}
 
 		private void label1_Click(object sender, EventArgs e)
@@ -111,6 +127,16 @@ namespace UnionAoi
 			{
 				int.TryParse(Stop2_ignore_inner_circle.Text, out CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius);
 			}
+
+			if (Stop2_min_inner_defect_size.Text != string.Empty)
+			{
+				int.TryParse(Stop2_min_inner_defect_size.Text, out CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min);
+			}
+
+			if (Stop2_arclength_area_ratio.Text != string.Empty)
+			{
+				int.TryParse(Stop2_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio);
+			}
 		}
 
 		private void Stop1_checkbox_CheckedChanged(object sender, EventArgs e)
@@ -128,6 +154,16 @@ namespace UnionAoi
 			if (Stop1_ignore_inner_circle.Text != string.Empty)
 			{
 				int.TryParse(Stop1_ignore_inner_circle.Text, out CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius);
+			}
+
+			if (Stop1_min_inner_defect_size.Text != string.Empty)
+			{
+				int.TryParse(Stop1_min_inner_defect_size.Text, out CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min);
+			}
+
+			if (Stop1_arclength_area_ratio.Text != string.Empty)
+			{
+				int.TryParse(Stop1_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio);
 			}
 		}
 	}
