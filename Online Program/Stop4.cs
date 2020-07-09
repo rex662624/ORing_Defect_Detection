@@ -15,7 +15,7 @@ namespace Stop4
 
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images", "2.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images", "8.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -78,22 +78,22 @@ namespace Stop4
             Point[] outer_contour = Cv2.ConvexHull(approx_list[0]);
             temp[0] = outer_contour;*/
             //=======================circle ignore=========================
+            double ignore_radius = 10;
             Point2f center;
             float radius;
 
             Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
             temp[0] = Approx;
             Cv2.MinEnclosingCircle(Approx, out center, out radius);
-            Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius-10),255, thickness: -1);
-
+            Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius- ignore_radius),255, thickness: -1);
+            Cv2.Circle(vis_rgb, (OpenCvSharp.Point)center, (int)(radius - ignore_radius), new Scalar(255, 0, 0), thickness: 1);
             //Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
-
             
+
+
             //outer contour2 in order to make mask area = 255
             Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
-            Point[] outer_contour2 = Cv2.ConvexHull(approx_list[0]);
-            temp[0] = outer_contour2;
-            Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
+            Cv2.Circle(outer_contour_img2, (OpenCvSharp.Point)center, (int)(radius - ignore_radius), 0, thickness: -1);
 
             //outer - inner
             Mat diff_mask = outer_contour_img - inner_contour_img;
