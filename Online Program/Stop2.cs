@@ -15,7 +15,7 @@ namespace Stop2
 
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "12.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "10.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -58,7 +58,7 @@ namespace Stop2
             List<OpenCvSharp.Point[][]> MSER_Big = null;
             Thread t1 = new Thread(delegate ()
             {
-                My_MSER(6, 200, 20000, 1, ref Src, ref vis_rgb, 1, out MSER_Big);
+                My_MSER(6, 200, 20000, 1.2, ref Src, ref vis_rgb, 0, out MSER_Big);
             });
 
             t1.Start();
@@ -206,6 +206,15 @@ namespace Stop2
                 Point[] Convex_hull = Cv2.ConvexHull(now_contour);
                 Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
 
+                //===============================threshold for arc length and area===============================
+                // if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
+                RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
+                Console.WriteLine(rotateRect.Size.Height);
+                if (Cv2.ContourArea(Approx) < 500)
+                    continue;
+                Console.WriteLine("Ratio: " + (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) + " Area: " + Cv2.ContourArea(Approx));
+                
+                //===============================local majority vote===============================
                 // Convex hull
                 add_convex_hull[0] = Convex_hull;
                 temp[0] = Approx;
@@ -262,7 +271,7 @@ namespace Stop2
                         if (mean_in_area > mean_neighbor[i])
                             vote++;
                     }
-                    if (vote > 2 || min_in_area > 100 || mean_in_area > 130)
+                    if (vote > 1 || min_in_area > 110 || mean_in_area > 130)
                         continue;
                     else
                         //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
