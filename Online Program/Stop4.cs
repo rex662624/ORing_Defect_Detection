@@ -14,8 +14,8 @@ namespace Stop4
             //量時間
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images", "2.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images", "2.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -74,9 +74,19 @@ namespace Stop4
 
             // outer contour
             Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+            /*
             Point[] outer_contour = Cv2.ConvexHull(approx_list[0]);
-            temp[0] = outer_contour;
-            Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+            temp[0] = outer_contour;*/
+            //=======================circle ignore=========================
+            Point2f center;
+            float radius;
+
+            Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
+            temp[0] = Approx;
+            Cv2.MinEnclosingCircle(Approx, out center, out radius);
+            Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius-10),255, thickness: -1);
+
+            //Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
 
             
             //outer contour2 in order to make mask area = 255
@@ -95,6 +105,7 @@ namespace Stop4
             image = image + diff_mask2;
 
             //image.SaveImage("./mask.jpg");
+
             //================================use threshold to find defect==========================================
             Point[][] contours2;
             HierarchyIndex[] hierarchly2;
