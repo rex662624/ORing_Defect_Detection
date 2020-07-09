@@ -58,6 +58,8 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.Stop4_min_area = new System.Windows.Forms.TextBox();
 			this.Stop4_max_area = new System.Windows.Forms.TextBox();
+			this.label11 = new System.Windows.Forms.Label();
+			this.stop4_ignore_radius = new System.Windows.Forms.TextBox();
 			save_4_stop_config = new System.Windows.Forms.Button();
 			this.Stop1.SuspendLayout();
 			this.Stop2.SuspendLayout();
@@ -293,8 +295,10 @@
 			// 
 			// Stop4
 			// 
+			this.Stop4.Controls.Add(this.label11);
 			this.Stop4.Controls.Add(this.label10);
 			this.Stop4.Controls.Add(this.Stop4_checkbox);
+			this.Stop4.Controls.Add(this.stop4_ignore_radius);
 			this.Stop4.Controls.Add(this.Stop4_arclength_area_ratio);
 			this.Stop4.Controls.Add(this.label1);
 			this.Stop4.Controls.Add(this.Stop4_min_area);
@@ -362,6 +366,23 @@
 			this.Stop4_max_area.TabIndex = 0;
 			this.Stop4_max_area.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
 			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label11.Location = new System.Drawing.Point(10, 187);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(114, 21);
+			this.label11.TabIndex = 23;
+			this.label11.Text = "忽略內圈面積: ";
+			// 
+			// stop4_ignore_radius
+			// 
+			this.stop4_ignore_radius.Location = new System.Drawing.Point(134, 179);
+			this.stop4_ignore_radius.Name = "stop4_ignore_radius";
+			this.stop4_ignore_radius.Size = new System.Drawing.Size(100, 35);
+			this.stop4_ignore_radius.TabIndex = 22;
+			// 
 			// ImageProcessing_DefectSetting
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -416,5 +437,7 @@
 		private System.Windows.Forms.TextBox Stop2_min_inner_defect_size;
 		private System.Windows.Forms.Label label10;
 		private System.Windows.Forms.TextBox Stop4_arclength_area_ratio;
+		private System.Windows.Forms.Label label11;
+		private System.Windows.Forms.TextBox stop4_ignore_radius;
 	}
 }

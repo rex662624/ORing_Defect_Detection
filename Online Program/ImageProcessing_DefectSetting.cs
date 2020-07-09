@@ -39,6 +39,7 @@ namespace UnionAoi
 			Stop4_max_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString();
 			Stop4_min_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString();
 			Stop4_arclength_area_ratio.Text = CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio.ToString();
+			stop4_ignore_radius.Text = CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius.ToString();
 		}
 
 		private void groupBox1_Enter(object sender, EventArgs e)
@@ -73,6 +74,11 @@ namespace UnionAoi
 			{
 				int.TryParse(Stop4_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 			}
+
+			if (stop4_ignore_radius.Text != string.Empty)
+			{
+				int.TryParse(stop4_ignore_radius.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
+			}
 		}
 
 		private void save_4_stop_config_Click(object sender, EventArgs e)
@@ -94,6 +100,7 @@ namespace UnionAoi
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", Stop4_min_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", Stop4_max_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop4", "arclength_area_ratio", Stop4_arclength_area_ratio.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop4", "ignore_radius", stop4_ignore_radius.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 		}
 
 		private void label1_Click(object sender, EventArgs e)

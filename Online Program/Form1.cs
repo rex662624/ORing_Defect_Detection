@@ -212,7 +212,8 @@ namespace CherngerUI
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
-
+			int.TryParse(SetupIniIP.IniReadValue("Stop4", "ignore_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
+			
 			#endregion
 
 			#region Smart Key
@@ -318,11 +319,13 @@ namespace CherngerUI
 			socket4.Connect(ipep4);
 			
 			Mat dummy_stop3 = Cv2.ImRead("dummy_stop3_1.jpg", ImreadModes.Grayscale);
+			Mat stop4_image = Cv2.ImRead("dummy_stop4.jpg", ImreadModes.Grayscale);
 			//Mat dummy_stop2 = Cv2.ImRead("dummy_stop2.jpg", ImreadModes.Grayscale);
 			for (int i = 0; i < 2; i++)
 			{
 				Dummy_Data(dummy_stop3, dummy_stop3,3);
 				//Stop2_Detector(dummy_stop2, dummy_stop2);
+				Stop4_Detector(stop4_image, stop4_image);
 
 			}
 			
@@ -1097,6 +1100,7 @@ namespace CherngerUI
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
+					int.TryParse(SetupIniIP.IniReadValue("Stop4", "ignore_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
 
 					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_min", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
@@ -1113,6 +1117,8 @@ namespace CherngerUI
 					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
 					SetupIniIP.IniWriteValue("Stop4", "arclength_area_ratio", CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+					SetupIniIP.IniWriteValue("Stop4", "ignore_radius", CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
+
 					#endregion
 
 					MessageBox.Show("已成功還原成出廠數值！", "系統", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -4710,10 +4716,13 @@ namespace CherngerUI
 
 			// outer contour
 			Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			OpenCvSharp.Point[] outer_contour = Cv2.ConvexHull(approx_list[0]);
-			temp[0] = outer_contour;
-			Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+			Point2f center;
+			float radius;
 
+			OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
+			temp[0] = Approx;
+			Cv2.MinEnclosingCircle(Approx, out center, out radius);
+			Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius - CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius), 255, thickness: -1);
 
 			//outer contour2 in order to make mask area = 255
 			Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
@@ -5286,9 +5295,10 @@ namespace CherngerUI
 		//Stop3
 
 		//Stop4
-		public static int stop4_black_defect_area_min = 0;
-		public static int stop4_black_defect_area_max = 0;
+		public static int stop4_black_defect_area_min = 250;
+		public static int stop4_black_defect_area_max = 20000;
 		public static int stop4_arclength_area_ratio = 5;
+		public static int stop4_ignore_radius = 10;
 
 	}
 	#region 檢測參數
@@ -5301,7 +5311,7 @@ namespace CherngerUI
 		public static Queue<string> Result_2 = new Queue<string>();                         //第二站結果序列
 		public static Queue<string> Result_3 = new Queue<string>();                         //第三站結果序列
 		public static Queue<string> Result_4 = new Queue<string>();                         //第四站結果序列
-
+		 
 		public static Queue<List<string>> NgType_1 = new Queue<List<string>>();
 		public static Queue<List<string>> NgType_2 = new Queue<List<string>>();
 		public static Queue<List<string>> NgType_3 = new Queue<List<string>>();
