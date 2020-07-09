@@ -14,8 +14,8 @@ namespace Stop4
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\", "3.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images", "2.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -28,14 +28,14 @@ namespace Stop4
 
                 var watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
-                Stop4_Detect(Src, fileindex);
+                Stop4_Detect(Src, fileindex, filename.Substring(9));
                 watch.Stop();
                 Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
             }
 
             Console.ReadLine();
         }
-        static void Stop4_Detect(Mat Src, int fileindex)
+        static void Stop4_Detect(Mat Src, int fileindex, string filename)
         {
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 
@@ -109,15 +109,23 @@ namespace Stop4
 
             foreach (Point[] contour_now in contours2)
             {
-                if (Cv2.ContourArea(contour_now) > 0 && Cv2.ContourArea(contour_now) < 20000)
+                /*
+                if (Cv2.ContourArea(contour_now) > 500 && 
+                    Cv2.ContourArea(contour_now) < 20000 &&
+                    (Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) <10)
+                */
+                if (Cv2.ContourArea(contour_now) > 250 && Cv2.ContourArea(contour_now) < 20000)
                 {
+                    
                     Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+                    Console.WriteLine("arc length/area: " + (Cv2.ArcLength(approx, true) / Cv2.ContourArea(approx)) + " Area: " + Cv2.ContourArea(approx));
                     temp[0] = approx;
                     Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
                 }
 
             }
             //vis_rgb.SaveImage("./result.jpg");
+            vis_rgb.SaveImage("./result/test" + filename);
         }
     }
 }
