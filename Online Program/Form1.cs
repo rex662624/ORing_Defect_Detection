@@ -4119,10 +4119,10 @@ namespace CherngerUI
 				// if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
 				RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
 				if(stop==1)
-					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min && (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx))< CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
+					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
 						continue;
 				else if(stop==2)
-					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min && (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
+					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
 						continue;
 
 				//===============================local majority vote===============================
@@ -4457,7 +4457,7 @@ namespace CherngerUI
 			List<OpenCvSharp.Point[][]> MSER_Big = null;
 			Thread t1 = new Thread(delegate ()
 			{
-				My_MSER(6, 200, 20000, 1.2, ref Src, ref vis_rgb, 0, 2, out MSER_Big,vote_threshold:1, min_in_area_threshold:110, mean_in_area_threshold:130);
+				My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big,vote_threshold:1, min_in_area_threshold:110, mean_in_area_threshold:130);
 			});
 
 			t1.Start();
@@ -4748,7 +4748,7 @@ namespace CherngerUI
 				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min && 
 					Cv2.ContourArea(contour_now) < 20000 && 
 					Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&  
-					(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
+					(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio)
 				{
 					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
 					temp[0] = approx;
@@ -5275,14 +5275,14 @@ namespace CherngerUI
 		public static int stop1_out_defect_size_min = 0;
 		public static int stop1_out_defect_size_max = 20000;
 		public static int stop1_inner_defect_size_min = 500;
-		public static int stop1_arclength_area_ratio = 5;
+		public static int stop1_arclength_area_ratio = 10;
 
 		//Stop2
 		public static int stop2_inner_circle_radius = 0;
 		public static int stop2_out_defect_size_min = 0;
 		public static int stop2_out_defect_size_max = 20000;
 		public static int stop2_inner_defect_size_min = 500;
-		public static int stop2_arclength_area_ratio = 5;
+		public static int stop2_arclength_area_ratio = 10;
 		//Stop3
 
 		//Stop4

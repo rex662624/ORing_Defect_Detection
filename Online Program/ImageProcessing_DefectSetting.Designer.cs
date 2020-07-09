@@ -30,6 +30,10 @@
 		{
 			System.Windows.Forms.Button save_4_stop_config;
 			this.Stop1 = new System.Windows.Forms.GroupBox();
+			this.label7 = new System.Windows.Forms.Label();
+			this.Stop1_arclength_area_ratio = new System.Windows.Forms.TextBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.Stop1_min_inner_defect_size = new System.Windows.Forms.TextBox();
 			this.label4 = new System.Windows.Forms.Label();
 			this.Stop1_checkbox = new System.Windows.Forms.CheckBox();
 			this.Stop1_ignore_inner_circle = new System.Windows.Forms.TextBox();
@@ -37,27 +41,23 @@
 			this.Stop1_max_outer_defect = new System.Windows.Forms.TextBox();
 			this.Stop1_min_outer_defect = new System.Windows.Forms.TextBox();
 			this.Stop2 = new System.Windows.Forms.GroupBox();
+			this.label8 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
+			this.Stop2_arclength_area_ratio = new System.Windows.Forms.TextBox();
+			this.label9 = new System.Windows.Forms.Label();
 			this.Stop2_ignore_inner_circle = new System.Windows.Forms.TextBox();
+			this.Stop2_min_inner_defect_size = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.Stop2_min_outer_defect = new System.Windows.Forms.TextBox();
 			this.Stop2_checkbox = new System.Windows.Forms.CheckBox();
 			this.Stop2_max_outer_defect = new System.Windows.Forms.TextBox();
 			this.Stop4 = new System.Windows.Forms.GroupBox();
+			this.label10 = new System.Windows.Forms.Label();
 			this.Stop4_checkbox = new System.Windows.Forms.CheckBox();
+			this.Stop4_arclength_area_ratio = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.Stop4_min_area = new System.Windows.Forms.TextBox();
 			this.Stop4_max_area = new System.Windows.Forms.TextBox();
-			this.label6 = new System.Windows.Forms.Label();
-			this.Stop1_min_inner_defect_size = new System.Windows.Forms.TextBox();
-			this.label7 = new System.Windows.Forms.Label();
-			this.Stop1_arclength_area_ratio = new System.Windows.Forms.TextBox();
-			this.label8 = new System.Windows.Forms.Label();
-			this.Stop2_arclength_area_ratio = new System.Windows.Forms.TextBox();
-			this.label9 = new System.Windows.Forms.Label();
-			this.Stop2_min_inner_defect_size = new System.Windows.Forms.TextBox();
-			this.label10 = new System.Windows.Forms.Label();
-			this.Stop4_arclength_area_ratio = new System.Windows.Forms.TextBox();
 			save_4_stop_config = new System.Windows.Forms.Button();
 			this.Stop1.SuspendLayout();
 			this.Stop2.SuspendLayout();
@@ -95,6 +95,40 @@
 			this.Stop1.TabIndex = 1;
 			this.Stop1.TabStop = false;
 			this.Stop1.Text = "第一站";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label7.Location = new System.Drawing.Point(266, 193);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(70, 21);
+			this.label7.TabIndex = 21;
+			this.label7.Text = "長寬比>";
+			// 
+			// Stop1_arclength_area_ratio
+			// 
+			this.Stop1_arclength_area_ratio.Location = new System.Drawing.Point(342, 185);
+			this.Stop1_arclength_area_ratio.Name = "Stop1_arclength_area_ratio";
+			this.Stop1_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
+			this.Stop1_arclength_area_ratio.TabIndex = 20;
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label6.Location = new System.Drawing.Point(10, 193);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(118, 21);
+			this.label6.TabIndex = 19;
+			this.label6.Text = "圓上瑕疵面積>";
+			// 
+			// Stop1_min_inner_defect_size
+			// 
+			this.Stop1_min_inner_defect_size.Location = new System.Drawing.Point(134, 185);
+			this.Stop1_min_inner_defect_size.Name = "Stop1_min_inner_defect_size";
+			this.Stop1_min_inner_defect_size.Size = new System.Drawing.Size(100, 35);
+			this.Stop1_min_inner_defect_size.TabIndex = 18;
 			// 
 			// label4
 			// 
@@ -169,6 +203,16 @@
 			this.Stop2.Text = "第二站";
 			this.Stop2.Enter += new System.EventHandler(this.groupBox1_Enter);
 			// 
+			// label8
+			// 
+			this.label8.AutoSize = true;
+			this.label8.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label8.Location = new System.Drawing.Point(266, 192);
+			this.label8.Name = "label8";
+			this.label8.Size = new System.Drawing.Size(70, 21);
+			this.label8.TabIndex = 25;
+			this.label8.Text = "長寬比>";
+			// 
 			// label3
 			// 
 			this.label3.AutoSize = true;
@@ -180,6 +224,23 @@
 			this.label3.Text = "忽略內圈面積: ";
 			this.label3.Click += new System.EventHandler(this.label3_Click);
 			// 
+			// Stop2_arclength_area_ratio
+			// 
+			this.Stop2_arclength_area_ratio.Location = new System.Drawing.Point(342, 184);
+			this.Stop2_arclength_area_ratio.Name = "Stop2_arclength_area_ratio";
+			this.Stop2_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
+			this.Stop2_arclength_area_ratio.TabIndex = 24;
+			// 
+			// label9
+			// 
+			this.label9.AutoSize = true;
+			this.label9.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label9.Location = new System.Drawing.Point(10, 192);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(118, 21);
+			this.label9.TabIndex = 23;
+			this.label9.Text = "圓上瑕疵面積>";
+			// 
 			// Stop2_ignore_inner_circle
 			// 
 			this.Stop2_ignore_inner_circle.Location = new System.Drawing.Point(134, 108);
@@ -187,6 +248,13 @@
 			this.Stop2_ignore_inner_circle.Size = new System.Drawing.Size(100, 35);
 			this.Stop2_ignore_inner_circle.TabIndex = 11;
 			this.Stop2_ignore_inner_circle.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+			// 
+			// Stop2_min_inner_defect_size
+			// 
+			this.Stop2_min_inner_defect_size.Location = new System.Drawing.Point(134, 184);
+			this.Stop2_min_inner_defect_size.Name = "Stop2_min_inner_defect_size";
+			this.Stop2_min_inner_defect_size.Size = new System.Drawing.Size(100, 35);
+			this.Stop2_min_inner_defect_size.TabIndex = 22;
 			// 
 			// label2
 			// 
@@ -239,6 +307,16 @@
 			this.Stop4.TabStop = false;
 			this.Stop4.Text = "第四站";
 			// 
+			// label10
+			// 
+			this.label10.AutoSize = true;
+			this.label10.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label10.Location = new System.Drawing.Point(10, 127);
+			this.label10.Name = "label10";
+			this.label10.Size = new System.Drawing.Size(157, 21);
+			this.label10.TabIndex = 27;
+			this.label10.Text = "瑕疵周長/瑕疵面積>";
+			// 
 			// Stop4_checkbox
 			// 
 			this.Stop4_checkbox.AutoSize = true;
@@ -249,6 +327,13 @@
 			this.Stop4_checkbox.Text = "套用";
 			this.Stop4_checkbox.UseVisualStyleBackColor = true;
 			this.Stop4_checkbox.CheckedChanged += new System.EventHandler(this.ODApplyBtn_CheckedChanged);
+			// 
+			// Stop4_arclength_area_ratio
+			// 
+			this.Stop4_arclength_area_ratio.Location = new System.Drawing.Point(173, 119);
+			this.Stop4_arclength_area_ratio.Name = "Stop4_arclength_area_ratio";
+			this.Stop4_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
+			this.Stop4_arclength_area_ratio.TabIndex = 26;
 			// 
 			// label1
 			// 
@@ -276,91 +361,6 @@
 			this.Stop4_max_area.Size = new System.Drawing.Size(100, 35);
 			this.Stop4_max_area.TabIndex = 0;
 			this.Stop4_max_area.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label6.Location = new System.Drawing.Point(10, 193);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(118, 21);
-			this.label6.TabIndex = 19;
-			this.label6.Text = "圓上瑕疵面積>";
-			// 
-			// Stop1_min_inner_defect_size
-			// 
-			this.Stop1_min_inner_defect_size.Location = new System.Drawing.Point(134, 185);
-			this.Stop1_min_inner_defect_size.Name = "Stop1_min_inner_defect_size";
-			this.Stop1_min_inner_defect_size.Size = new System.Drawing.Size(100, 35);
-			this.Stop1_min_inner_defect_size.TabIndex = 18;
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label7.Location = new System.Drawing.Point(266, 193);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(157, 21);
-			this.label7.TabIndex = 21;
-			this.label7.Text = "瑕疵周長/瑕疵面積>";
-			// 
-			// Stop1_arclength_area_ratio
-			// 
-			this.Stop1_arclength_area_ratio.Location = new System.Drawing.Point(429, 185);
-			this.Stop1_arclength_area_ratio.Name = "Stop1_arclength_area_ratio";
-			this.Stop1_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
-			this.Stop1_arclength_area_ratio.TabIndex = 20;
-			// 
-			// label8
-			// 
-			this.label8.AutoSize = true;
-			this.label8.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label8.Location = new System.Drawing.Point(266, 192);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(157, 21);
-			this.label8.TabIndex = 25;
-			this.label8.Text = "瑕疵周長/瑕疵面積>";
-			// 
-			// Stop2_arclength_area_ratio
-			// 
-			this.Stop2_arclength_area_ratio.Location = new System.Drawing.Point(429, 184);
-			this.Stop2_arclength_area_ratio.Name = "Stop2_arclength_area_ratio";
-			this.Stop2_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
-			this.Stop2_arclength_area_ratio.TabIndex = 24;
-			// 
-			// label9
-			// 
-			this.label9.AutoSize = true;
-			this.label9.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label9.Location = new System.Drawing.Point(10, 192);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(118, 21);
-			this.label9.TabIndex = 23;
-			this.label9.Text = "圓上瑕疵面積>";
-			// 
-			// Stop2_min_inner_defect_size
-			// 
-			this.Stop2_min_inner_defect_size.Location = new System.Drawing.Point(134, 184);
-			this.Stop2_min_inner_defect_size.Name = "Stop2_min_inner_defect_size";
-			this.Stop2_min_inner_defect_size.Size = new System.Drawing.Size(100, 35);
-			this.Stop2_min_inner_defect_size.TabIndex = 22;
-			// 
-			// label10
-			// 
-			this.label10.AutoSize = true;
-			this.label10.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label10.Location = new System.Drawing.Point(10, 127);
-			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(157, 21);
-			this.label10.TabIndex = 27;
-			this.label10.Text = "瑕疵周長/瑕疵面積>";
-			// 
-			// Stop4_arclength_area_ratio
-			// 
-			this.Stop4_arclength_area_ratio.Location = new System.Drawing.Point(173, 119);
-			this.Stop4_arclength_area_ratio.Name = "Stop4_arclength_area_ratio";
-			this.Stop4_arclength_area_ratio.Size = new System.Drawing.Size(100, 35);
-			this.Stop4_arclength_area_ratio.TabIndex = 26;
 			// 
 			// ImageProcessing_DefectSetting
 			// 
