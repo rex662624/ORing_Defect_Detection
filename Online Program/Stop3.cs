@@ -18,8 +18,8 @@ namespace Stop3
             watch.Start();
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "100.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "33.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -43,11 +43,11 @@ namespace Stop3
             //============================threshold===================
             Int64 OK_NG_Flag = 0;
             //=========================================================
-            int threshold_1phase = 100;
-            int threshold_2phase_1 = 35;//30
-            int threshold_2phase_2 = 10;//20
-            int blur_size = 5;
-            int neighbor_degree = 5;
+            int threshold_1phase = 120;
+            int threshold_2phase_1 = 45;//30
+            int threshold_2phase_2 = 30;//20
+            int blur_size = 3;
+            int neighbor_degree = 15;
 
             //==========================algorithm====================
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
@@ -119,7 +119,7 @@ namespace Stop3
                 int now_inner_x = (int)((r - 30) * Math.Sin(degree_real * factor)) + cx;
                 int now_inner_y = (int)((r - 30) * Math.Cos(degree_real * factor)) + cy;
 
-                inner_index.Add(new Point(now_inner_x,now_inner_y));
+                inner_index.Add(new Point(now_inner_x, now_inner_y));
                 outer_index.Add(new Point(now_x, now_y));
             }
             //==========================shot from center=========================================
@@ -130,60 +130,74 @@ namespace Stop3
             List<byte> value = new List<byte>();
             for (int degree = 0; degree < (360 / degree_delta); degree++)
             {
+                double a = 0;
 
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter("C:\\Users\\Chernger\\Desktop\\plot_data\\raw_data\\" + degree + ".txt", false))
+                LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
+                foreach (var lip in Line)
                 {
-                    LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
-                    foreach (var lip in Line)
-                    {
-                        value.Add(lip.GetValue<byte>());
-                        file.WriteLine(lip.GetValue<byte>());
-                    }
-                    file.WriteLine("-1");
-                    int peak = 255;
-                    int valley = 0;
-                    int peak_index = 0;
-                    int valley_index = 0;
-
-                    for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
-                    {
-                        if (value[pts_index] > 250)
-                            continue;
-                        if (value[pts_index] >= value[pts_index - 1] && value[pts_index] >= value[pts_index + 1] && peak == 255)
-                        {
-                            peak = value[pts_index];
-                            peak_index = pts_index;
-                        }
-                        else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley == 0)
-                        {
-                            valley = value[pts_index];
-                            valley_index = pts_index;
-                        }
-
-                    }
-                    all_peak_list.Add(peak);
-                    all_valley_list.Add(valley);
-                    all_diff_list.Add(peak - valley);
-                    //phase1
-                    if (valley > 120 || peak - valley < threshold_1phase)
-                    {
-                        Candidate_1_phase_index.Add(degree);
-                    }
-                    file.WriteLine(peak);
-                    file.WriteLine(peak_index);
-                    file.WriteLine(valley);
-                    file.WriteLine(valley_index);
-                    //Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
-                    value.Clear();
+                    value.Add(lip.GetValue<byte>());
                 }
+
+                int peak = 255;
+                int valley = 0;
+                int peak_index = 0;
+                int valley_index = 0;
+                int valley_flag = 0;
+                int peak_flag = 0;
+
+                int temp_peak = 255;
+                int temp_valley = 0;
+                int temp_peak_index = 0;
+                int temp_valley_index = 0;
+
+
+                for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
+                {
+                    if (valley_flag == 1 && peak_flag == 1 && Math.Abs(peak_index - valley_index) < 3 && Math.Abs(peak - valley) < )
+                    {
+                        valley_flag = 0;
+                        peak_flag = 0;
+                        peak = 255;
+                        valley = 0;
+                        valley_index = 0;
+                        peak_index = 0;
+                    }
+                    if (value[pts_index] > 250)
+                        continue;
+                    if (value[pts_index] >= value[pts_index - 1] && value[pts_index] >= value[pts_index + 1] && peak_flag == 0)
+                    {
+                        peak = value[pts_index];
+                        peak_index = pts_index;
+                        peak_flag = 1;
+                    }
+                    else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley_flag == 0)
+                    {
+                        valley = value[pts_index];
+                        valley_index = pts_index;
+                        valley_flag = 1;
+                    }
+
+                }
+
+                all_peak_list.Add(peak);
+                all_valley_list.Add(valley);
+                all_diff_list.Add(peak - valley);
+                //phase1
+                if (valley > 120 || peak - valley < threshold_1phase)
+                {
+                    Candidate_1_phase_index.Add(degree);
+                }
+
+                //Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
+                value.Clear();
             }
             //phase 2
-            foreach(var candidate_degree in Candidate_1_phase_index)
+            foreach (var candidate_degree in Candidate_1_phase_index)
             {
                 //Console.WriteLine(candidate_degree);
                 int now_valley_value = all_valley_list[candidate_degree];
-                int prev_valley_value = all_valley_list[(candidate_degree+neighbor_degree+720)%720];
-                int next_valley_value = all_valley_list[(candidate_degree - neighbor_degree+720) % 720];
+                int prev_valley_value = all_valley_list[(candidate_degree + neighbor_degree + 720) % 720];
+                int next_valley_value = all_valley_list[(candidate_degree - neighbor_degree + 720) % 720];
 
                 int now_peak_value = all_peak_list[candidate_degree];
                 int prev_peak_value = all_peak_list[(candidate_degree + neighbor_degree + 720) % 720];
@@ -194,8 +208,10 @@ namespace Stop3
                 int next_peak_valley_difference = all_diff_list[(candidate_degree - neighbor_degree + 720) % 720];
 
                 if ((((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value) > threshold_2phase_1)
-                    &&(((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference)) > threshold_2phase_2)
+                    && (((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference)) > threshold_2phase_2)
                 {
+                    Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + (((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value) + " " + (((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference))));
+
                     Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
                     OK_NG_Flag = 1;
                 }
