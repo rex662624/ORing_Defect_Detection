@@ -18,8 +18,8 @@ namespace Stop3
             watch.Start();
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "100.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "100.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -46,7 +46,7 @@ namespace Stop3
             int threshold_1phase = 100;
             int threshold_2phase_1 = 35;//30
             int threshold_2phase_2 = 10;//20
-            int blur_size = 3;
+            int blur_size = 5;
             int neighbor_degree = 5;
 
             //==========================algorithm====================
@@ -130,46 +130,52 @@ namespace Stop3
             List<byte> value = new List<byte>();
             for (int degree = 0; degree < (360 / degree_delta); degree++)
             {
-                double a = 0;
-                
-                LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
-                foreach (var lip in Line)
-                {
-                    value.Add(lip.GetValue<byte>());
-                }
 
-                int peak = 255;
-                int valley = 0;
-                int peak_index = 0;
-                int valley_index = 0;
-
-                for (int pts_index = 1; pts_index < value.Count-1;pts_index++)//peak of valley will not at 0 and last element.
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter("C:\\Users\\Chernger\\Desktop\\plot_data\\raw_data\\" + degree + ".txt", false))
                 {
-                  if (value[pts_index] > 250)
+                    LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
+                    foreach (var lip in Line)
+                    {
+                        value.Add(lip.GetValue<byte>());
+                        file.WriteLine(lip.GetValue<byte>());
+                    }
+                    file.WriteLine("-1");
+                    int peak = 255;
+                    int valley = 0;
+                    int peak_index = 0;
+                    int valley_index = 0;
+
+                    for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
+                    {
+                        if (value[pts_index] > 250)
                             continue;
-                   if(value[pts_index]>= value[pts_index-1]&& value[pts_index] >= value[pts_index + 1] && peak==255)
-                   {
+                        if (value[pts_index] >= value[pts_index - 1] && value[pts_index] >= value[pts_index + 1] && peak == 255)
+                        {
                             peak = value[pts_index];
                             peak_index = pts_index;
-                   }
-                   else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley == 0)
-                   {
+                        }
+                        else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley == 0)
+                        {
                             valley = value[pts_index];
                             valley_index = pts_index;
-                   }
+                        }
 
+                    }
+                    all_peak_list.Add(peak);
+                    all_valley_list.Add(valley);
+                    all_diff_list.Add(peak - valley);
+                    //phase1
+                    if (valley > 120 || peak - valley < threshold_1phase)
+                    {
+                        Candidate_1_phase_index.Add(degree);
+                    }
+                    file.WriteLine(peak);
+                    file.WriteLine(peak_index);
+                    file.WriteLine(valley);
+                    file.WriteLine(valley_index);
+                    //Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
+                    value.Clear();
                 }
-                all_peak_list.Add(peak);
-                all_valley_list.Add(valley);
-                all_diff_list.Add(peak - valley);
-                //phase1
-                if (valley>120 || peak-valley < threshold_1phase)
-                {
-                    Candidate_1_phase_index.Add(degree);
-                }
-
-                //Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
-                value.Clear();
             }
             //phase 2
             foreach(var candidate_degree in Candidate_1_phase_index)
