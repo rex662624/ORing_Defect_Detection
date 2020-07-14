@@ -139,44 +139,34 @@ namespace Stop3
                 }
 
                 int peak = 255;
-                int valley = 0;
+                int valley = 255;
                 int peak_index = 0;
                 int valley_index = 0;
                 int valley_flag = 0;
                 int peak_flag = 0;
 
-                int temp_peak = 255;
-                int temp_valley = 0;
-                int temp_peak_index = 0;
-                int temp_valley_index = 0;
 
+                int temp_valley = 255;
+                int temp_valley_index = 0;
+                int max_diff = 0;
 
                 for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
                 {
-                    if (valley_flag == 1 && peak_flag == 1 && Math.Abs(peak_index - valley_index) < 3 && Math.Abs(peak - valley) < )
-                    {
-                        valley_flag = 0;
-                        peak_flag = 0;
-                        peak = 255;
-                        valley = 0;
-                        valley_index = 0;
-                        peak_index = 0;
-                    }
-                    if (value[pts_index] > 250)
-                        continue;
-                    if (value[pts_index] >= value[pts_index - 1] && value[pts_index] >= value[pts_index + 1] && peak_flag == 0)
-                    {
-                        peak = value[pts_index];
-                        peak_index = pts_index;
-                        peak_flag = 1;
-                    }
-                    else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley_flag == 0)
-                    {
-                        valley = value[pts_index];
-                        valley_index = pts_index;
-                        valley_flag = 1;
-                    }
 
+                    if (max_diff < value[pts_index] - temp_valley)
+                    {
+
+                        max_diff = value[pts_index] - temp_valley;
+                        peak_index = pts_index;
+                        peak = value[pts_index];
+                        valley = temp_valley;
+                        valley_index = temp_valley_index;
+                    }
+                    if (temp_valley > value[pts_index])
+                    {
+                        temp_valley = value[pts_index];
+                        temp_valley_index = pts_index;
+                    }
                 }
 
                 all_peak_list.Add(peak);
@@ -223,3 +213,7 @@ namespace Stop3
 
     }
 }
+
+
+
+
