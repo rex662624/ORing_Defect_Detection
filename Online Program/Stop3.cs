@@ -18,8 +18,8 @@ namespace Stop3
             watch.Start();
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "100.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "100.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -123,40 +123,27 @@ namespace Stop3
                 outer_index.Add(new Point(now_x, now_y));
             }
             //==========================shot from center=========================================
+            List<int> all_valley_list = new List<int>();
+            List<int> all_peak_list = new List<int>();
+            List<int> all_diff_list = new List<int>();
+            List<int> Candidate_1_phase_index = new List<int>();
             List<byte> value = new List<byte>();
             for (int degree = 0; degree < (360 / degree_delta); degree++)
             {
                 double a = 0;
-                //var A = NumSharp.np.linspace(new Point(), 200, ref a, 200, dtype: NumpyDotNet.np.Int64);
-                /*var A = NumSharp.np.linspace(new Point(0,0), new Point(200,200), ref a, 200, dtype: NumSharp.np.int64);
-                if (degree == 0)
-                {
-                    var points_on_line_x = ((IEnumerable<double>)Enumerable.Range(inner_x[degree], x[degree]).Select(i => (double)i * 0.01)).ToArray();
-                    var points_on_line_y = ((IEnumerable<double>)Enumerable.Range(inner_y[degree], y[degree]).Select(i => (double)i * 0.01)).ToArray();
-                    Console.WriteLine(points_on_line_x.Length);
-                    Console.WriteLine(points_on_line_y.Length);
-                }*/
-
-               using (System.IO.StreamWriter file = new System.IO.StreamWriter("C:\\Users\\Chernger\\Desktop\\plot_data\\raw_data\\" + degree + ".txt", false))
-               {
-                    
-                    LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
-                    foreach (var lip in Line)
-                    {
-
-                        value.Add(lip.GetValue<byte>());
-                        file.WriteLine(lip.GetValue<byte>());
-                        //Console.WriteLine(lip.GetValue<byte>());
-                    }
-                //Console.WriteLine(value.Count);
                 
-                //int pts_index = 0;
-                file.WriteLine("-1");
-                    int peak = 255;
-                    int valley = 0;
-                    int peak_index = 0;
-                    int valley_index = 0;
-                    for (int pts_index = 1; pts_index < value.Count-1;pts_index++)//peak of valley will not at 0 and last element.
+                LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
+                foreach (var lip in Line)
+                {
+                    value.Add(lip.GetValue<byte>());
+                }
+
+                int peak = 255;
+                int valley = 0;
+                int peak_index = 0;
+                int valley_index = 0;
+
+                for (int pts_index = 1; pts_index < value.Count-1;pts_index++)//peak of valley will not at 0 and last element.
                 {
                   if (value[pts_index] > 250)
                             continue;
@@ -172,16 +159,44 @@ namespace Stop3
                    }
 
                 }
-
-                    file.WriteLine(peak);
-                    file.WriteLine(peak_index);
-                    file.WriteLine(valley);
-                    file.WriteLine(valley_index);
-
+                all_peak_list.Add(peak);
+                all_valley_list.Add(valley);
+                all_diff_list.Add(peak - valley);
+                //phase1
+                if (valley>120 || peak-valley < threshold_1phase)
+                {
+                    Candidate_1_phase_index.Add(degree);
                 }
-                
+
+                //Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
                 value.Clear();
             }
+            //phase 2
+            foreach(var candidate_degree in Candidate_1_phase_index)
+            {
+                //Console.WriteLine(candidate_degree);
+                int now_valley_value = all_valley_list[candidate_degree];
+                int prev_valley_value = all_valley_list[(candidate_degree+neighbor_degree+720)%720];
+                int next_valley_value = all_valley_list[(candidate_degree - neighbor_degree+720) % 720];
+
+                int now_peak_value = all_peak_list[candidate_degree];
+                int prev_peak_value = all_peak_list[(candidate_degree + neighbor_degree + 720) % 720];
+                int next_peak_value = all_peak_list[(candidate_degree - neighbor_degree + 720) % 720];
+
+                int now_peak_valley_difference = all_diff_list[candidate_degree];
+                int prev_peak_valley_difference = all_diff_list[(candidate_degree + neighbor_degree + 720) % 720];
+                int next_peak_valley_difference = all_diff_list[(candidate_degree - neighbor_degree + 720) % 720];
+
+                if ((((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value) > threshold_2phase_1)
+                    &&(((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference)) > threshold_2phase_2)
+                {
+                    Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
+                    OK_NG_Flag = 1;
+                }
+
+            }
+
+            vis_rgb.SaveImage("./result/test" + filename);
         }
 
     }
