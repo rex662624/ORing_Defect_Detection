@@ -123,6 +123,7 @@ namespace Stop3
                 outer_index.Add(new Point(now_x, now_y));
             }
             //==========================shot from center=========================================
+            List<byte> value = new List<byte>();
             for (int degree = 0; degree < (360 / degree_delta); degree++)
             {
                 double a = 0;
@@ -135,20 +136,51 @@ namespace Stop3
                     Console.WriteLine(points_on_line_x.Length);
                     Console.WriteLine(points_on_line_y.Length);
                 }*/
-                
-                   using(System.IO.StreamWriter file = new System.IO.StreamWriter("C:\\Users\\Chernger\\Desktop\\plot_data\\raw_data\\" + degree + ".txt", false)) {  
-                foreach (var lip in new LineIterator(image, inner_index[degree], outer_index[degree]))
-                {
-                        
-                        
-                            file.WriteLine(lip.GetValue<byte>());
-                        
+
+               using (System.IO.StreamWriter file = new System.IO.StreamWriter("C:\\Users\\Chernger\\Desktop\\plot_data\\raw_data\\" + degree + ".txt", false))
+               {
+                    
+                    LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
+                    foreach (var lip in Line)
+                    {
+
+                        value.Add(lip.GetValue<byte>());
+                        file.WriteLine(lip.GetValue<byte>());
                         //Console.WriteLine(lip.GetValue<byte>());
-                }
                     }
+                //Console.WriteLine(value.Count);
                 
+                //int pts_index = 0;
+                file.WriteLine("-1");
+                    int peak = 255;
+                    int valley = 0;
+                    int peak_index = 0;
+                    int valley_index = 0;
+                    for (int pts_index = 1; pts_index < value.Count-1;pts_index++)//peak of valley will not at 0 and last element.
+                {
+                  if (value[pts_index] > 250)
+                            continue;
+                   if(value[pts_index]>= value[pts_index-1]&& value[pts_index] >= value[pts_index + 1] && peak==255)
+                   {
+                            peak = value[pts_index];
+                            peak_index = pts_index;
+                   }
+                   else if (value[pts_index] <= value[pts_index - 1] && value[pts_index] <= value[pts_index + 1] && valley == 0)
+                   {
+                            valley = value[pts_index];
+                            valley_index = pts_index;
+                   }
 
+                }
 
+                    file.WriteLine(peak);
+                    file.WriteLine(peak_index);
+                    file.WriteLine(valley);
+                    file.WriteLine(valley_index);
+
+                }
+                
+                value.Clear();
             }
         }
 
