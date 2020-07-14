@@ -18,8 +18,8 @@ namespace Stop3
             watch.Start();
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "41.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "19.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -44,8 +44,8 @@ namespace Stop3
             Int64 OK_NG_Flag = 0;
             //=========================================================
             int threshold_1phase = 110;
-            int threshold_2phase_1 = 35;//30
-            int threshold_2phase_2 = 10;//20
+            int threshold_2phase_1 = 40;//30
+            int threshold_2phase_2 = 30;//20
             int blur_size = 3;
             int neighbor_degree = 5;
 
@@ -197,10 +197,11 @@ namespace Stop3
                 int prev_peak_valley_difference = all_diff_list[(candidate_degree + neighbor_degree + 720) % 720];
                 int next_peak_valley_difference = all_diff_list[(candidate_degree - neighbor_degree + 720) % 720];
 
-                if ((((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value) > threshold_2phase_1)
-                    && (((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference)) > threshold_2phase_2)
+                float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
+                float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
+                if (((value1 > threshold_2phase_1))&&(value2 > threshold_2phase_2))
                 {
-                    Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + (((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value) + " " + (((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference))));
+                    Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
 
                     Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
                     OK_NG_Flag = 1;
