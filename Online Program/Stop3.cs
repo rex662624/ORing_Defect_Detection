@@ -20,6 +20,9 @@ namespace Stop3
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
             string[] filenamelist = Directory.GetFiles(@".\images\", "19.jpg", SearchOption.AllDirectories);
+            //我已經有改filter了
+            
+            
             //debug
             int fileindex = 0;
 
@@ -43,9 +46,10 @@ namespace Stop3
             //============================threshold===================
             Int64 OK_NG_Flag = 0;
             //=========================================================
-            int threshold_1phase = 110;
-            int threshold_2phase_1 = 40;//30
-            int threshold_2phase_2 = 30;//20
+            int threshold_1phase = 130;
+            int threshold_2phase_1 = 35;//35
+            int threshold_2phase_2 = 20;//20
+            int threshold_2phase_3 = 65;
             int blur_size = 3;
             int neighbor_degree = 5;
 
@@ -130,7 +134,6 @@ namespace Stop3
             List<byte> value = new List<byte>();
             for (int degree = 0; degree < (360 / degree_delta); degree++)
             {
-                double a = 0;
 
                 LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
                 foreach (var lip in Line)
@@ -142,8 +145,6 @@ namespace Stop3
                 int valley = 255;
                 int peak_index = 0;
                 int valley_index = 0;
-                int valley_flag = 0;
-                int peak_flag = 0;
 
 
                 int temp_valley = 255;
@@ -158,14 +159,17 @@ namespace Stop3
 
                         max_diff = value[pts_index] - temp_valley;
                         peak_index = pts_index;
+                        //peak = (value[pts_index]+ value[pts_index-1]+ value[pts_index]+1)/3;
                         peak = value[pts_index];
                         valley = temp_valley;
                         valley_index = temp_valley_index;
                     }
                     if (temp_valley > value[pts_index])
                     {
-                        temp_valley = value[pts_index];
+                        //temp_valley = (value[pts_index]+ value[pts_index-1]+ value[pts_index + 1])/3;
+                        temp_valley = (value[pts_index])
                         temp_valley_index = pts_index;
+                        
                     }
                 }
 
@@ -199,7 +203,7 @@ namespace Stop3
 
                 float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
                 float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
-                if (((value1 > threshold_2phase_1))&&(value2 > threshold_2phase_2))
+                if ((((value1 > threshold_2phase_1))&&(value2 > threshold_2phase_2))&&(value2 > 0)&& (value1 > 0))
                 {
                     Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
 
