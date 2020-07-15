@@ -19,10 +19,11 @@ namespace Stop3
 
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "19.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "14.jpg", SearchOption.AllDirectories);
             //我已經有改filter了
-            
-            
+            //test 31 記得看看圖
+
+
             //debug
             int fileindex = 0;
 
@@ -47,7 +48,7 @@ namespace Stop3
             Int64 OK_NG_Flag = 0;
             //=========================================================
             int threshold_1phase = 130;
-            int threshold_2phase_1 = 35;//35
+            int threshold_2phase_1 = 36;//35
             int threshold_2phase_2 = 20;//20
             int threshold_2phase_3 = 65;
             int blur_size = 3;
@@ -120,8 +121,8 @@ namespace Stop3
                 double degree_real = degree * degree_delta;
                 int now_x = (int)((r + 2) * Math.Sin(degree_real * factor)) + cx;
                 int now_y = (int)((r + 2) * Math.Cos(degree_real * factor)) + cy;
-                int now_inner_x = (int)((r - 30) * Math.Sin(degree_real * factor)) + cx;
-                int now_inner_y = (int)((r - 30) * Math.Cos(degree_real * factor)) + cy;
+                int now_inner_x = (int)((r - 50) * Math.Sin(degree_real * factor)) + cx;
+                int now_inner_y = (int)((r - 50) * Math.Cos(degree_real * factor)) + cy;
 
                 inner_index.Add(new Point(now_inner_x, now_inner_y));
                 outer_index.Add(new Point(now_x, now_y));
@@ -167,9 +168,9 @@ namespace Stop3
                     if (temp_valley > value[pts_index])
                     {
                         //temp_valley = (value[pts_index]+ value[pts_index-1]+ value[pts_index + 1])/3;
-                        temp_valley = (value[pts_index])
+                        temp_valley = (value[pts_index]);
                         temp_valley_index = pts_index;
-                        
+
                     }
                 }
 
@@ -203,7 +204,7 @@ namespace Stop3
 
                 float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
                 float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
-                if ((((value1 > threshold_2phase_1))&&(value2 > threshold_2phase_2))&&(value2 > 0)&& (value1 > 0))
+                if ((((value1 > threshold_2phase_1)) && (value2 > threshold_2phase_2)) && (value2 > 0) && (value1 > 0))
                 {
                     Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
 
