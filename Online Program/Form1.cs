@@ -4273,6 +4273,7 @@ namespace CherngerUI
 		#region AI 1
 		private void Stop1_Detector(Mat Src , Mat Dst)
 		{
+			lock (app.LockStop1) { 
 			Int64 OK_NG_Flag = 0 ;
 			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 			//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
@@ -4369,6 +4370,8 @@ namespace CherngerUI
 
 			});
 
+			}
+
 		}
 		#endregion
 
@@ -4418,76 +4421,78 @@ namespace CherngerUI
 		#region AI 2
 		private void Stop2_Detector(Mat Src, Mat Dst)
 		{
-			Int64 OK_NG_Flag = 0;
-			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
-			//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
-
-			var watch = new System.Diagnostics.Stopwatch();
-			watch.Start();
-			//==========================algorithm===============================
-
-			//mask the inner part noise of src
-			int nLabels = 0;//number of labels
-			int[,] stats = null;
-			Thread t3 = new Thread(delegate ()
+			lock (app.LockStop2)
 			{
-				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
+				Int64 OK_NG_Flag = 0;
+				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+				//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
+
+				var watch = new System.Diagnostics.Stopwatch();
+				watch.Start();
+				//==========================algorithm===============================
+
+				//mask the inner part noise of src
+				int nLabels = 0;//number of labels
+				int[,] stats = null;
+				Thread t3 = new Thread(delegate ()
+				{
+					List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
 
 				//Find outer defect            
 				FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-			}, 0);
-			//MSER  
-			//=============difference from stop1
-			Cv2.GaussianBlur(Src,Src,new OpenCvSharp.Size(5,5), 0, 0);
-			//================
-			List<OpenCvSharp.Point[][]> MSER_Big = null;
-			Thread t1 = new Thread(delegate ()
-			{
-				My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big,vote_threshold:1, min_in_area_threshold:110, mean_in_area_threshold:130);
-			},0);
+				}, 0);
+				//MSER  
+				//=============difference from stop1
+				Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);
+				//================
+				List<OpenCvSharp.Point[][]> MSER_Big = null;
+				Thread t1 = new Thread(delegate ()
+				{
+					My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 110, mean_in_area_threshold: 130);
+				}, 0);
 
-			t1.Start();
-			t3.Start();
-			t1.Join();
-			t3.Join();
+				t1.Start();
+				t3.Start();
+				t1.Join();
+				t3.Join();
 
-			//OK or NG
+				//OK or NG
 
-			// draw outer defect by stats
-			for (int i = 0; i < nLabels; i++)
-			{
-				int area = stats[i, 4];
-				if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
+				// draw outer defect by stats
+				for (int i = 0; i < nLabels; i++)
+				{
+					int area = stats[i, 4];
+					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
+					{
+
+						OK_NG_Flag = 1;
+						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+					}
+				}
+				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 				{
 
 					OK_NG_Flag = 1;
-					vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
 				}
-			}
-			foreach (OpenCvSharp.Point[][] temp in MSER_Big)
-			{
 
-				OK_NG_Flag = 1;
-				Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-			}
 
-			
-			//==================================================================
-			watch.Stop();
+				//==================================================================
+				watch.Stop();
 
-			//印出時間
-			Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+				//印出時間
+				Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 
-			++Num.TotalNumSave_2;
+				++Num.TotalNumSave_2;
 
-			ImgAI_2.Enqueue(vis_rgb);
-			OutputAI_2.Enqueue(OK_NG_Flag);
+				ImgAI_2.Enqueue(vis_rgb);
+				OutputAI_2.Enqueue(OK_NG_Flag);
 
-			//========================================================
-			this.Invoke((EventHandler)delegate
-			{
-				Mat DST = ImgAI_2.Dequeue();
-				app.SavingMode = OK_NG_Flag.ToString();
+				//========================================================
+				this.Invoke((EventHandler)delegate
+				{
+					Mat DST = ImgAI_2.Dequeue();
+					app.SavingMode = OK_NG_Flag.ToString();
 				//Thread.Sleep(50);
 				BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
 				#region 存圖
@@ -4496,20 +4501,21 @@ namespace CherngerUI
 
 				#region 輸出結果
 				lock (OutputAI_2)
-				{
-					TestCount_2++;
-					string Result = UpdateResult(OutputAI_2.Dequeue());
-					Value.Result_2.Enqueue(Result);//Result
+					{
+						TestCount_2++;
+						string Result = UpdateResult(OutputAI_2.Dequeue());
+						Value.Result_2.Enqueue(Result);//Result
 					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
-					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
-					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
+						BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
+						BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
 
-					UpdateLabelDivision(Result, 1);
+						UpdateLabelDivision(Result, 1);
 					//Work_5_AI();
 				}
 				#endregion
 
 			});
+			}
 
 		}
 		#endregion
@@ -5124,14 +5130,8 @@ namespace CherngerUI
         public static string SavingMode = "OK";                         //趨勢圖更新產量判斷	
 		
 		public static int image_number = 1;                             //AI thread 讀圖數量
-		public static object SendLock1 = new object();
-		public static object ReceiveLock1 = new object();
-		public static object SendLock2 = new object();
-		public static object ReceiveLock2 = new object();
-		public static object SendLock3 = new object();
-		public static object ReceiveLock3 = new object();
-		public static object SendLock4 = new object();
-		public static object ReceiveLock4 = new object();
+		public static object LockStop1 = new object();
+		public static object LockStop2 = new object();
 
 
 		public static string SaveImgpath = System.IO.Directory.GetCurrentDirectory() + @"\Image\";
