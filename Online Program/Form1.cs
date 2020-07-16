@@ -1732,219 +1732,14 @@ namespace CherngerUI
 			Thread.Sleep(300);
 			BeginInvoke(new Action(() => { PLC1.setValue(PLC1.PLCContect.OK_Blow, false); }));
 		}
-        public void OfflineWork_5()
-        {
-            string s1, s2, s3, s4;
 
-            if (Value.Result_1.Count > 0 && Value.Result_2.Count > 0 && Value.Result_3.Count > 0 && Value.Result_4.Count > 0 && stop)
-            {
-                s1 = Value.Result_1.Dequeue();
-                s2 = Value.Result_2.Dequeue();
-                s3 = Value.Result_3.Dequeue();
-                s4 = Value.Result_4.Dequeue();
-                if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
-                {
-                    if (app.IsAdjust)
-                    {
-                        app.NullWarning++;
-                        Num.NULLNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                        if (app.NullWarning >= app.NullWarningTarget)
-                        {
-                            lock (StartButton)
-                            {
-                                BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
-                            }
-                        }
-                    }
-                    Thread.Sleep(50);
-                    Num.TotalNum_Temp++;
-                }
-                else if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
-                {
-                    try
-                    {
-                        Console.WriteLine("檢測結果: NG");
-                        Num.NGNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                    }
-                    catch (System.Exception e)
-                    {
-                        MessageBox.Show(e.ToString());
-                    }
-                    Thread.Sleep(10);
-                    Num.TotalNum_Temp++;
-                }
-                else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
-                {
-                    try
-                    {
-                        Console.WriteLine("檢測結果: OK");
-                        Num.OKNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                    }
-                    catch (System.Exception e)
-                    {
-                        MessageBox.Show(e.ToString());
-                    }
-                    //Console.WriteLine("TotalNum_Temp: " + Num.TotalNum_Temp);
-                    Thread.Sleep(50);
-                    Num.TotalNum_Temp++;
-                }
-            }
-        }
 
-        public void Work_5_AI()
-        {
-            string s1, s2, s3, s4;
-
-            if (Value.Result_1.Count > 0 && Value.Result_2.Count > 0 && Value.Result_3.Count > 0 && Value.Result_4.Count > 0 && stop)
-            {
-                s1 = Value.Result_1.Dequeue();
-                s2 = Value.Result_2.Dequeue();
-                s3 = Value.Result_3.Dequeue();
-                s4 = Value.Result_4.Dequeue();
-                if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
-                {
-                    if (app.IsAdjust)
-                    {
-                        app.NullWarning++;
-                        Num.NULLNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                        if (app.NullWarning >= app.NullWarningTarget)
-                        {
-                            lock (StartButton)
-                            {
-                                BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
-                            }
-                        }
-                    }
-                    Thread.Sleep(50);
-                    Num.TotalNum_Temp++;
-                }
-                else if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
-                {
-                    try
-                    {
-                        Console.WriteLine("檢測結果: NG");
-                        Num.NGNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                    }
-                    catch (System.Exception e)
-                    {
-                        MessageBox.Show(e.ToString());
-                    }
-                    Thread.Sleep(10);
-                    Num.TotalNum_Temp++;
-                }
-                else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
-                {
-                    try
-                    {
-                        Console.WriteLine("檢測結果: OK");
-                        Num.OKNum++;
-                        Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-                        Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-                        Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-                        Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-                        Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-                        Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-                        BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-                        BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-                        BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-                        BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-                        BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-                    }
-                    catch (System.Exception e)
-                    {
-                        MessageBox.Show(e.ToString());
-                    }
-                    //Console.WriteLine("TotalNum_Temp: " + Num.TotalNum_Temp);
-                    Thread.Sleep(50);
-                    Num.TotalNum_Temp++;
-                }
-            }
-        }
         public void Work_5()
 		{
 			//Console.WriteLine("[Work]");
 			ThreadPool.QueueUserWorkItem((o) =>
 			{
-				Console.WriteLine("[STATE]: WORK START");
+				//Console.WriteLine("[STATE]: WORK START");
 				//Console.WriteLine("[Work_5]");
 				Thread.Sleep(app.DelateShoot[3] + 1500);
 				string s1, s2, s3, s4;
@@ -2037,15 +1832,8 @@ namespace CherngerUI
 									Num.Bool_CatchUp = false;
 								}
 							}
-							Console.WriteLine("檢測結果: NG");
-							Num.NGNum++;
-							Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-							Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-							Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-							Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-							Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-							Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-							BeginInvoke(new Action(() => { UpdateBtn("NG", Num.TotalNum_Temp); }));
+							//Console.WriteLine("檢測結果: NG");
+							BeginInvoke(new Action(() => { UpdateBtn("NG", ref Num.TotalNum_Temp); }));
 							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
@@ -2055,27 +1843,21 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
+							
 						}
 						catch (System.Exception e)
 						{
 							MessageBox.Show(e.ToString());
 						}
 						Thread.Sleep(50);
-						Num.TotalNum_Temp++;
+						
 					}
 					else if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
 					{
 						if (app.IsAdjust)
 						{
-							app.NullWarning++;
-							Num.NULLNum++;
-							Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-							Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-							Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-							Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-							Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-							Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-							BeginInvoke(new Action(() => { UpdateBtn("NULL", Num.TotalNum_Temp); }));
+							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
+							app.NullWarning++;			
 							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
@@ -2085,6 +1867,7 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
+							
 							if (app.NullWarning >= app.NullWarningTarget)
 							{
 								lock (StartButton)
@@ -2094,22 +1877,14 @@ namespace CherngerUI
 							}
 						}
 						Thread.Sleep(50);
-						Num.TotalNum_Temp++;
 					} 
 					else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
 					{
 						try
 						{
 							ThreadPool.QueueUserWorkItem(w => OK_Blow());
-							Console.WriteLine("檢測結果: OK");
-							Num.OKNum++;
-							Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
-							Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
-							Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
-							Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
-							Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
-							Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
-							BeginInvoke(new Action(() => { UpdateBtn("OK", Num.TotalNum_Temp); }));
+							//Console.WriteLine("檢測結果: OK");
+							BeginInvoke(new Action(() => { UpdateBtn("OK", ref Num.TotalNum_Temp); }));
 							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
@@ -2119,6 +1894,7 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
+							
 						}
 						catch (System.Exception e)
 						{
@@ -2126,7 +1902,6 @@ namespace CherngerUI
 						}
 						//Console.WriteLine("TotalNum_Temp: " + Num.TotalNum_Temp);
 						Thread.Sleep(50);
-						Num.TotalNum_Temp++;
 					}
 
 					if (app.GlassesClean >= 10)
@@ -2139,10 +1914,9 @@ namespace CherngerUI
 				}
 				else
 				{
-					BeginInvoke(new Action(() => { UpdateBtn("N", Num.TotalNum_Temp); }));
-					Num.TotalNum_Temp++;
+					BeginInvoke(new Action(() => { UpdateBtn("N", ref Num.TotalNum_Temp); }));
 				}
-				Console.WriteLine("[STATE]: WORK END");
+				//Console.WriteLine("[STATE]: WORK END");
 			});
 		}
 
@@ -2220,7 +1994,7 @@ namespace CherngerUI
 					app.NoneItemWarning = DateTime.Now;
 					app.TakePic++;
 					app.PlcCounter[0]++;
-					Console.WriteLine("拍照囉");
+					//Console.WriteLine("拍照囉");
 					Work_5();
 					//Console.WriteLine("拍照囉");
 				}
@@ -2379,7 +2153,7 @@ namespace CherngerUI
 		#region 相機接收器
 		public void Receiver(int CameraID, Mat Src)
 		{
-			Console.WriteLine("[Mode]: " + app.Mode);
+			//Console.WriteLine("[Mode]: " + app.Mode);
 
 			#region Live + 離線 模式
 			if (app.Mode == 0)
@@ -2702,7 +2476,7 @@ namespace CherngerUI
 							Stop2_Detector(Src, Dst);
 							DateTime Now = DateTime.Now;
 							string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
-							Console.WriteLine("[CCD 2]: " + time_consuming + " ms");
+							//Console.WriteLine("[CCD 2]: " + time_consuming + " ms");
 
 
 							#region 輸出結果
@@ -2851,7 +2625,7 @@ namespace CherngerUI
 
 							DateTime Now = DateTime.Now;
 							string time_consuming = ((TimeSpan)(Now - T)).TotalMilliseconds.ToString("0");
-							Console.WriteLine("[CCD 4]: " + time_consuming + " ms");
+							//Console.WriteLine("[CCD 4]: " + time_consuming + " ms");
 
 							//#region 控制結果
 							//if (NGmodeBox.Checked)
@@ -3340,16 +3114,18 @@ namespace CherngerUI
 			B.ShowDialog();
 		}
 
-		private void UpdateBtn(string Result, int Count)
+		private void UpdateBtn(string Result,ref int Count)
 		{
 			
-			//Console.WriteLine("btn: "+Count);
+			Console.WriteLine("btn: "+Count);
 			if (Count / 100 > 0)
 			{
 				Count -= (Count / 100) * 100;
 			}
 			int i = Count % app.Column;
 			int j = Count / app.Column;
+
+
 			Button btn = (Button)tableLayoutPanel1.GetControlFromPosition(i, j);
 			switch (Result)
 			{
@@ -3366,6 +3142,25 @@ namespace CherngerUI
 					btn.BackColor = Color.Black;
 					break;
 
+
+			}
+			lock (app.LockGreenRedLight)
+			{
+				Count++;
+
+				if (Result == "OK")
+					Num.OKNum++;
+				else if (Result == "NG")
+					Num.NGNum++;
+				else if (Result == "NULL")
+					Num.NULLNum++;
+
+				Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
+				Num.YieldRate = (Num.OKNum * 1.0 / (Num.OKNum + Num.NGNum));
+				Num.TotalSuccessNum = Num.OKNum + Num.NGNum;
+				Num.OKdRate = Num.OKNum * 1.0 / Num.TotalNum;
+				Num.NGRate = Num.NGNum * 1.0 / Num.TotalNum;
+				Num.NULLRate = Num.NULLNum * 1.0 / Num.TotalNum;
 
 			}
 		}
@@ -5132,6 +4927,7 @@ namespace CherngerUI
 		public static int image_number = 1;                             //AI thread 讀圖數量
 		public static object LockStop1 = new object();
 		public static object LockStop2 = new object();
+		public static object LockGreenRedLight = new object();
 
 
 		public static string SaveImgpath = System.IO.Directory.GetCurrentDirectory() + @"\Image\";
