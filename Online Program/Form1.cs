@@ -4520,9 +4520,10 @@ namespace CherngerUI
 			//============================threshold===================
 			Int64 OK_NG_Flag = 0;
 			//=========================================================
-			int threshold_1phase = 110;
-			int threshold_2phase_1 = 40;//30
-			int threshold_2phase_2 = 30;//20
+			int threshold_1phase = 130;
+			int threshold_2phase_1 = 36;//35
+			int threshold_2phase_2 = 20;//20
+			int threshold_2phase_3 = 65;
 			int blur_size = 3;
 			int neighbor_degree = 5;
 
@@ -4593,8 +4594,8 @@ namespace CherngerUI
 				double degree_real = degree * degree_delta;
 				int now_x = (int)((r + 2) * Math.Sin(degree_real * factor)) + cx;
 				int now_y = (int)((r + 2) * Math.Cos(degree_real * factor)) + cy;
-				int now_inner_x = (int)((r - 30) * Math.Sin(degree_real * factor)) + cx;
-				int now_inner_y = (int)((r - 30) * Math.Cos(degree_real * factor)) + cy;
+				int now_inner_x = (int)((r - 50) * Math.Sin(degree_real * factor)) + cx;
+				int now_inner_y = (int)((r - 50) * Math.Cos(degree_real * factor)) + cy;
 
 				inner_index.Add(new OpenCvSharp.Point(now_inner_x, now_inner_y));
 				outer_index.Add(new OpenCvSharp.Point(now_x, now_y));
@@ -4632,14 +4633,17 @@ namespace CherngerUI
 
 						max_diff = value[pts_index] - temp_valley;
 						peak_index = pts_index;
+						//peak = (value[pts_index]+ value[pts_index-1]+ value[pts_index]+1)/3;
 						peak = value[pts_index];
 						valley = temp_valley;
 						valley_index = temp_valley_index;
 					}
 					if (temp_valley > value[pts_index])
 					{
-						temp_valley = value[pts_index];
+						//temp_valley = (value[pts_index]+ value[pts_index-1]+ value[pts_index + 1])/3;
+						temp_valley = (value[pts_index]);
 						temp_valley_index = pts_index;
+
 					}
 				}
 
@@ -4673,9 +4677,9 @@ namespace CherngerUI
 
 				float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
 				float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
-				if (((value1 > threshold_2phase_1)) && (value2 > threshold_2phase_2))
+				if ((((value1 > threshold_2phase_1)) && (value2 > threshold_2phase_2)) && (value2 > 0) && (value1 > 0))
 				{
-					Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
+					//Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
 
 					Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
 					OK_NG_Flag = 1;
@@ -4684,36 +4688,36 @@ namespace CherngerUI
 			}
 			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 			ImgAI_3.Enqueue(vis_rgb);
-						OutputAI_3.Enqueue(OK_NG_Flag);
+			OutputAI_3.Enqueue(OK_NG_Flag);
 
-						//Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag3: " + OK_NG_Flag + "Stop: " + Stop);
-						//========================================================
-						this.Invoke((EventHandler)delegate
-						{
-							Mat DST = ImgAI_3.Dequeue();
-							app.SavingMode = OK_NG_Flag.ToString();
-							//Thread.Sleep(50);
-							BeginInvoke(new Action(() => { cherngerPictureBox3.Image = DST.ToBitmap(); }));
-							#region 存圖
-							DoAoi_3(Src, DST, 1, app.SavingMode);
-							#endregion
+			//Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag3: " + OK_NG_Flag + "Stop: " + Stop);
+			//========================================================
+			this.Invoke((EventHandler)delegate
+			{
+				Mat DST = ImgAI_3.Dequeue();
+				app.SavingMode = OK_NG_Flag.ToString();
+				//Thread.Sleep(50);
+				BeginInvoke(new Action(() => { cherngerPictureBox3.Image = DST.ToBitmap(); }));
+				#region 存圖
+				DoAoi_3(Src, DST, 1, app.SavingMode);
+				#endregion
 
-							#region 輸出結果
-							lock (OutputAI_3)
-							{
-								TestCount_3++;
-								string Result = UpdateResult(OutputAI_3.Dequeue());
-								Value.Result_3.Enqueue(Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_3, Result);
-								BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_3, Result);
-								BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_3, TestCount_3.ToString());
+				#region 輸出結果
+				lock (OutputAI_3)
+				{
+					TestCount_3++;
+					string Result = UpdateResult(OutputAI_3.Dequeue());
+					Value.Result_3.Enqueue(Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_3, Result);
+					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_3, Result);
+					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_3, TestCount_3.ToString());
 
-								UpdateLabelDivision(Result, 2);
-								//Work_5_AI();
-							}
-							#endregion
+					UpdateLabelDivision(Result, 2);
+					//Work_5_AI();
+				}
+				#endregion
 
-						});
+			});
 		}
 		#endregion
 
