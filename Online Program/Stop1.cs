@@ -292,13 +292,13 @@ namespace Stop1_multi_thread
         //Find outer defect
         static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, int fileindex, out int [,] stats)
         {
-            // variable
-            OpenCvSharp.Point[][] temp = new Point[1][];
+                // variable
+                OpenCvSharp.Point[][] temp = new Point[1][];
 
 
-            // Convex hull
-            Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
-            temp[0] = Convex_hull;
+                // Convex hull
+                Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
+                temp[0] = Convex_hull;
             Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
 
