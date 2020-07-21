@@ -300,7 +300,6 @@ namespace CherngerUI
 			#endregion
 
 			OfflinePathBox.Text = app.OfflineImagePath;
-			app.SavingMode = app.SavingMode = comboBox2.SelectedItem.ToString();
 
 		}
 
@@ -3045,6 +3044,7 @@ namespace CherngerUI
 			chart1.Series[0].IsValueShownAsLabel = false;
 
 			ChartTimeInterval.SelectedIndex = 0;
+			app.SavingMode = comboBox2.SelectedItem.ToString();
 
 			for (int i = 0; i < 10; i++)
 			{
@@ -3607,73 +3607,6 @@ namespace CherngerUI
 
 			return Result;
 		}
-
-		#endregion
-
-		#region 離線單站批次/單張AI
-		private void RunAi_Click(object sender, EventArgs e)
-		{
-			ThreadPool.QueueUserWorkItem((o) =>
-			{
-				WorkAI_1();
-			});
-			ThreadPool.QueueUserWorkItem((o) =>
-			{
-				WorkAI_2();
-			});
-			ThreadPool.QueueUserWorkItem((o) =>
-			{
-				WorkAI_3();
-			});
-			ThreadPool.QueueUserWorkItem((o) =>
-			{
-				WorkAI_4();
-			});
-		}
-
-		private void button5_Click(object sender, EventArgs e)
-		{
-			OpenFileDialog openFileDialog1 = new OpenFileDialog();
-			openFileDialog1.Filter = "(*.jpg;*.bmp)|*.jpg;*.bmp";
-
-			openFileDialog1.ShowDialog();
-
-			if (openFileDialog1.FileName != "")
-			{
-				//Mat Src1 = Cv.LoadImage(openFileDialog1.FileName, ImreadModes.Grayscale);
-				//UnionAOI AOI1 = new UnionAOI(Src1, UnionAOI.Perspective.FrontSideBody);
-			}
-		}
-
-		private void button4_Click(object sender, EventArgs e)
-		{
-			string[] s1 = Directory.GetFiles(@"C:\Users\user\Desktop\CCD-4\ALL\");
-            string[] s2 = Directory.GetFiles(@"C:\Users\user\Desktop\CCD-4\ALL\");
-            string[] s3 = Directory.GetFiles(@"C:\Users\user\Desktop\CCD-4\ALL\");
-            string[] s4 = Directory.GetFiles(@"C:\Users\user\Desktop\CCD-4\ALL\");
-            ////Path.GetFileNameWithoutExtension(s1[0]);
-            //s1.OrderBy(s => int.Parse(Path.GetFileNameWithoutExtension(s)));
-
-			for (int i = 0; i < s1.Count(); i++)
-			{
-				
-				app.OfflineShoot = true;
-				app.OfflineShootID = OfflineTestStop.SelectedIndex;
-				Mat Src1 = new Mat(s1[i], ImreadModes.Grayscale);
-                Mat Src2 = new Mat(s2[i], ImreadModes.Grayscale);
-                Mat Src3 = new Mat(s3[i], ImreadModes.Grayscale);
-                Mat Src4 = new Mat(s4[i], ImreadModes.Grayscale);
-
-                //UnionAOI AOI1 = new UnionAOI(Src1, UnionAOI.Perspective.FrontSideBody);
-                //UnionAOI AOI2 = new UnionAOI(Src2, UnionAOI.Perspective.BackSideBody);
-                //UnionAOI AOI3 = new UnionAOI(Src3, UnionAOI.Perspective.InnerSideBody);
-                //UnionAOI AOI4 = new UnionAOI(Src4, UnionAOI.Perspective.OuterSideBody);
-
-                //Receiver(app.OfflineShootID, Src1);
-                //app.OfflineShoot = true;
-                //app.OfflineShootID = 1;
-            }
-        }
 
 		#endregion
 

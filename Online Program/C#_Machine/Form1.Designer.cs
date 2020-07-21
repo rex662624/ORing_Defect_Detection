@@ -30,10 +30,10 @@
         {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-			System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-			System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-			System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+			System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+			System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+			System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+			System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
 			this.panel1 = new BSE.Windows.Forms.Panel();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.xPanderPanelList1 = new BSE.Windows.Forms.XPanderPanelList();
@@ -76,11 +76,6 @@
 			this.WhiteBalanceModeselect = new System.Windows.Forms.ComboBox();
 			this.CameraGain = new System.Windows.Forms.TextBox();
 			this.CameraExposureClock = new System.Windows.Forms.TextBox();
-			this.xPanderPanel3 = new BSE.Windows.Forms.XPanderPanel();
-			this.button6 = new System.Windows.Forms.Button();
-			this.RunAi = new System.Windows.Forms.Button();
-			this.textBox1 = new System.Windows.Forms.TextBox();
-			this.button4 = new System.Windows.Forms.Button();
 			this.xPanderPanel4 = new BSE.Windows.Forms.XPanderPanel();
 			this.label55 = new System.Windows.Forms.Label();
 			this.label54 = new System.Windows.Forms.Label();
@@ -133,6 +128,10 @@
 			this.panel4 = new BSE.Windows.Forms.Panel();
 			this.groupBox26 = new System.Windows.Forms.GroupBox();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.button6 = new System.Windows.Forms.Button();
+			this.RunAi = new System.Windows.Forms.Button();
+			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.button4 = new System.Windows.Forms.Button();
 			this.NGBlow = new System.Windows.Forms.TextBox();
 			this.label50 = new System.Windows.Forms.Label();
 			this.OKBlow = new System.Windows.Forms.TextBox();
@@ -274,7 +273,6 @@
 			this.xPanderPanel2.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox1.SuspendLayout();
-			this.xPanderPanel3.SuspendLayout();
 			this.xPanderPanel4.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.groupBox8.SuspendLayout();
@@ -370,7 +368,6 @@
 			this.xPanderPanelList1.CaptionStyle = BSE.Windows.Forms.CaptionStyle.Normal;
 			this.xPanderPanelList1.Controls.Add(this.xPanderPanel1);
 			this.xPanderPanelList1.Controls.Add(this.xPanderPanel2);
-			this.xPanderPanelList1.Controls.Add(this.xPanderPanel3);
 			this.xPanderPanelList1.Controls.Add(this.xPanderPanel4);
 			this.xPanderPanelList1.Controls.Add(this.xPanderPanel5);
 			this.xPanderPanelList1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -417,7 +414,7 @@
 			this.xPanderPanel1.Image = null;
 			this.xPanderPanel1.Name = "xPanderPanel1";
 			this.xPanderPanel1.PanelStyle = BSE.Windows.Forms.PanelStyle.Office2007;
-			this.xPanderPanel1.Size = new System.Drawing.Size(331, 407);
+			this.xPanderPanel1.Size = new System.Drawing.Size(331, 432);
 			this.xPanderPanel1.TabIndex = 0;
 			this.xPanderPanel1.Text = "檢測設定";
 			this.xPanderPanel1.ToolTipTextCloseIcon = null;
@@ -473,6 +470,8 @@
 			// checkBox1
 			// 
 			this.checkBox1.AutoSize = true;
+			this.checkBox1.Checked = true;
+			this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.checkBox1.Location = new System.Drawing.Point(118, 59);
 			this.checkBox1.Name = "checkBox1";
 			this.checkBox1.Size = new System.Drawing.Size(157, 25);
@@ -480,7 +479,6 @@
 			this.checkBox1.Text = "套用預設尺寸轉換";
 			this.checkBox1.UseVisualStyleBackColor = true;
 			this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-			this.checkBox1.Checked = true;
 			// 
 			// NullWarningBox
 			// 
@@ -594,8 +592,6 @@
 			this.comboBox2.TabIndex = 6;
 			this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
 			this.comboBox2.SelectedIndex = 2;
-			
-
 			// 
 			// Imgfolderbutton
 			// 
@@ -885,88 +881,6 @@
 			this.CameraExposureClock.Size = new System.Drawing.Size(57, 29);
 			this.CameraExposureClock.TabIndex = 0;
 			this.CameraExposureClock.TextChanged += new System.EventHandler(this.CameraExposureClock_TextChanged);
-			// 
-			// xPanderPanel3
-			// 
-			this.xPanderPanel3.CaptionFont = new System.Drawing.Font("Microsoft JhengHei UI", 8F, System.Drawing.FontStyle.Bold);
-			this.xPanderPanel3.Controls.Add(this.button6);
-			this.xPanderPanel3.Controls.Add(this.RunAi);
-			this.xPanderPanel3.Controls.Add(this.textBox1);
-			this.xPanderPanel3.Controls.Add(this.button4);
-			this.xPanderPanel3.CustomColors.BackColor = System.Drawing.SystemColors.Control;
-			this.xPanderPanel3.CustomColors.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(184)))), ((int)(((byte)(184)))), ((int)(((byte)(184)))));
-			this.xPanderPanel3.CustomColors.CaptionCheckedGradientBegin = System.Drawing.Color.Empty;
-			this.xPanderPanel3.CustomColors.CaptionCheckedGradientEnd = System.Drawing.Color.Empty;
-			this.xPanderPanel3.CustomColors.CaptionCheckedGradientMiddle = System.Drawing.Color.Empty;
-			this.xPanderPanel3.CustomColors.CaptionCloseIcon = System.Drawing.SystemColors.ControlText;
-			this.xPanderPanel3.CustomColors.CaptionExpandIcon = System.Drawing.SystemColors.ControlText;
-			this.xPanderPanel3.CustomColors.CaptionGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(252)))), ((int)(((byte)(252)))));
-			this.xPanderPanel3.CustomColors.CaptionGradientEnd = System.Drawing.SystemColors.ButtonFace;
-			this.xPanderPanel3.CustomColors.CaptionGradientMiddle = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
-			this.xPanderPanel3.CustomColors.CaptionPressedGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(188)))), ((int)(((byte)(235)))));
-			this.xPanderPanel3.CustomColors.CaptionPressedGradientEnd = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(188)))), ((int)(((byte)(235)))));
-			this.xPanderPanel3.CustomColors.CaptionPressedGradientMiddle = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(188)))), ((int)(((byte)(235)))));
-			this.xPanderPanel3.CustomColors.CaptionSelectedGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(179)))), ((int)(((byte)(215)))), ((int)(((byte)(243)))));
-			this.xPanderPanel3.CustomColors.CaptionSelectedGradientEnd = System.Drawing.Color.FromArgb(((int)(((byte)(179)))), ((int)(((byte)(215)))), ((int)(((byte)(243)))));
-			this.xPanderPanel3.CustomColors.CaptionSelectedGradientMiddle = System.Drawing.Color.FromArgb(((int)(((byte)(179)))), ((int)(((byte)(215)))), ((int)(((byte)(243)))));
-			this.xPanderPanel3.CustomColors.CaptionSelectedText = System.Drawing.SystemColors.ControlText;
-			this.xPanderPanel3.CustomColors.CaptionText = System.Drawing.SystemColors.ControlText;
-			this.xPanderPanel3.CustomColors.FlatCaptionGradientBegin = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
-			this.xPanderPanel3.CustomColors.FlatCaptionGradientEnd = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(252)))), ((int)(((byte)(252)))));
-			this.xPanderPanel3.CustomColors.InnerBorderColor = System.Drawing.SystemColors.Window;
-			this.xPanderPanel3.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.xPanderPanel3.ForeColor = System.Drawing.SystemColors.ControlText;
-			this.xPanderPanel3.Image = null;
-			this.xPanderPanel3.Name = "xPanderPanel3";
-			this.xPanderPanel3.PanelStyle = BSE.Windows.Forms.PanelStyle.Office2007;
-			this.xPanderPanel3.Size = new System.Drawing.Size(331, 25);
-			this.xPanderPanel3.TabIndex = 2;
-			this.xPanderPanel3.Text = "其他設定";
-			this.xPanderPanel3.ToolTipTextCloseIcon = null;
-			this.xPanderPanel3.ToolTipTextExpandIconPanelCollapsed = null;
-			this.xPanderPanel3.ToolTipTextExpandIconPanelExpanded = null;
-			// 
-			// button6
-			// 
-			this.button6.Font = new System.Drawing.Font("微軟正黑體", 12F);
-			this.button6.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-			this.button6.Location = new System.Drawing.Point(180, 79);
-			this.button6.Name = "button6";
-			this.button6.Size = new System.Drawing.Size(141, 40);
-			this.button6.TabIndex = 210;
-			this.button6.Text = "測試(點這裡)";
-			this.button6.UseVisualStyleBackColor = true;
-			// 
-			// RunAi
-			// 
-			this.RunAi.Font = new System.Drawing.Font("微軟正黑體", 12F);
-			this.RunAi.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-			this.RunAi.Location = new System.Drawing.Point(180, 124);
-			this.RunAi.Name = "RunAi";
-			this.RunAi.Size = new System.Drawing.Size(138, 40);
-			this.RunAi.TabIndex = 209;
-			this.RunAi.Text = "1230AI測試";
-			this.RunAi.UseVisualStyleBackColor = true;
-			this.RunAi.Click += new System.EventHandler(this.RunAi_Click);
-			// 
-			// textBox1
-			// 
-			this.textBox1.Location = new System.Drawing.Point(141, 41);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(90, 29);
-			this.textBox1.TabIndex = 208;
-			// 
-			// button4
-			// 
-			this.button4.Font = new System.Drawing.Font("微軟正黑體", 12F);
-			this.button4.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-			this.button4.Location = new System.Drawing.Point(237, 33);
-			this.button4.Name = "button4";
-			this.button4.Size = new System.Drawing.Size(84, 40);
-			this.button4.TabIndex = 207;
-			this.button4.Text = "輸出";
-			this.button4.UseVisualStyleBackColor = true;
-			this.button4.Click += new System.EventHandler(this.button4_Click);
 			// 
 			// xPanderPanel4
 			// 
@@ -1689,6 +1603,34 @@
 			this.tableLayoutPanel1.TabIndex = 0;
 			this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
 			// 
+			// button6
+			// 
+			this.button6.Location = new System.Drawing.Point(0, 0);
+			this.button6.Name = "button6";
+			this.button6.Size = new System.Drawing.Size(75, 23);
+			this.button6.TabIndex = 0;
+			// 
+			// RunAi
+			// 
+			this.RunAi.Location = new System.Drawing.Point(0, 0);
+			this.RunAi.Name = "RunAi";
+			this.RunAi.Size = new System.Drawing.Size(75, 23);
+			this.RunAi.TabIndex = 0;
+			// 
+			// textBox1
+			// 
+			this.textBox1.Location = new System.Drawing.Point(0, 0);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(100, 22);
+			this.textBox1.TabIndex = 0;
+			// 
+			// button4
+			// 
+			this.button4.Location = new System.Drawing.Point(0, 0);
+			this.button4.Name = "button4";
+			this.button4.Size = new System.Drawing.Size(75, 23);
+			this.button4.TabIndex = 0;
+			// 
 			// NGBlow
 			// 
 			this.NGBlow.Enabled = false;
@@ -1814,16 +1756,10 @@
 			// 
 			// button5
 			// 
-			this.button5.Font = new System.Drawing.Font("微軟正黑體", 12F);
-			this.button5.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-			this.button5.Location = new System.Drawing.Point(6, 376);
+			this.button5.Location = new System.Drawing.Point(0, 0);
 			this.button5.Name = "button5";
-			this.button5.Size = new System.Drawing.Size(37, 112);
-			this.button5.TabIndex = 210;
-			this.button5.Text = "AI單張測試";
-			this.button5.UseVisualStyleBackColor = true;
-			this.button5.Visible = false;
-			this.button5.Click += new System.EventHandler(this.button5_Click);
+			this.button5.Size = new System.Drawing.Size(75, 23);
+			this.button5.TabIndex = 0;
 			// 
 			// OfflinePathBox
 			// 
@@ -3136,23 +3072,23 @@
 			// 
 			// chart1
 			// 
-			chartArea2.Name = "ChartArea1";
-			this.chart1.ChartAreas.Add(chartArea2);
-			legend2.Name = "Legend1";
-			this.chart1.Legends.Add(legend2);
+			chartArea1.Name = "ChartArea1";
+			this.chart1.ChartAreas.Add(chartArea1);
+			legend1.Name = "Legend1";
+			this.chart1.Legends.Add(legend1);
 			this.chart1.Location = new System.Drawing.Point(13, 34);
 			this.chart1.Name = "chart1";
-			series2.ChartArea = "ChartArea1";
-			series2.Legend = "Legend1";
-			series2.Name = "Series1";
-			this.chart1.Series.Add(series2);
+			series1.ChartArea = "ChartArea1";
+			series1.Legend = "Legend1";
+			series1.Name = "Series1";
+			this.chart1.Series.Add(series1);
 			this.chart1.Size = new System.Drawing.Size(326, 198);
 			this.chart1.TabIndex = 163;
 			this.chart1.Text = "chart1";
-			title2.Alignment = System.Drawing.ContentAlignment.TopLeft;
-			title2.Name = "Title1";
-			title2.Text = "Pcs / 分鐘";
-			this.chart1.Titles.Add(title2);
+			title1.Alignment = System.Drawing.ContentAlignment.TopLeft;
+			title1.Name = "Title1";
+			title1.Text = "Pcs / 分鐘";
+			this.chart1.Titles.Add(title1);
 			// 
 			// groupBox12
 			// 
@@ -3416,8 +3352,6 @@
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
-			this.xPanderPanel3.ResumeLayout(false);
-			this.xPanderPanel3.PerformLayout();
 			this.xPanderPanel4.ResumeLayout(false);
 			this.xPanderPanel4.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
@@ -3505,7 +3439,6 @@
         private System.Windows.Forms.ComboBox WhiteBalanceModeselect;
         private System.Windows.Forms.TextBox CameraGain;
         private System.Windows.Forms.TextBox CameraExposureClock;
-        private BSE.Windows.Forms.XPanderPanel xPanderPanel3;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.Label label8;
