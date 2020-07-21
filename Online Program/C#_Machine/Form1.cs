@@ -300,6 +300,7 @@ namespace CherngerUI
 			#endregion
 
 			OfflinePathBox.Text = app.OfflineImagePath;
+			app.SavingMode = app.SavingMode = comboBox2.SelectedItem.ToString();
 
 		}
 

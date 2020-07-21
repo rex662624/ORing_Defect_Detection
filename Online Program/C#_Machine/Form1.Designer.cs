@@ -480,6 +480,7 @@
 			this.checkBox1.Text = "套用預設尺寸轉換";
 			this.checkBox1.UseVisualStyleBackColor = true;
 			this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+			this.checkBox1.Checked = true;
 			// 
 			// NullWarningBox
 			// 
@@ -592,6 +593,9 @@
 			this.comboBox2.Size = new System.Drawing.Size(84, 28);
 			this.comboBox2.TabIndex = 6;
 			this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+			this.comboBox2.SelectedIndex = 2;
+			
+
 			// 
 			// Imgfolderbutton
 			// 
@@ -608,12 +612,14 @@
 			// radioButton5
 			// 
 			this.radioButton5.AutoSize = true;
+			this.radioButton5.Checked = true;
 			this.radioButton5.ImeMode = System.Windows.Forms.ImeMode.NoControl;
 			this.radioButton5.Location = new System.Drawing.Point(16, 82);
 			this.radioButton5.Name = "radioButton5";
-			this.radioButton5.Size = new System.Drawing.Size(107, 24);
+			this.radioButton5.Size = new System.Drawing.Size(155, 24);
 			this.radioButton5.TabIndex = 2;
-			this.radioButton5.Text = "儲存檢測圖";
+			this.radioButton5.TabStop = true;
+			this.radioButton5.Text = "儲存原圖與檢測圖";
 			this.radioButton5.UseVisualStyleBackColor = true;
 			this.radioButton5.CheckedChanged += new System.EventHandler(this.radioButton5_CheckedChanged);
 			// 
@@ -632,13 +638,11 @@
 			// radioButton3
 			// 
 			this.radioButton3.AutoSize = true;
-			this.radioButton3.Checked = true;
 			this.radioButton3.ImeMode = System.Windows.Forms.ImeMode.NoControl;
 			this.radioButton3.Location = new System.Drawing.Point(16, 24);
 			this.radioButton3.Name = "radioButton3";
 			this.radioButton3.Size = new System.Drawing.Size(43, 24);
 			this.radioButton3.TabIndex = 0;
-			this.radioButton3.TabStop = true;
 			this.radioButton3.Text = "無";
 			this.radioButton3.UseVisualStyleBackColor = true;
 			// 
