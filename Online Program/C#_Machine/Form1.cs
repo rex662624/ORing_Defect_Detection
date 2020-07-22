@@ -3044,7 +3044,7 @@ namespace CherngerUI
 			chart1.Series[0].IsValueShownAsLabel = false;
 
 			ChartTimeInterval.SelectedIndex = 0;
-			app.SavingMode = comboBox2.SelectedItem.ToString();
+			app.SavingMode = "ALL";
 
 			for (int i = 0; i < 10; i++)
 			{
@@ -3998,7 +3998,7 @@ namespace CherngerUI
 
 			Point2f center;
 			float radius;
-			//Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
+
 			contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
 			Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
 			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop2_inner_circle_radius), 255, thickness: -1);
@@ -4469,6 +4469,11 @@ namespace CherngerUI
 		}
 
 		private void groupBox26_Enter(object sender, EventArgs e)
+		{
+
+		}
+
+		private void panel2_CloseClick(object sender, EventArgs e)
 		{
 
 		}

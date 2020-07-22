@@ -139,7 +139,6 @@
 			this.button1 = new System.Windows.Forms.Button();
 			this.CameraShootbutton = new System.Windows.Forms.Button();
 			this.panel2 = new BSE.Windows.Forms.Panel();
-			this.button5 = new System.Windows.Forms.Button();
 			this.OfflinePathBox = new System.Windows.Forms.TextBox();
 			this.NextImage = new System.Windows.Forms.Button();
 			this.NextStopBtn = new System.Windows.Forms.Button();
@@ -591,7 +590,6 @@
 			this.comboBox2.Size = new System.Drawing.Size(84, 28);
 			this.comboBox2.TabIndex = 6;
 			this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
-			this.comboBox2.SelectedIndex = 2;
 			// 
 			// Imgfolderbutton
 			// 
@@ -1703,7 +1701,6 @@
 			this.panel2.BackColor = System.Drawing.Color.Transparent;
 			this.panel2.CaptionFont = new System.Drawing.Font("Microsoft JhengHei UI", 11.75F, System.Drawing.FontStyle.Bold);
 			this.panel2.CaptionHeight = 27;
-			this.panel2.Controls.Add(this.button5);
 			this.panel2.Controls.Add(this.OfflinePathBox);
 			this.panel2.Controls.Add(this.NextImage);
 			this.panel2.Controls.Add(this.NextStopBtn);
@@ -1753,13 +1750,7 @@
 			this.panel2.ToolTipTextCloseIcon = null;
 			this.panel2.ToolTipTextExpandIconPanelCollapsed = null;
 			this.panel2.ToolTipTextExpandIconPanelExpanded = null;
-			// 
-			// button5
-			// 
-			this.button5.Location = new System.Drawing.Point(0, 0);
-			this.button5.Name = "button5";
-			this.button5.Size = new System.Drawing.Size(75, 23);
-			this.button5.TabIndex = 0;
+			this.panel2.CloseClick += new System.EventHandler<System.EventArgs>(this.panel2_CloseClick);
 			// 
 			// OfflinePathBox
 			// 
@@ -3622,7 +3613,6 @@
 		private System.Windows.Forms.CheckBox OKmodeBox;
 		private System.Windows.Forms.CheckBox NGmodeBox;
         private System.Windows.Forms.Button RunAi;
-        private System.Windows.Forms.Button button5;
 		private System.Windows.Forms.Label DatetimeLabel;
 		private System.Windows.Forms.Timer DateTimer;
 		private System.Windows.Forms.GroupBox groupBox22;
