@@ -1751,7 +1751,33 @@ namespace CherngerUI
 					s2 = Value.Result_2.Dequeue();
 					s3 = Value.Result_3.Dequeue();
 					s4 = Value.Result_4.Dequeue();
-					if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
+					if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
+					{
+						if (app.IsAdjust)
+						{
+							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
+							app.NullWarning++;
+							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
+							BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
+							BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
+							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
+							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
+
+							if (app.NullWarning >= app.NullWarningTarget)
+							{
+								lock (StartButton)
+								{
+									BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
+								}
+							}
+						}
+						Thread.Sleep(50);
+					}
+					else if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
 					{
 						try
 						{
@@ -1842,32 +1868,6 @@ namespace CherngerUI
 						}
 						Thread.Sleep(50);
 
-					}
-					else if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
-					{
-						if (app.IsAdjust)
-						{
-							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
-							app.NullWarning++;
-							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-							BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-							BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-
-							if (app.NullWarning >= app.NullWarningTarget)
-							{
-								lock (StartButton)
-								{
-									BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
-								}
-							}
-						}
-						Thread.Sleep(50);
 					}
 					else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
 					{
@@ -3861,7 +3861,7 @@ namespace CherngerUI
 		#region AI 1
 		private void Stop1_Detector(Mat Src, Mat Dst)
 		{
-			lock (app.LockStop1)
+			//lock (app.LockStop1)
 			{
 				Int64 OK_NG_Flag = 0;
 				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
@@ -4265,6 +4265,7 @@ namespace CherngerUI
 				}
 			}
 			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
+			++Num.TotalNumSave_3;
 			ImgAI_3.Enqueue(vis_rgb);
 			OutputAI_3.Enqueue(OK_NG_Flag);
 
