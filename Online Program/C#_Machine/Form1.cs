@@ -4125,135 +4125,144 @@ namespace CherngerUI
 				count++;
 
 			}
-			//==========================================find outer circle==============================================
-			Point2f center;
-			float radius;
-			Cv2.MinEnclosingCircle(contours_final[0], out center, out radius);
-
-			Mat mask_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			Cv2.Circle(mask_img, (OpenCvSharp.Point)center, (int)(radius + 7), 255, thickness: -1);
-
-			//outer contour2 in order to make mask area = 255
-			Mat mask_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
-			Cv2.Circle(mask_img2, (OpenCvSharp.Point)center, (int)(radius + 7), 0, thickness: -1);
-
-
-			Mat image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			Src.CopyTo(image, mask_img);
-
-			//in order to make mask area = 255
-			image = image + mask_img2;
-			//image.SaveImage("./mask.jpg");
-			//============================now already find the ROI, start algorithm=====================================
-			Cv2.Blur(image, image, ksize: new OpenCvSharp.Size(blur_size, blur_size));
-			//image.SaveImage("./mask2.jpg");
-
-			//==========================create 0.5 degree a line===================================================
-			double factor = 3.141592653589793 / 180;
-			List<OpenCvSharp.Point> outer_index = new List<OpenCvSharp.Point>();
-			List<OpenCvSharp.Point> inner_index = new List<OpenCvSharp.Point>();
-			double degree_delta = 0.5;
-			int cx = (int)center.X;
-			int cy = (int)center.Y;
-			int r = (int)radius;
-			//Console.WriteLine(r + " "+ cx + " "+ cy);
-
-			for (int degree = 0; degree < (360 / degree_delta); degree++)
+			if (contours_final.Count < 1)
 			{
-				double degree_real = degree * degree_delta;
-				int now_x = (int)((r + 2) * Math.Sin(degree_real * factor)) + cx;
-				int now_y = (int)((r + 2) * Math.Cos(degree_real * factor)) + cy;
-				int now_inner_x = (int)((r - 50) * Math.Sin(degree_real * factor)) + cx;
-				int now_inner_y = (int)((r - 50) * Math.Cos(degree_real * factor)) + cy;
-
-				inner_index.Add(new OpenCvSharp.Point(now_inner_x, now_inner_y));
-				outer_index.Add(new OpenCvSharp.Point(now_x, now_y));
+				OK_NG_Flag = 2;
 			}
-			//==========================shot from center=========================================
-			List<int> all_valley_list = new List<int>();
-			List<int> all_peak_list = new List<int>();
-			List<int> all_diff_list = new List<int>();
-			List<int> Candidate_1_phase_index = new List<int>();
-			List<byte> value = new List<byte>();
-			for (int degree = 0; degree < (360 / degree_delta); degree++)
+			else
 			{
 
-				LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
-				foreach (var lip in Line)
+
+				//==========================================find outer circle==============================================
+				Point2f center;
+				float radius;
+				Cv2.MinEnclosingCircle(contours_final[0], out center, out radius);
+
+				Mat mask_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				Cv2.Circle(mask_img, (OpenCvSharp.Point)center, (int)(radius + 7), 255, thickness: -1);
+
+				//outer contour2 in order to make mask area = 255
+				Mat mask_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
+				Cv2.Circle(mask_img2, (OpenCvSharp.Point)center, (int)(radius + 7), 0, thickness: -1);
+
+
+				Mat image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				Src.CopyTo(image, mask_img);
+
+				//in order to make mask area = 255
+				image = image + mask_img2;
+				//image.SaveImage("./mask.jpg");
+				//============================now already find the ROI, start algorithm=====================================
+				Cv2.Blur(image, image, ksize: new OpenCvSharp.Size(blur_size, blur_size));
+				//image.SaveImage("./mask2.jpg");
+
+				//==========================create 0.5 degree a line===================================================
+				double factor = 3.141592653589793 / 180;
+				List<OpenCvSharp.Point> outer_index = new List<OpenCvSharp.Point>();
+				List<OpenCvSharp.Point> inner_index = new List<OpenCvSharp.Point>();
+				double degree_delta = 0.5;
+				int cx = (int)center.X;
+				int cy = (int)center.Y;
+				int r = (int)radius;
+				//Console.WriteLine(r + " "+ cx + " "+ cy);
+
+				for (int degree = 0; degree < (360 / degree_delta); degree++)
 				{
-					value.Add(lip.GetValue<byte>());
+					double degree_real = degree * degree_delta;
+					int now_x = (int)((r + 2) * Math.Sin(degree_real * factor)) + cx;
+					int now_y = (int)((r + 2) * Math.Cos(degree_real * factor)) + cy;
+					int now_inner_x = (int)((r - 50) * Math.Sin(degree_real * factor)) + cx;
+					int now_inner_y = (int)((r - 50) * Math.Cos(degree_real * factor)) + cy;
+
+					inner_index.Add(new OpenCvSharp.Point(now_inner_x, now_inner_y));
+					outer_index.Add(new OpenCvSharp.Point(now_x, now_y));
 				}
-
-				int peak = 255;
-				int valley = 255;
-				int peak_index = 0;
-				int valley_index = 0;
-
-
-				int temp_valley = 255;
-				int temp_valley_index = 0;
-				int max_diff = 0;
-
-				for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
+				//==========================shot from center=========================================
+				List<int> all_valley_list = new List<int>();
+				List<int> all_peak_list = new List<int>();
+				List<int> all_diff_list = new List<int>();
+				List<int> Candidate_1_phase_index = new List<int>();
+				List<byte> value = new List<byte>();
+				for (int degree = 0; degree < (360 / degree_delta); degree++)
 				{
 
-					if (max_diff < value[pts_index] - temp_valley)
+					LineIterator Line = new LineIterator(image, inner_index[degree], outer_index[degree]);
+					foreach (var lip in Line)
+					{
+						value.Add(lip.GetValue<byte>());
+					}
+
+					int peak = 255;
+					int valley = 255;
+					int peak_index = 0;
+					int valley_index = 0;
+
+
+					int temp_valley = 255;
+					int temp_valley_index = 0;
+					int max_diff = 0;
+
+					for (int pts_index = 1; pts_index < value.Count - 1; pts_index++)//peak of valley will not at 0 and last element.
 					{
 
-						max_diff = value[pts_index] - temp_valley;
-						peak_index = pts_index;
-						//peak = (value[pts_index]+ value[pts_index-1]+ value[pts_index]+1)/3;
-						peak = value[pts_index];
-						valley = temp_valley;
-						valley_index = temp_valley_index;
+						if (max_diff < value[pts_index] - temp_valley)
+						{
+
+							max_diff = value[pts_index] - temp_valley;
+							peak_index = pts_index;
+							//peak = (value[pts_index]+ value[pts_index-1]+ value[pts_index]+1)/3;
+							peak = value[pts_index];
+							valley = temp_valley;
+							valley_index = temp_valley_index;
+						}
+						if (temp_valley > value[pts_index])
+						{
+							//temp_valley = (value[pts_index]+ value[pts_index-1]+ value[pts_index + 1])/3;
+							temp_valley = (value[pts_index]);
+							temp_valley_index = pts_index;
+
+						}
 					}
-					if (temp_valley > value[pts_index])
+
+					all_peak_list.Add(peak);
+					all_valley_list.Add(valley);
+					all_diff_list.Add(peak - valley);
+					//phase1
+					if (valley > 120 || peak - valley < threshold_1phase)
 					{
-						//temp_valley = (value[pts_index]+ value[pts_index-1]+ value[pts_index + 1])/3;
-						temp_valley = (value[pts_index]);
-						temp_valley_index = pts_index;
-
+						Candidate_1_phase_index.Add(degree);
 					}
-				}
 
-				all_peak_list.Add(peak);
-				all_valley_list.Add(valley);
-				all_diff_list.Add(peak - valley);
-				//phase1
-				if (valley > 120 || peak - valley < threshold_1phase)
+					//Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
+					value.Clear();
+				}
+				//phase 2
+				foreach (var candidate_degree in Candidate_1_phase_index)
 				{
-					Candidate_1_phase_index.Add(degree);
+					//Console.WriteLine(candidate_degree);
+					int now_valley_value = all_valley_list[candidate_degree];
+					int prev_valley_value = all_valley_list[(candidate_degree + neighbor_degree + 720) % 720];
+					int next_valley_value = all_valley_list[(candidate_degree - neighbor_degree + 720) % 720];
+
+					int now_peak_value = all_peak_list[candidate_degree];
+					int prev_peak_value = all_peak_list[(candidate_degree + neighbor_degree + 720) % 720];
+					int next_peak_value = all_peak_list[(candidate_degree - neighbor_degree + 720) % 720];
+
+					int now_peak_valley_difference = all_diff_list[candidate_degree];
+					int prev_peak_valley_difference = all_diff_list[(candidate_degree + neighbor_degree + 720) % 720];
+					int next_peak_valley_difference = all_diff_list[(candidate_degree - neighbor_degree + 720) % 720];
+
+					float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
+					float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
+					if ((((value1 > threshold_2phase_1)) && (value2 > threshold_2phase_2)) && (value2 > 0) && (value1 > 0))
+					{
+						//Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
+
+						Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
+						OK_NG_Flag = 1;
+					}
+
 				}
-
-				//Console.WriteLine("Count:"+Candidate_1_phase_index.Count);
-				value.Clear();
-			}
-			//phase 2
-			foreach (var candidate_degree in Candidate_1_phase_index)
-			{
-				//Console.WriteLine(candidate_degree);
-				int now_valley_value = all_valley_list[candidate_degree];
-				int prev_valley_value = all_valley_list[(candidate_degree + neighbor_degree + 720) % 720];
-				int next_valley_value = all_valley_list[(candidate_degree - neighbor_degree + 720) % 720];
-
-				int now_peak_value = all_peak_list[candidate_degree];
-				int prev_peak_value = all_peak_list[(candidate_degree + neighbor_degree + 720) % 720];
-				int next_peak_value = all_peak_list[(candidate_degree - neighbor_degree + 720) % 720];
-
-				int now_peak_valley_difference = all_diff_list[candidate_degree];
-				int prev_peak_valley_difference = all_diff_list[(candidate_degree + neighbor_degree + 720) % 720];
-				int next_peak_valley_difference = all_diff_list[(candidate_degree - neighbor_degree + 720) % 720];
-
-				float value1 = ((float)now_valley_value - (float)prev_valley_value) + ((float)now_valley_value - (float)next_valley_value);
-				float value2 = ((float)prev_peak_valley_difference - (float)now_peak_valley_difference) + ((float)next_peak_valley_difference - (float)now_peak_valley_difference);
-				if ((((value1 > threshold_2phase_1)) && (value2 > threshold_2phase_2)) && (value2 > 0) && (value1 > 0))
-				{
-					//Console.WriteLine(candidate_degree + " " + now_peak_value + " " + now_valley_value + " " + (now_peak_value - now_valley_value) + " " + value1 + " " + value2);
-
-					Cv2.Circle(vis_rgb, outer_index[candidate_degree], 30, new Scalar(0, 255, 255), thickness: 5);
-					OK_NG_Flag = 1;
-				}
-
 			}
 			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 			ImgAI_3.Enqueue(vis_rgb);
@@ -4316,70 +4325,78 @@ namespace CherngerUI
 				}
 
 			}
-			//==================================================outer cirle - inner circle=====================================
 
-			// variable
-			OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
-
-			// inner contour
-			Mat inner_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			OpenCvSharp.Point[] inner_contour = Cv2.ConvexHull(approx_list[1]);
-			temp[0] = inner_contour;
-			Cv2.DrawContours(inner_contour_img, temp, -1, 255, -1);
-
-			// outer contour
-			Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			Point2f center;
-			float radius;
-
-			OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
-			temp[0] = Approx;
-			Cv2.MinEnclosingCircle(Approx, out center, out radius);
-			Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius - CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius), 255, thickness: -1);
-
-			//outer contour2 in order to make mask area = 255
-			Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
-			OpenCvSharp.Point[] outer_contour2 = Cv2.ConvexHull(approx_list[0]);
-			temp[0] = outer_contour2;
-			Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
-
-			//outer - inner
-			Mat diff_mask = outer_contour_img - inner_contour_img;
-			Mat diff_mask2 = inner_contour_img + outer_contour_img2;
-
-			Mat image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-			Src.CopyTo(image, diff_mask);
-			//in order to make mask area = 255
-			image = image + diff_mask2;
-
-			//image.SaveImage("./mask.jpg");
-			//================================use threshold to find defect==========================================
-			OpenCvSharp.Point[][] contours2;
-			HierarchyIndex[] hierarchly2;
-			Mat thresh2 = image.Threshold(85, 255, ThresholdTypes.BinaryInv);
-
-			Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
-			thresh2 = thresh2.MorphologyEx(MorphTypes.Dilate, kernel);
-
-			Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
-
-
-
-			foreach (OpenCvSharp.Point[] contour_now in contours2)
+			if (approx_list.Count < 2)
 			{
-				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min &&
-					Cv2.ContourArea(contour_now) < 20000 &&
-					Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&
-					(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio)
-				{
-					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
-					temp[0] = approx;
-					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-					OK_NG_Flag = 1;
-				}
-
+				//cannot find the contour exception => return NULL
+				OK_NG_Flag = 2;
 			}
+			else
+			{
+				//==================================================outer cirle - inner circle=====================================
 
+				// variable
+				OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+
+				// inner contour
+				Mat inner_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				OpenCvSharp.Point[] inner_contour = Cv2.ConvexHull(approx_list[1]);
+				temp[0] = inner_contour;
+				Cv2.DrawContours(inner_contour_img, temp, -1, 255, -1);
+
+				// outer contour
+				Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				Point2f center;
+				float radius;
+
+				OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
+				temp[0] = Approx;
+				Cv2.MinEnclosingCircle(Approx, out center, out radius);
+				Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius - CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius), 255, thickness: -1);
+
+				//outer contour2 in order to make mask area = 255
+				Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
+				OpenCvSharp.Point[] outer_contour2 = Cv2.ConvexHull(approx_list[0]);
+				temp[0] = outer_contour2;
+				Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
+
+				//outer - inner
+				Mat diff_mask = outer_contour_img - inner_contour_img;
+				Mat diff_mask2 = inner_contour_img + outer_contour_img2;
+
+				Mat image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				Src.CopyTo(image, diff_mask);
+				//in order to make mask area = 255
+				image = image + diff_mask2;
+
+				//image.SaveImage("./mask.jpg");
+				//================================use threshold to find defect==========================================
+				OpenCvSharp.Point[][] contours2;
+				HierarchyIndex[] hierarchly2;
+				Mat thresh2 = image.Threshold(85, 255, ThresholdTypes.BinaryInv);
+
+				Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
+				thresh2 = thresh2.MorphologyEx(MorphTypes.Dilate, kernel);
+
+				Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+
+
+				foreach (OpenCvSharp.Point[] contour_now in contours2)
+				{
+					if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min &&
+						Cv2.ContourArea(contour_now) < 20000 &&
+						Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&
+						(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio)
+					{
+						OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+						temp[0] = approx;
+						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+						OK_NG_Flag = 1;
+					}
+
+				}
+			}
 			++Num.TotalNumSave_4;
 			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 			//byte[] OK_NG_Flag_Buf = new byte[8];
