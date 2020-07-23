@@ -265,7 +265,7 @@ namespace SensorTechnology
 				BGRImage = null;
 				//time_consuming = null;
 				Src = null;
-				GC.Collect();
+				////GC.Collect();
 				#endregion
 			}
 
@@ -307,7 +307,7 @@ namespace SensorTechnology
 				BGRImage = null;
 				time_consuming = null;
 				Src = null;
-				GC.Collect();
+				////GC.Collect();
 				#endregion
 			}
 

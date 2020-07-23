@@ -31,9 +31,9 @@ namespace CherngerUI
 		#region 初始參數
 		Camera camera = new Camera();
 
-        public static Queue<Mat> AiTestImages = new Queue<Mat>();
+		public static Queue<Mat> AiTestImages = new Queue<Mat>();
 
-        //Mat ReTestSrc = new Mat();
+		//Mat ReTestSrc = new Mat();
 		DefectSettings DefectUI = new DefectSettings();
 		ImageProcessing_DefectSetting Image_Processing_Defect_Config = new ImageProcessing_DefectSetting();
 		//TimeSpan ProductCounter = new TimeSpan();
@@ -94,9 +94,9 @@ namespace CherngerUI
 			//xPanderPanel3.Controls.Add(ConsoleBox);
 
 			//現在時間 初始
-			DateTimer_Tick(this , null);
+			DateTimer_Tick(this, null);
 			DateTimer.Interval = 1000;  //每秒觸發一次
-			DateTimer.Enabled = true;	//啟動timer
+			DateTimer.Enabled = true;   //啟動timer
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
@@ -204,7 +204,7 @@ namespace CherngerUI
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "ignore_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
-			
+
 			#endregion
 
 			#region Smart Key
@@ -254,7 +254,7 @@ namespace CherngerUI
 
 			#region 瑕疵檢測參數初始化
 
-			DefectValue.GapArea = Value.GapArea;						//缺角面積
+			DefectValue.GapArea = Value.GapArea;                        //缺角面積
 			DefectValue.GapDeep = Value.GapDeep;                        //缺角深度
 			DefectValue.CrackArea = Value.CrackArea;                    //微裂面積
 			DefectValue.CrackLength = Value.CrackLength;                //微裂長度
@@ -377,13 +377,13 @@ namespace CherngerUI
 							Stop4_Detector(Src, Src);
 							break;
 						default:
-							MessageBox.Show("錯誤" , "ERROR" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+							MessageBox.Show("錯誤", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 							break;
 					}
 				}
-				
+
 				//ReTestSrc = Src.Clone();
-				
+
 			}
 
 			//Thread.Sleep(100);
@@ -421,7 +421,7 @@ namespace CherngerUI
 				PLC1.setValue(PLC1.PLCContect.OfflineMotor, true);
 				Thread.Sleep(100);
 				PLC1.setValue(PLC1.PLCContect.Motor, true);
-				GC.Collect();
+				//GC.Collect();
 				Application.DoEvents();
 			}
 		}
@@ -550,7 +550,7 @@ namespace CherngerUI
 				}
 
 
-				GC.Collect();
+				//GC.Collect();
 				Application.DoEvents();
 			}
 			else if (StartButton.Text == "暫停檢測")
@@ -747,7 +747,7 @@ namespace CherngerUI
 				}
 				#endregion
 
-				GC.Collect();
+				//GC.Collect();
 				Application.DoEvents();
 			}
 			else if (StartButton.Text == "繼續檢測")
@@ -828,7 +828,7 @@ namespace CherngerUI
 				#endregion
 
 
-				GC.Collect();
+				//GC.Collect();
 				Application.DoEvents();
 			}
 			else if (StartButton.Text == "復歸")
@@ -929,7 +929,7 @@ namespace CherngerUI
 				}
 				#endregion
 
-				GC.Collect();
+				//GC.Collect();
 				Application.DoEvents();
 			}
 		}
@@ -965,7 +965,7 @@ namespace CherngerUI
 			PLC1.setValue(PLC1.PLCContect.Motor, false);
 			Thread.Sleep(50);
 			PLC1.setValue(PLC1.PLCContect.Light, false);
-			GC.Collect();
+			//GC.Collect();
 		}
 
 		//重工料斗歸零按鈕
@@ -1725,7 +1725,7 @@ namespace CherngerUI
 		}
 
 
-        public void Work_5()
+		public void Work_5()
 		{
 			//Console.WriteLine("[Work]");
 			ThreadPool.QueueUserWorkItem((o) =>
@@ -1834,21 +1834,21 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-							
+
 						}
 						catch (System.Exception e)
 						{
 							MessageBox.Show(e.ToString());
 						}
 						Thread.Sleep(50);
-						
+
 					}
 					else if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
 					{
 						if (app.IsAdjust)
 						{
 							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
-							app.NullWarning++;			
+							app.NullWarning++;
 							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
@@ -1858,7 +1858,7 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-							
+
 							if (app.NullWarning >= app.NullWarningTarget)
 							{
 								lock (StartButton)
@@ -1868,7 +1868,7 @@ namespace CherngerUI
 							}
 						}
 						Thread.Sleep(50);
-					} 
+					}
 					else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
 					{
 						try
@@ -1885,7 +1885,7 @@ namespace CherngerUI
 							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
 							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
 							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-							
+
 						}
 						catch (System.Exception e)
 						{
@@ -1933,10 +1933,10 @@ namespace CherngerUI
 			BeginInvoke(new Action(() => { YrDivisionLabel_2.Text = Num.YieldRateDivision[2].ToString("P"); }));
 			BeginInvoke(new Action(() => { NgDivisionLabel_3.Text = Num.NgDivision[3].ToString(); }));
 			BeginInvoke(new Action(() => { OkDivisionLabel_3.Text = Num.OkDivision[3].ToString(); }));
-			BeginInvoke(new Action(() => { YrDivisionLabel_3.Text = Num.YieldRateDivision[3].ToString("P"); }));			
+			BeginInvoke(new Action(() => { YrDivisionLabel_3.Text = Num.YieldRateDivision[3].ToString("P"); }));
 		}
 
-		private void UpdateLabelDivision(string State , int CameraID)
+		private void UpdateLabelDivision(string State, int CameraID)
 		{
 			switch (State)
 			{
@@ -2041,32 +2041,32 @@ namespace CherngerUI
 					}
 				}
 				else if (app.Offline)
-				{                   
-                    //Console.WriteLine("off");
-                    if (!app.OfflineShoot && CameraShootbutton.Text == "拍照")
+				{
+					//Console.WriteLine("off");
+					if (!app.OfflineShoot && CameraShootbutton.Text == "拍照")
 					{
 						if (CameraID == 0)
 						{
 							Cv2.Flip(Src, Src, FlipMode.Y);
 							BeginInvoke(new Action(() => { cherngerPictureBox1.Image = Src.ToBitmap(); }));
-							
+
 
 						}
 						else if (CameraID == 1)
 						{
 							BeginInvoke(new Action(() => { cherngerPictureBox2.Image = Src.ToBitmap(); }));
-							
+
 						}
 						else if (CameraID == 2)
 						{
 							Cv2.Flip(Src, Src, FlipMode.Y);
 							BeginInvoke(new Action(() => { cherngerPictureBox3.Image = Src.ToBitmap(); }));
-							
+
 						}
 						else if (CameraID == 3)
 						{
 							BeginInvoke(new Action(() => { cherngerPictureBox4.Image = Src.ToBitmap(); }));
-							
+
 						}
 					}
 					else if (app.OfflineShoot || (!app.OfflineShoot && CameraShootbutton.Text == "繼續取樣"))
@@ -2077,8 +2077,8 @@ namespace CherngerUI
 							//ManualResetEvent[] Waiting = new ManualResetEvent[1];
 							//Waiting[0] = new ManualResetEvent(false);
 							//Waiting[1] = new ManualResetEvent(false);
-							Num.TotalNumSave_1_tmp++;							
-                            Update(CameraID, app.CameraCount);
+							Num.TotalNumSave_1_tmp++;
+							Update(CameraID, app.CameraCount);
 							Mat Dst = new Mat();
 							string Result = string.Empty;
 							/*
@@ -2095,7 +2095,7 @@ namespace CherngerUI
 
 							//WaitHandle.WaitAll(Waiting);
 							Console.WriteLine("[Result]: " + Result);
-							
+
 							//Console.WriteLine("Stop1: " + Output.State);
 							//BeginInvoke(new Action(() => { cherngerPictureBox1.Image = Dst.ToBitmap(); }));
 							//BeginInvoke(new Action(() => { cherngerPictureBox5.Image = Src.ToBitmap(); }));
@@ -2119,21 +2119,21 @@ namespace CherngerUI
 							//UnionAOI AOI = new UnionAOI(Src, UnionAOI.Perspective.BackSideBody);
 							//AOI.UnionDetection2();
 							//Console.WriteLine("[Result]: " + AOI.output.State);
-                            //BeginInvoke(new Action(() =>
-                            //{
-                            //    Result_CCD_2.Text = AOI.output.State;
-                            //    if (AOI.output.State == "NG")
-                            //        Result_CCD_2.BackColor = Color.Red;
-                            //    else if (AOI.output.State == "OK")
-                            //        Result_CCD_2.BackColor = Color.Green;
-                            //    else if (AOI.output.State == "NULL")
-                            //        Result_CCD_2.BackColor = Color.Yellow;
-                            //}));
-                            //lock (AOI.output.State)
-                            //{
-                            //    Value.Result_2.Enqueue(AOI.output.State);
-                            //}
-       //                     BeginInvoke(new Action(() => { cherngerPictureBox2.Image = AOI.output.Dst1.ToBitmap(); }));
+							//BeginInvoke(new Action(() =>
+							//{
+							//    Result_CCD_2.Text = AOI.output.State;
+							//    if (AOI.output.State == "NG")
+							//        Result_CCD_2.BackColor = Color.Red;
+							//    else if (AOI.output.State == "OK")
+							//        Result_CCD_2.BackColor = Color.Green;
+							//    else if (AOI.output.State == "NULL")
+							//        Result_CCD_2.BackColor = Color.Yellow;
+							//}));
+							//lock (AOI.output.State)
+							//{
+							//    Value.Result_2.Enqueue(AOI.output.State);
+							//}
+							//                     BeginInvoke(new Action(() => { cherngerPictureBox2.Image = AOI.output.Dst1.ToBitmap(); }));
 							//BeginInvoke(new Action(() => { cherngerPictureBox5.Image = Src.ToBitmap(); }));
 							//UpdateLabelDivision(AOI.output.State, app.OfflineShootID);
 
@@ -2141,9 +2141,9 @@ namespace CherngerUI
 							//if (app.SavingMode == "ALL")
 							//	DoAoi_2(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 							//else if (AOI.output.State == app.SavingMode)
-       //                         DoAoi_2(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
+							//                         DoAoi_2(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 
-                            app.OfflineShoot = false;
+							app.OfflineShoot = false;
 
 							DoAoi_2(Src, Src, CameraID, app.SavingMode);
 						}
@@ -2155,21 +2155,21 @@ namespace CherngerUI
 							//UnionAOI AOI = new UnionAOI(Src, UnionAOI.Perspective.InnerSideBody);
 							//AOI.UnionDetection3();
 							//Console.WriteLine("[Result]: " + AOI.output.State);
-       //                     BeginInvoke(new Action(() =>
-       //                     {
-       //                         Result_CCD_3.Text = AOI.output.State;
-       //                         if (AOI.output.State == "NG")
-       //                             Result_CCD_3.BackColor = Color.Red;
-       //                         else if (AOI.output.State == "OK")
-       //                             Result_CCD_3.BackColor = Color.Green;
-       //                         else if (AOI.output.State == "NULL")
-       //                             Result_CCD_3.BackColor = Color.Yellow;
-       //                     }));
-       //                     lock (AOI.output.State)
-       //                     {
-       //                         Value.Result_3.Enqueue(AOI.output.State);
-       //                     }
-       //                     BeginInvoke(new Action(() => { cherngerPictureBox3.Image = AOI.output.Dst1.ToBitmap(); }));
+							//                     BeginInvoke(new Action(() =>
+							//                     {
+							//                         Result_CCD_3.Text = AOI.output.State;
+							//                         if (AOI.output.State == "NG")
+							//                             Result_CCD_3.BackColor = Color.Red;
+							//                         else if (AOI.output.State == "OK")
+							//                             Result_CCD_3.BackColor = Color.Green;
+							//                         else if (AOI.output.State == "NULL")
+							//                             Result_CCD_3.BackColor = Color.Yellow;
+							//                     }));
+							//                     lock (AOI.output.State)
+							//                     {
+							//                         Value.Result_3.Enqueue(AOI.output.State);
+							//                     }
+							//                     BeginInvoke(new Action(() => { cherngerPictureBox3.Image = AOI.output.Dst1.ToBitmap(); }));
 							//BeginInvoke(new Action(() => { cherngerPictureBox5.Image = Src.ToBitmap(); }));
 							//UpdateLabelDivision(AOI.output.State, app.OfflineShootID);
 
@@ -2177,7 +2177,7 @@ namespace CherngerUI
 							//if (app.SavingMode == "ALL")
 							//	DoAoi_3(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 							//else if (AOI.output.State == app.SavingMode)
-       //                         DoAoi_3(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
+							//                         DoAoi_3(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 
 							//Work_5_AI();
 							app.OfflineShoot = false;
@@ -2191,21 +2191,21 @@ namespace CherngerUI
 							//UnionAOI AOI = new UnionAOI(Src, UnionAOI.Perspective.OuterSideBody);
 							//AOI.UnionDetection4();
 							//Console.WriteLine("[Result]: " + AOI.output.State);
-       //                     BeginInvoke(new Action(() =>
-       //                     {
-       //                         Result_CCD_4.Text = AOI.output.State;
-       //                         if (AOI.output.State == "NG")
-       //                             Result_CCD_4.BackColor = Color.Red;
-       //                         else if (AOI.output.State == "OK")
-       //                             Result_CCD_4.BackColor = Color.Green;
-       //                         else if (AOI.output.State == "NULL")
-       //                             Result_CCD_4.BackColor = Color.Yellow;
-       //                     }));
-       //                     lock (AOI.output.State)
-       //                     {
-       //                         Value.Result_4.Enqueue("OK");
-       //                     }
-       //                     BeginInvoke(new Action(() => { cherngerPictureBox4.Image = AOI.output.Dst1.ToBitmap(); }));
+							//                     BeginInvoke(new Action(() =>
+							//                     {
+							//                         Result_CCD_4.Text = AOI.output.State;
+							//                         if (AOI.output.State == "NG")
+							//                             Result_CCD_4.BackColor = Color.Red;
+							//                         else if (AOI.output.State == "OK")
+							//                             Result_CCD_4.BackColor = Color.Green;
+							//                         else if (AOI.output.State == "NULL")
+							//                             Result_CCD_4.BackColor = Color.Yellow;
+							//                     }));
+							//                     lock (AOI.output.State)
+							//                     {
+							//                         Value.Result_4.Enqueue("OK");
+							//                     }
+							//                     BeginInvoke(new Action(() => { cherngerPictureBox4.Image = AOI.output.Dst1.ToBitmap(); }));
 							//BeginInvoke(new Action(() => { cherngerPictureBox5.Image = Src.ToBitmap(); }));
 							//UpdateLabelDivision(AOI.output.State, app.OfflineShootID);
 
@@ -2213,9 +2213,9 @@ namespace CherngerUI
 							//if (app.SavingMode == "ALL")
 							//	DoAoi_4(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 							//else if (AOI.output.State == app.SavingMode)
-       //                         DoAoi_4(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
+							//                         DoAoi_4(AOI.input.Src1, AOI.output.Dst1, CameraID, app.SavingMode);
 
-                            app.OfflineShoot = false;
+							app.OfflineShoot = false;
 							//OfflineWork_5();
 							DoAoi_4(Src, Src, CameraID, app.SavingMode);
 						}
@@ -2329,8 +2329,8 @@ namespace CherngerUI
 						//Update(CameraID, app.CameraCount);
 						//Console.WriteLine("[STATE]: In CCD 2");
 
-						Mat Dst = new Mat();										
-						ThreadPool.QueueUserWorkItem((o) => 
+						Mat Dst = new Mat();
+						ThreadPool.QueueUserWorkItem((o) =>
 						{
 							DateTime T = DateTime.Now;
 							Stop2_Detector(Src, Dst);
@@ -2406,9 +2406,9 @@ namespace CherngerUI
 
 						Mat Dst = new Mat();
 						#region 演算法										
-						ThreadPool.QueueUserWorkItem((o) => 
+						ThreadPool.QueueUserWorkItem((o) =>
 						{
-							DateTime T = DateTime.Now;		
+							DateTime T = DateTime.Now;
 							Stop3_Detector(Src, Dst);
 							//UnionAOI AOI = new UnionAOI(Src, UnionAOI.Perspective.InnerSideBody);
 							//bool confirm = /*AOI.ClearNoise(AOI.input.Src1, UnionAOI.Perspective.InnerSideBody)*/true;
@@ -2478,7 +2478,7 @@ namespace CherngerUI
 						//Console.WriteLine("[STATE]: In CCD 4");
 
 						Mat Dst = new Mat();
-						ThreadPool.QueueUserWorkItem((o) => 
+						ThreadPool.QueueUserWorkItem((o) =>
 						{
 							DateTime T = DateTime.Now;
 							Stop4_Detector(Src, Dst);
@@ -2536,7 +2536,7 @@ namespace CherngerUI
 						//UnionAOI AOI = new UnionAOI(Src , UnionAOI.Perspective.FrontSideBody);
 						////UnionAOI.Output Output = new UnionAOI.Output();
 						////Output = AOI.Union_Adjustion(Input);
-						
+
 						//if (AOI.output.State == "OK")
 						//{
 						//	Value.AdjODRatio += AOI.output.AdjODRatio;
@@ -2569,16 +2569,16 @@ namespace CherngerUI
 				#endregion
 			}
 			#endregion
-			
+
 			Application.DoEvents();
-			GC.Collect();
+			//GC.Collect();
 		}
 		#endregion
 
 		private string ReadResult(Int64 result)
 		{
 			string R = "NULL";
-			if(result < 1)
+			if (result < 1)
 			{
 				R = "OK";
 			}
@@ -2625,15 +2625,15 @@ namespace CherngerUI
 					break;
 			}
 
-			
+
 		}
 		#endregion
 		//儲存圖 New
-		private void DoAoi_1(Mat Src, Mat Dst, int CameraID , string SaveMode)
+		private void DoAoi_1(Mat Src, Mat Dst, int CameraID, string SaveMode)
 		{
-            SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_1 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-1//", Picturetype.jpg);            
-			
-            if (radioButton4.Checked)
+			SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_1 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-1//", Picturetype.jpg);
+
+			if (radioButton4.Checked)
 			{
 				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//")) //若不存在新創資料夾
 					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//");
@@ -2661,7 +2661,7 @@ namespace CherngerUI
 				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//")) //若不存在新創資料夾
 					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2 ).ToString(), app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//", Picturetype.jpg);
 			}
 			else if (radioButton5.Checked)
 			{
@@ -2796,7 +2796,7 @@ namespace CherngerUI
 			}
 		}
 
-		public void SaveIng(Mat Src, SavingMode mode, string fileName, string Savepath, Picturetype type , double SizePercent)
+		public void SaveIng(Mat Src, SavingMode mode, string fileName, string Savepath, Picturetype type, double SizePercent)
 		{
 			switch (mode)
 			{
@@ -2824,8 +2824,8 @@ namespace CherngerUI
 						OpenCvSharp.Size s;
 						s.Width = (int)(Src.Width * SizePercent);
 						s.Height = (int)(Src.Height * SizePercent);
-						dst = new Mat(s ,MatType.CV_8U);
-						Cv2.Resize(Src, dst , s , 0 , 0 , InterpolationFlags.Linear);
+						dst = new Mat(s, MatType.CV_8U);
+						Cv2.Resize(Src, dst, s, 0, 0, InterpolationFlags.Linear);
 						#endregion
 
 						switch (type)
@@ -2933,9 +2933,9 @@ namespace CherngerUI
 			//foreach (string directory in directories)
 			//{
 			//    DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-			//    TimeSpan t = DateTime.Now - directoryInfo.CreationTime;  //当前时间  减去 文件创建时间
+			//    TimeSpan t = DateTime.Now - directoryInfo.CreationTime;  //当前时间  减去 文件创建时间
 			//    int Filedays = t.Days;
-			//    if (Filedays > day)   //保存的时间 ；  单位：天
+			//    if (Filedays > day)   //保存的时间 ；  单位：天
 			//    {
 			//        Directory.Delete(directory, true);
 			//    }
@@ -2974,10 +2974,10 @@ namespace CherngerUI
 			B.ShowDialog();
 		}
 
-		private void UpdateBtn(string Result,ref int Count)
+		private void UpdateBtn(string Result, ref int Count)
 		{
-			
-			Console.WriteLine("btn: "+Count);
+
+			//Console.WriteLine("btn: " + Count);
 			if (Count / 100 > 0)
 			{
 				Count -= (Count / 100) * 100;
@@ -3031,7 +3031,7 @@ namespace CherngerUI
 		private void ChartReset()
 		{
 			chart1.ChartAreas[0].AxisY.Minimum = 0;//設定Y軸最小值
-			//chart1.ChartAreas[0].AxisY.Maximum = 100;//設定Y軸最大值
+												   //chart1.ChartAreas[0].AxisY.Maximum = 100;//設定Y軸最大值
 			chart1.ChartAreas[0].AxisX.Minimum = 0;//設定X軸最小值
 			chart1.ChartAreas[0].AxisX.Maximum = 10;//設定X軸最大值
 			chart1.ChartAreas[0].AxisX.MajorGrid.Enabled = false;
@@ -3154,7 +3154,7 @@ namespace CherngerUI
 				Num.ChartCount++;
 			}
 			BeginInvoke(new Action(() => chart1.ChartAreas[0].RecalculateAxesScale()));
-			Console.WriteLine("[每" + ChartTimeInterval.SelectedItem.ToString() +  "分鐘檢測數量]: " + N);
+			Console.WriteLine("[每" + ChartTimeInterval.SelectedItem.ToString() + "分鐘檢測數量]: " + N);
 			//if (Num.ChartCount <= 10)
 			//{
 			//	BeginInvoke(new Action(() => chart1.Series[0].Points[Num.ChartCount].SetValueXY( Num.ChartCount , N)));
@@ -3178,9 +3178,9 @@ namespace CherngerUI
 		}
 		private void RunTimer_Tick(object sender, EventArgs e)
 		{
-			WorkTimelabel.Text = String.Format("{0:00}:{1:00}:{2:00}", app.TotalSW.Elapsed.Hours , app.TotalSW.Elapsed.Minutes , app.TotalSW.Elapsed.Seconds);
-			TotalRuntimelabel.Text = String.Format("{0:00}:{1:00}:{2:00}", app.RunningSW.Elapsed.Hours , app.RunningSW.Elapsed.Minutes , app.RunningSW.Elapsed.Seconds);
-			if(app.CCD_Apply[0])
+			WorkTimelabel.Text = String.Format("{0:00}:{1:00}:{2:00}", app.TotalSW.Elapsed.Hours, app.TotalSW.Elapsed.Minutes, app.TotalSW.Elapsed.Seconds);
+			TotalRuntimelabel.Text = String.Format("{0:00}:{1:00}:{2:00}", app.RunningSW.Elapsed.Hours, app.RunningSW.Elapsed.Minutes, app.RunningSW.Elapsed.Seconds);
+			if (app.CCD_Apply[0])
 				Runtimelabel.Text = String.Format("{0:0.00}", app.SingleItemTime1.Elapsed.TotalSeconds);
 			else if (app.CCD_Apply[1])
 				Runtimelabel.Text = String.Format("{0:0.00}", app.SingleItemTime2.Elapsed.TotalSeconds);
@@ -3230,7 +3230,7 @@ namespace CherngerUI
 			}
 			#endregion
 		}
-		#endregion 
+		#endregion
 
 		public enum SavingMode
 		{
@@ -3243,7 +3243,7 @@ namespace CherngerUI
 			bmp = 1,
 			jpg = 2
 		}
-		#endregion		
+		#endregion
 
 		private void button1_Click(object sender, EventArgs e)
 		{
@@ -3262,7 +3262,7 @@ namespace CherngerUI
 			//app.ProductEfficient;
 			Num.TotalSuccessNum += 5;
 			UpdateChart();
-		}					
+		}
 
 		private void checkBox1_CheckedChanged(object sender, EventArgs e)
 		{
@@ -3383,7 +3383,7 @@ namespace CherngerUI
 					this.Invoke((EventHandler)delegate
 					{
 
-						Mat img = Mat.FromStream(ms , ImreadModes.Color);//圖片在這裡
+						Mat img = Mat.FromStream(ms, ImreadModes.Color);//圖片在這裡
 						cherngerPictureBox1.Image = img.ToBitmap(); //更新在窗体控件上
 						img.SaveImage("test" + i.ToString() + ".jpg");
 
@@ -3404,14 +3404,14 @@ namespace CherngerUI
 
 		#region 離線
 		private void WorkAI_1()
-        {
+		{
 			DirectoryInfo dr1 = new DirectoryInfo(app.AiPath_1);
 			app.enumerator_1 = dr1.GetFiles().OrderBy(f => int.Parse(f.Name.Substring(0, f.Name.Length - 4))).GetEnumerator();
 			app.enumerator_1.MoveNext();
 			bool ttt = false;
 			while (true)
-			{				
-				if(ttt)
+			{
+				if (ttt)
 					Thread.Sleep(1000);
 				Num.TotalNumSave_1_tmp++;
 				//Mat Src1 = new Mat((app.enumerator_1.Current as FileInfo).FullName , ImreadModes.Grayscale);
@@ -3442,7 +3442,7 @@ namespace CherngerUI
 		}
 		#endregion
 
-		private string WorkAI_1(Mat Src , Mat Dst ,out string Result)
+		private string WorkAI_1(Mat Src, Mat Dst, out string Result)
 		{
 			Result = "OK";
 
@@ -3612,11 +3612,11 @@ namespace CherngerUI
 
 		private string UpdateResult(long ResultPtr)
 		{
-			if(ResultPtr == 0)
+			if (ResultPtr == 0)
 			{
 				return "OK";
 			}
-			else if(ResultPtr == 1)
+			else if (ResultPtr == 1)
 			{
 				return "NG";
 			}
@@ -3626,26 +3626,26 @@ namespace CherngerUI
 			}
 		}
 		#region Stop1 
-        // MSER set shift image
-        static Mat[] set_shift_image(ref Mat img)
-        {
-            float[,,] data = new float[4, 2, 3] {   { { 1,0,15},    { 0,1,-15}  },
-                                                {   { 1,0,15},    { 0,1,15}   },
-                                                {   { 1,0,-15},   { 0,1,-15}  },
-                                                {   { 1,0,-15},   { 0,1,15}   }
-                                            };
+		// MSER set shift image
+		static Mat[] set_shift_image(ref Mat img)
+		{
+			float[,,] data = new float[4, 2, 3] {   { { 1,0,15},    { 0,1,-15}  },
+												{   { 1,0,15},    { 0,1,15}   },
+												{   { 1,0,-15},   { 0,1,-15}  },
+												{   { 1,0,-15},   { 0,1,15}   }
+											};
 
-            Mat[] out_image = new Mat[4];
-            for (int i = 0; i < 4; i++)
-            {
-                out_image[i] = new Mat(2, 3, MatType.CV_32F);
-                out_image[i].Set(0, 0, data[i, 0, 0]);
-                out_image[i].Set(0, 1, data[i, 0, 1]);
-                out_image[i].Set(0, 2, data[i, 0, 2]);
-                out_image[i].Set(1, 0, data[i, 1, 0]);
-                out_image[i].Set(1, 1, data[i, 1, 1]);
-                out_image[i].Set(1, 2, data[i, 1, 2]);
-                /*
+			Mat[] out_image = new Mat[4];
+			for (int i = 0; i < 4; i++)
+			{
+				out_image[i] = new Mat(2, 3, MatType.CV_32F);
+				out_image[i].Set(0, 0, data[i, 0, 0]);
+				out_image[i].Set(0, 1, data[i, 0, 1]);
+				out_image[i].Set(0, 2, data[i, 0, 2]);
+				out_image[i].Set(1, 0, data[i, 1, 0]);
+				out_image[i].Set(1, 1, data[i, 1, 1]);
+				out_image[i].Set(1, 2, data[i, 1, 2]);
+				/*
                 Console.WriteLine(out_image[i].At<float>(0, 0));
                 Console.WriteLine(out_image[i].At<float>(0, 1));
                 Console.WriteLine(out_image[i].At<float>(0, 2));
@@ -3654,38 +3654,38 @@ namespace CherngerUI
                 Console.WriteLine(out_image[i].At<float>(1, 2));
                 */
 
-            }
+			}
 
-            return out_image;
+			return out_image;
 
-        }
+		}
 
-        //MyMSER
-        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag, int stop,out List<OpenCvSharp.Point[][]> final_area, int vote_threshold = 2,int min_in_area_threshold = 100,int mean_in_area_threshold = 130)
-        {
-            final_area = new List<OpenCvSharp.Point[][]>();
+		//MyMSER
+		static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag, int stop, out List<OpenCvSharp.Point[][]> final_area, int vote_threshold = 2, int min_in_area_threshold = 100, int mean_in_area_threshold = 130)
+		{
+			final_area = new List<OpenCvSharp.Point[][]>();
 			OpenCvSharp.Point[][] contours;
-            Rect[] bboxes;
-            MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
+			Rect[] bboxes;
+			MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
 			// exception
-            mser.DetectRegions(img, out contours, out bboxes);
+			mser.DetectRegions(img, out contours, out bboxes);
 
-            //====================================Local Majority Vote
+			//====================================Local Majority Vote
 
-            // to speed up, create four shift image first
-            var shift_mat = set_shift_image(ref img);
-            Mat[] neighbor_img = new Mat[4];
-            for (int i = 0; i < 4; i++)
-            {
-                neighbor_img[i] = new Mat();
-                Cv2.WarpAffine(img, neighbor_img[i], shift_mat[i], img.Size());
-                //neighbor_img[i].SaveImage("./shift_image" + i + ".jpg");
-            }
+			// to speed up, create four shift image first
+			var shift_mat = set_shift_image(ref img);
+			Mat[] neighbor_img = new Mat[4];
+			for (int i = 0; i < 4; i++)
+			{
+				neighbor_img[i] = new Mat();
+				Cv2.WarpAffine(img, neighbor_img[i], shift_mat[i], img.Size());
+				//neighbor_img[i].SaveImage("./shift_image" + i + ".jpg");
+			}
 
-            //for each contour, apply local majority vote
-            foreach (OpenCvSharp.Point[] now_contour in contours)
-            {
-                OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+			//for each contour, apply local majority vote
+			foreach (OpenCvSharp.Point[] now_contour in contours)
+			{
+				OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
 
 				//OpenCvSharp.Point[] Convex_hull = Cv2.ConvexHull(now_contour);
 				OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
@@ -3693,271 +3693,266 @@ namespace CherngerUI
 				//===============================threshold for arc length and area===============================
 				// if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
 				RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
-				if(stop==1)
+				if (stop == 1)
 					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
 						continue;
-				else if(stop==2)
-					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
-						continue;
+					else if (stop == 2)
+						if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
+							continue;
 
 				//===============================local majority vote===============================
 
 				// Convex hull
 				temp[0] = Approx;
-                if (big_flag == 0)//small area: local majority vote
-                {
-                    //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                    //inside the area
-                    double mean_in_area = 0, min_in_area = 0;
-                    Mat mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-                    Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
-                    mean_in_area = img.Mean(mask_img)[0];
-                    img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
-                    //Console.WriteLine(min_in_area + " " + mean_in_area);
+				if (big_flag == 0)//small area: local majority vote
+				{
+					//Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+					//inside the area
+					double mean_in_area = 0, min_in_area = 0;
+					Mat mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+					Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+					mean_in_area = img.Mean(mask_img)[0];
+					img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+					//Console.WriteLine(min_in_area + " " + mean_in_area);
 
-                    //test 
-                    /*
+					//test 
+					/*
                     Mat mask2 = img.LessThan(230);
                     for (int i = 0; i < img.Cols; i++) {
                         for (int j = 0; j < img.Rows; j++) 
                             if(mask2.At<bool>(i, j)==false)
                                 Console.Write(mask2.At<bool>(i,j)+ " ");
-
                         Console.Write("\n");
-
                     }
                     */
-                    //neighbor
-                    double[] mean_neighbor = { 255, 255, 255, 255 };
-                    double[] min_neighbor = { 255, 255, 255, 255 };
-                    for (int i = 0; i < 4; i++)
-                    {
-                        //先把 img > 230 的變成 0，再餵進 shift 裡面
-                        //先把 mask 乘上另一個mask(>230的mask)
-                        //Mat mask_neighbor_img = neighbor_img[i].GreaterThan(0);
-                        //Console.WriteLine(mask_neighbor_img.At<int>(0,1));
-                        // create final mask
-                        Mat mask2 = neighbor_img[i].LessThan(225).ToMat();
-                        mask2.ConvertTo(mask2, MatType.CV_8U, 1.0 / 255.0);
+					//neighbor
+					double[] mean_neighbor = { 255, 255, 255, 255 };
+					double[] min_neighbor = { 255, 255, 255, 255 };
+					for (int i = 0; i < 4; i++)
+					{
+						//先把 img > 230 的變成 0，再餵進 shift 裡面
+						//先把 mask 乘上另一個mask(>230的mask)
+						//Mat mask_neighbor_img = neighbor_img[i].GreaterThan(0);
+						//Console.WriteLine(mask_neighbor_img.At<int>(0,1));
+						// create final mask
+						Mat mask2 = neighbor_img[i].LessThan(225).ToMat();
+						mask2.ConvertTo(mask2, MatType.CV_8U, 1.0 / 255.0);
 
-                        Mat mask_final = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-                        mask_img.CopyTo(mask_final, mask2);
+						Mat mask_final = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+						mask_img.CopyTo(mask_final, mask2);
 
-                        //mask_final.SaveImage("./mask" + i + ".jpg");
+						//mask_final.SaveImage("./mask" + i + ".jpg");
 
-                        mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
-                        //compute min:
-                        //neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
-                        //Console.WriteLine(min_neighbor[i] + " " + mean_neighbor[i]);
+						mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
+						//compute min:
+						//neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
+						//Console.WriteLine(min_neighbor[i] + " " + mean_neighbor[i]);
 
-                    }
-                    int vote = 0;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (mean_in_area > mean_neighbor[i])
-                            vote++;
-                    }
-                    if (vote > vote_threshold || min_in_area > min_in_area_threshold || mean_in_area > mean_in_area_threshold)
-                        continue;
-                    else
-                        //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                        final_area.Add(temp);
+					}
+					int vote = 0;
+					for (int i = 0; i < 4; i++)
+					{
+						if (mean_in_area > mean_neighbor[i])
+							vote++;
+					}
+					if (vote > vote_threshold || min_in_area > min_in_area_threshold || mean_in_area > mean_in_area_threshold)
+						continue;
+					else
+						//Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+						final_area.Add(temp);
 
-                }
-                else
-                {
-                    //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                    final_area.Add(temp);
-                }
-            }
-            
-
-        }
+				}
+				else
+				{
+					//Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
+					final_area.Add(temp);
+				}
+			}
 
 
-        //mask the inner part of circle 
-        static List<OpenCvSharp.Point[]> Mask_innercicle1(ref Mat img)
-        {
+		}
 
-            Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
+
+		//mask the inner part of circle 
+		static List<OpenCvSharp.Point[]> Mask_innercicle1(ref Mat img)
+		{
+
+			Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
 			OpenCvSharp.Point[][] contours;
-            HierarchyIndex[] hierarchly;
-            Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+			HierarchyIndex[] hierarchly;
+			Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
 
-            // find final circle 
-            List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
+			// find final circle 
+			List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
 
-            foreach (OpenCvSharp.Point[] contour_now in contours)
-            {
-                //if (np.array(contours[i]).shape[0] > 1500 and cv2.contourArea(contours[i]) < 5000000):
-                if (contour_now.Length > 1500 && Cv2.ContourArea(contour_now) < 5000000)
-                {
-                    contours_final.Add(contour_now);
-                }
+			foreach (OpenCvSharp.Point[] contour_now in contours)
+			{
+				//if (np.array(contours[i]).shape[0] > 1500 and cv2.contourArea(contours[i]) < 5000000):
+				if (contour_now.Length > 1500 && Cv2.ContourArea(contour_now) < 5000000)
+				{
+					contours_final.Add(contour_now);
+				}
 
-            }
+			}
 
 			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
 			OpenCvSharp.Point[] contours_approx_innercircle;
 
-            var contour_innercircle = contours_final[1];
+			var contour_innercircle = contours_final[1];
 
-            //temp[0] = contour_now;
+			//temp[0] = contour_now;
 
-            Point2f center;
-            float radius;
-            //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
-            contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
-            Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
-            //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
+			Point2f center;
+			float radius;
+			//Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
+			contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
+			Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
+			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
+			//Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
-            return contours_final;
-        }
+			return contours_final;
+		}
 
-        //Find outer defect
-        static void FindContour_and_outer_defect(Mat img, List<OpenCvSharp.Point[]> contours_final, ref int nLabels, out int [,] stats)
-        {
-            // variable
-            OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+		//Find outer defect
+		static void FindContour_and_outer_defect(Mat img, List<OpenCvSharp.Point[]> contours_final, ref int nLabels, out int[,] stats)
+		{
+			// variable
+			OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
 
 
 			// Convex hull
 			OpenCvSharp.Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
-            temp[0] = Convex_hull;
-            Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-            Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
+			temp[0] = Convex_hull;
+			Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
 
 
-            // Contour
-            temp[0] = contours_final[0];
-            Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-            Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
+			// Contour
+			temp[0] = contours_final[0];
+			Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
 
-            // Subtraction 
-            Mat diff_image = convex_mask_img - contour_mask_img;
+			// Subtraction 
+			Mat diff_image = convex_mask_img - contour_mask_img;
 
 
-            //Opening
-            Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
-            diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
+			//Opening
+			Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
+			diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
 
-            //diff_image.SaveImage("./result/test" + fileindex + ".jpg");
-            //Connected Component
-            var labelMat = new MatOfInt();
-            var statsMat = new MatOfInt();// Row: number of labels Column: 5
-            var centroidsMat = new MatOfDouble();
-            nLabels = Cv2.ConnectedComponentsWithStats(diff_image, labelMat, statsMat, centroidsMat);
+			//diff_image.SaveImage("./result/test" + fileindex + ".jpg");
+			//Connected Component
+			var labelMat = new MatOfInt();
+			var statsMat = new MatOfInt();// Row: number of labels Column: 5
+			var centroidsMat = new MatOfDouble();
+			nLabels = Cv2.ConnectedComponentsWithStats(diff_image, labelMat, statsMat, centroidsMat);
 
-            var labels = labelMat.ToRectangularArray();
-            stats = statsMat.ToRectangularArray();
-            var centroids = centroidsMat.ToRectangularArray();
+			var labels = labelMat.ToRectangularArray();
+			stats = statsMat.ToRectangularArray();
+			var centroids = centroidsMat.ToRectangularArray();
 
-            
 
-        }
+
+		}
 		#endregion
 		//TREX
 		#region AI 1
-		private void Stop1_Detector(Mat Src , Mat Dst)
+		private void Stop1_Detector(Mat Src, Mat Dst)
 		{
-			lock (app.LockStop1) { 
-			Int64 OK_NG_Flag = 0 ;
-			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
-			//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
-
-			var watch = new System.Diagnostics.Stopwatch();
-			watch.Start();
-			//==========================algorithm===============================
-
-			//mask the inner part noise of src
-			int nLabels = 0;//number of labels
-			int[,] stats = null;
-			Thread t3 = new Thread(delegate ()
+			lock (app.LockStop1)
 			{
-				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle1(ref Src);
+				Int64 OK_NG_Flag = 0;
+				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+				//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
 
-				//Find outer defect            
-				FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-			}, 0);
-			//MSER  
-			List<OpenCvSharp.Point[][]> MSER_Big = null;
-			List<OpenCvSharp.Point[][]> MSER_Small = null;
-			Thread t1 = new Thread(delegate ()
-			{
-				My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
-			}, 0);
+				var watch = new System.Diagnostics.Stopwatch();
+				watch.Start();
+				//==========================algorithm===============================
 
-			Thread t2 = new Thread(delegate ()
-			{
-				My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, 1, out MSER_Small);
-			},0);
+				//mask the inner part noise of src
+				int nLabels = 0;//number of labels
+				int[,] stats = null;
+				//Thread t3 = new Thread(delegate ()
+				//{
+					List<OpenCvSharp.Point[]> contours_final = Mask_innercicle1(ref Src);
 
-			t1.Start();
-			t2.Start();
-			t3.Start();
-			t1.Join();
-			t2.Join();
-			t3.Join();
+					//Find outer defect            
+					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+				//}, 0);
+				//MSER  
+				List<OpenCvSharp.Point[][]> MSER_Big = null;
+				List<OpenCvSharp.Point[][]> MSER_Small = null;
+				//Thread t1 = new Thread(delegate ()
+				//{
+					My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
+				//}, 0);
 
-			//OK or NG
-			// draw outer defect by stats
-			for (int i = 0; i < nLabels; i++)
-			{
-				int area = stats[i, 4];
-				if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min)
+				//Thread t2 = new Thread(delegate ()
+				//{
+					My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, 0, out MSER_Small);
+				//}, 0);
+
+				//t1.Start();
+				//t2.Start();
+				//t3.Start();
+				//t1.Join();
+				//t2.Join();
+				//t3.Join();
+
+				//OK or NG
+				// draw outer defect by stats
+				for (int i = 0; i < nLabels; i++)
+				{
+					int area = stats[i, 4];
+					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min)
+					{
+						OK_NG_Flag = 1;
+						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+					}
+				}
+				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 				{
 					OK_NG_Flag = 1;
-					vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
 				}
-			}
-			foreach (OpenCvSharp.Point[][] temp in MSER_Big)
-			{
-				OK_NG_Flag = 1;
-				Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-			}
-			foreach (OpenCvSharp.Point[][] temp in MSER_Small)
-			{
-				OK_NG_Flag = 1;
-				Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-			}
-			//==================================================================
-			watch.Stop();
-
-			//印出時間
-			Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-			++Num.TotalNumSave_1;
-			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
-			//byte[] OK_NG_Flag_Buf = new byte[8];
-			ImgAI_1.Enqueue(vis_rgb);
-			OutputAI_1.Enqueue(OK_NG_Flag);
-			//========================================================
-			this.Invoke((EventHandler)delegate
-			{
-				Mat DST = ImgAI_1.Dequeue();
-				app.SavingMode = OK_NG_Flag.ToString();
-				//Thread.Sleep(50);
-				BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
-				#region 存圖
-				DoAoi_1(Src, DST, 1, app.SavingMode);
-				#endregion
-
-				#region 輸出結果
-				lock (OutputAI_1)
+				foreach (OpenCvSharp.Point[][] temp in MSER_Small)
 				{
-					TestCount_1++;
-					string Result = UpdateResult(OutputAI_1.Dequeue());
-					Value.Result_1.Enqueue(Result);
-					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_1, Result);
-					BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_1, Result);
-					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_1, TestCount_1.ToString());
-					UpdateLabelDivision(Result, 0);
-					//Work_5_AI();
-				}							
-				#endregion
+					OK_NG_Flag = 1;
+					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+				}
+				//==================================================================
+				++Num.TotalNumSave_1;
+				//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
+				//byte[] OK_NG_Flag_Buf = new byte[8];
+				ImgAI_1.Enqueue(vis_rgb);
+				OutputAI_1.Enqueue(OK_NG_Flag);
+				//========================================================
+				this.Invoke((EventHandler)delegate
+				{
+					Mat DST = ImgAI_1.Dequeue();
+					app.SavingMode = OK_NG_Flag.ToString();
+					//Thread.Sleep(50);
+					BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
+					#region 存圖
+					DoAoi_1(Src, DST, 1, app.SavingMode);
+					#endregion
 
-			});
+					#region 輸出結果
+					lock (OutputAI_1)
+					{
+						TestCount_1++;
+						string Result = UpdateResult(OutputAI_1.Dequeue());
+						Value.Result_1.Enqueue(Result);
+						BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_1, Result);
+						BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_1, Result);
+						BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_1, TestCount_1.ToString());
+						UpdateLabelDivision(Result, 0);
+						//Work_5_AI();
+					}
+					#endregion
+
+				});
 
 			}
 
@@ -3970,8 +3965,8 @@ namespace CherngerUI
 
 			Mat thresh1 = img.Threshold(230, 255, ThresholdTypes.Binary);
 
-			thresh1.SaveImage("./threshold.jpg");
-			img.SaveImage("./image.jpg");
+			//thresh1.SaveImage("./threshold.jpg");
+			//img.SaveImage("./image.jpg");
 			OpenCvSharp.Point[][] contours;
 			HierarchyIndex[] hierarchly;
 			Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -4023,27 +4018,27 @@ namespace CherngerUI
 				//mask the inner part noise of src
 				int nLabels = 0;//number of labels
 				int[,] stats = null;
-				Thread t3 = new Thread(delegate ()
-				{
+				//Thread t3 = new Thread(delegate ()
+				//{
 					List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
 
-				//Find outer defect            
-				FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-				}, 0);
+					//Find outer defect            
+					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+				//}, 0);
 				//MSER  
 				//=============difference from stop1
 				Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);
 				//================
 				List<OpenCvSharp.Point[][]> MSER_Big = null;
-				Thread t1 = new Thread(delegate ()
-				{
+				//Thread t1 = new Thread(delegate ()
+				//{
 					My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 110, mean_in_area_threshold: 130);
-				}, 0);
+				//}, 0);
 
-				t1.Start();
-				t3.Start();
-				t1.Join();
-				t3.Join();
+				//t1.Start();
+				//t3.Start();
+				//t1.Join();
+				//t3.Join();
 
 				//OK or NG
 
@@ -4082,28 +4077,28 @@ namespace CherngerUI
 				{
 					Mat DST = ImgAI_2.Dequeue();
 					app.SavingMode = OK_NG_Flag.ToString();
-				//Thread.Sleep(50);
-				BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
-				#region 存圖
-				DoAoi_2(Src, DST, 1, app.SavingMode);
-				#endregion
+					//Thread.Sleep(50);
+					BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
+					#region 存圖
+					DoAoi_2(Src, DST, 1, app.SavingMode);
+					#endregion
 
-				#region 輸出結果
-				lock (OutputAI_2)
+					#region 輸出結果
+					lock (OutputAI_2)
 					{
 						TestCount_2++;
 						string Result = UpdateResult(OutputAI_2.Dequeue());
 						Value.Result_2.Enqueue(Result);//Result
-					BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
+						BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), Result_CCD_2, Result);
 						BeginInvoke(new UpdateLabelBackColorDelegate(UpdateLabelBackColor), Result_CCD_2, Result);
 						BeginInvoke(new UpdateLabelTextDelegate(UpdateLabelText), label_test_2, TestCount_2.ToString());
 
 						UpdateLabelDivision(Result, 1);
-					//Work_5_AI();
-				}
-				#endregion
+						//Work_5_AI();
+					}
+					#endregion
 
-			});
+				});
 			}
 
 		}
@@ -4319,7 +4314,7 @@ namespace CherngerUI
 		#region AI 4
 		private void Stop4_Detector(Mat Src, Mat Dst)
 		{
-			
+
 			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 			int OK_NG_Flag = 0;
 			//==================================================find real oring===============================================
@@ -4393,9 +4388,9 @@ namespace CherngerUI
 
 			foreach (OpenCvSharp.Point[] contour_now in contours2)
 			{
-				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min && 
-					Cv2.ContourArea(contour_now) < 20000 && 
-					Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&  
+				if (Cv2.ContourArea(contour_now) > CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min &&
+					Cv2.ContourArea(contour_now) < 20000 &&
+					Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&
 					(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio)
 				{
 					OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
@@ -4419,7 +4414,7 @@ namespace CherngerUI
 				app.SavingMode = OK_NG_Flag.ToString();
 				//Thread.Sleep(50);
 				BeginInvoke(new Action(() => { cherngerPictureBox4.Image = DST.ToBitmap(); }));
-				
+
 				#region TREX存圖
 				DoAoi_4(Src, DST, 1, app.SavingMode);
 				#endregion
@@ -4441,8 +4436,8 @@ namespace CherngerUI
 				#endregion
 
 			});
-			
-				
+
+
 
 		}
 		#endregion
@@ -4515,7 +4510,7 @@ namespace CherngerUI
 		public static int TotalNumSave_3_tmp = 0;
 		public static int TotalNumSave_4_tmp = 0;
 
-		public static int[] NgDivision = new int[] { 0 , 0 , 0 , 0};
+		public static int[] NgDivision = new int[] { 0, 0, 0, 0 };
 		public static int[] OkDivision = new int[] { 0, 0, 0, 0 };
 		public static double[] YieldRateDivision = new double[] { 0.00, 0.00, 0.00, 0.00 };
 
@@ -4588,9 +4583,9 @@ namespace CherngerUI
 		public static int OfflineStopCounter = 1;                       //離線測試轉盤站號
 		public static int GlassesClean = 0;                             //轉盤玻璃潔淨度
 		public static int ProductEfficient = 30;                        //趨勢圖更新產量計數
-		public static int IsUpdateChart = 0;							//趨勢圖更新產量判斷
-        public static string SavingMode = "OK";                         //趨勢圖更新產量判斷	
-		
+		public static int IsUpdateChart = 0;                            //趨勢圖更新產量判斷
+		public static string SavingMode = "OK";                         //趨勢圖更新產量判斷	
+
 		public static int image_number = 1;                             //AI thread 讀圖數量
 		public static object LockStop1 = new object();
 		public static object LockStop2 = new object();
@@ -4618,14 +4613,14 @@ namespace CherngerUI
 		public static IEnumerator enumerator_2;
 		public static IEnumerator enumerator_3;
 		public static IEnumerator enumerator_4;
-        public static string AiPath_1 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-1\ALL\";
-        public static string AiPath_2 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-2\ALL\";
-        public static string AiPath_3 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-3\ALL\";
-        public static string AiPath_4 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-4\ALL\";
+		public static string AiPath_1 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-1\ALL\";
+		public static string AiPath_2 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-2\ALL\";
+		public static string AiPath_3 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-3\ALL\";
+		public static string AiPath_4 = @"C:\Users\Chernger\Desktop\AITest-NG\CCD-4\ALL\";
 
 
-        #region PLC COM點
-        public static string Comport1 = string.Empty;
+		#region PLC COM點
+		public static string Comport1 = string.Empty;
 		#endregion
 
 		#region 顏色
@@ -4703,7 +4698,7 @@ namespace CherngerUI
 		public static Queue<string> Result_2 = new Queue<string>();                         //第二站結果序列
 		public static Queue<string> Result_3 = new Queue<string>();                         //第三站結果序列
 		public static Queue<string> Result_4 = new Queue<string>();                         //第四站結果序列
-		 
+
 		public static Queue<List<string>> NgType_1 = new Queue<List<string>>();
 		public static Queue<List<string>> NgType_2 = new Queue<List<string>>();
 		public static Queue<List<string>> NgType_3 = new Queue<List<string>>();

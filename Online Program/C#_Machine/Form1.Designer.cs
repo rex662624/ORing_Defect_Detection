@@ -1750,7 +1750,6 @@
 			this.panel2.ToolTipTextCloseIcon = null;
 			this.panel2.ToolTipTextExpandIconPanelCollapsed = null;
 			this.panel2.ToolTipTextExpandIconPanelExpanded = null;
-			this.panel2.CloseClick += new System.EventHandler<System.EventArgs>(this.panel2_CloseClick);
 			// 
 			// OfflinePathBox
 			// 
