@@ -3795,7 +3795,8 @@ namespace CherngerUI
 
 			}
 
-			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
+			if (contours_final.Count < 2)
+				return contours_final;
 
 			OpenCvSharp.Point[] contours_approx_innercircle;
 
@@ -3873,53 +3874,43 @@ namespace CherngerUI
 				//mask the inner part noise of src
 				int nLabels = 0;//number of labels
 				int[,] stats = null;
-				//Thread t3 = new Thread(delegate ()
-				//{
-					List<OpenCvSharp.Point[]> contours_final = Mask_innercicle1(ref Src);
 
+				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle1(ref Src);
+
+				if (contours_final.Count < 2)
+					OK_NG_Flag = 2;
+
+				else
+				{
 					//Find outer defect            
 					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-				//}, 0);
-				//MSER  
-				List<OpenCvSharp.Point[][]> MSER_Big = null;
-				List<OpenCvSharp.Point[][]> MSER_Small = null;
-				//Thread t1 = new Thread(delegate ()
-				//{
+					//MSER  
+					List<OpenCvSharp.Point[][]> MSER_Big = null;
+					List<OpenCvSharp.Point[][]> MSER_Small = null;
 					My_MSER(5, 800, 20000, 1.5, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
-				//}, 0);
-
-				//Thread t2 = new Thread(delegate ()
-				//{
 					My_MSER(6, 120, 800, 1.6, ref Src, ref vis_rgb, 0, 0, out MSER_Small);
-				//}, 0);
 
-				//t1.Start();
-				//t2.Start();
-				//t3.Start();
-				//t1.Join();
-				//t2.Join();
-				//t3.Join();
-
-				//OK or NG
-				// draw outer defect by stats
-				for (int i = 0; i < nLabels; i++)
-				{
-					int area = stats[i, 4];
-					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min)
+					//OK or NG
+					// draw outer defect by stats
+					for (int i = 0; i < nLabels; i++)
+					{
+						int area = stats[i, 4];
+						if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_min)
+						{
+							OK_NG_Flag = 1;
+							vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+						}
+					}
+					foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 					{
 						OK_NG_Flag = 1;
-						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
 					}
-				}
-				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
-				{
-					OK_NG_Flag = 1;
-					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-				}
-				foreach (OpenCvSharp.Point[][] temp in MSER_Small)
-				{
-					OK_NG_Flag = 1;
-					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+					foreach (OpenCvSharp.Point[][] temp in MSER_Small)
+					{
+						OK_NG_Flag = 1;
+						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+					}
 				}
 				//==================================================================
 				++Num.TotalNumSave_1;
@@ -3983,10 +3974,13 @@ namespace CherngerUI
 
 			}
 
-			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
+
+			//==================prevent exception
+			if (contours_final.Count < 2)
+				return contours_final;
+			//==================
 
 			OpenCvSharp.Point[] contours_approx_innercircle;
-
 			var contour_innercircle = contours_final[1];
 
 			//temp[0] = contour_now;
@@ -4011,62 +4005,47 @@ namespace CherngerUI
 				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 				//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
 
-				var watch = new System.Diagnostics.Stopwatch();
-				watch.Start();
 				//==========================algorithm===============================
 
 				//mask the inner part noise of src
 				int nLabels = 0;//number of labels
 				int[,] stats = null;
-				//Thread t3 = new Thread(delegate ()
-				//{
-					List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
-
-					//Find outer defect            
-					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-				//}, 0);
-				//MSER  
-				//=============difference from stop1
-				Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);
-				//================
-				List<OpenCvSharp.Point[][]> MSER_Big = null;
-				//Thread t1 = new Thread(delegate ()
-				//{
-					My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 110, mean_in_area_threshold: 130);
-				//}, 0);
-
-				//t1.Start();
-				//t3.Start();
-				//t1.Join();
-				//t3.Join();
-
-				//OK or NG
-
-				// draw outer defect by stats
-				for (int i = 0; i < nLabels; i++)
+				List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
+				//return NULL if not find the contour of circle
+				if (contours_final.Count < 2)
+					OK_NG_Flag = 2;
+				else
 				{
-					int area = stats[i, 4];
-					if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
+					// Find outer defect
+					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+					//MSER  
+					List<OpenCvSharp.Point[][]> MSER_Big = null;
+					Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);//=============difference from stop1
+					My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 110, mean_in_area_threshold: 130);
+					
+					//OK or NG
+
+					// draw outer defect by stats
+					for (int i = 0; i < nLabels; i++)
+					{
+						int area = stats[i, 4];
+						if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
+						{
+
+							OK_NG_Flag = 1;
+							vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+						}
+					}
+					foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 					{
 
 						OK_NG_Flag = 1;
-						vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
 					}
+
+
+					//==================================================================
 				}
-				foreach (OpenCvSharp.Point[][] temp in MSER_Big)
-				{
-
-					OK_NG_Flag = 1;
-					Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-				}
-
-
-				//==================================================================
-				watch.Stop();
-
-				//印出時間
-				Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-
 				++Num.TotalNumSave_2;
 
 				ImgAI_2.Enqueue(vis_rgb);
