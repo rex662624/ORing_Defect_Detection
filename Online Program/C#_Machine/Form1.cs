@@ -3012,7 +3012,7 @@ namespace CherngerUI
 					Num.OKNum++;
 				else if (Result == "NG")
 					Num.NGNum++;
-				else if (Result == "NULL")
+				else
 					Num.NULLNum++;
 
 				Num.TotalNum = Num.NULLNum + Num.OKNum + Num.NGNum;
