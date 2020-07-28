@@ -3221,10 +3221,10 @@ namespace CherngerUI
 			//}
 
 
-			Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
-			if (app.UpdateChartSW.Elapsed.Seconds == 6)
+			//Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
+			if (app.UpdateChartSW.Elapsed.Seconds == 59)
 			{
-				Console.WriteLine("[******Chart******]: " + app.UpdateChartSW.Elapsed.Seconds);
+				//Console.WriteLine("[******Chart******]: " + app.UpdateChartSW.Elapsed.Seconds);
 				UpdateChart();
 				app.UpdateChartSW.Restart();
 				//app.IsUpdateChart = app.RunningSW.Elapsed.Seconds;				
@@ -4335,11 +4335,9 @@ namespace CherngerUI
 			}
 			else
 			{
-				//==================================================outer cirle - inner circle=====================================
-
+				//==================================================outer contour - inner contour=====================================
 				// variable
 				OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
-
 				// inner contour
 				Mat inner_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
 				OpenCvSharp.Point[] inner_contour = Cv2.ConvexHull(approx_list[1]);
@@ -4348,20 +4346,12 @@ namespace CherngerUI
 
 				// outer contour
 				Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-				Point2f center;
-				float radius;
-
-				OpenCvSharp.Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
-				temp[0] = Approx;
-				Cv2.MinEnclosingCircle(Approx, out center, out radius);
-				Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius - CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius), 255, thickness: -1);
-
-				//outer contour2 in order to make mask area = 255
 				Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
-				OpenCvSharp.Point[] outer_contour2 = Cv2.ConvexHull(approx_list[0]);
-				temp[0] = outer_contour2;
-				Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
 
+				temp[0] = approx_list[0];
+				Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+				//outer contour2 in order to make mask area = 255
+				Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
 				//outer - inner
 				Mat diff_mask = outer_contour_img - inner_contour_img;
 				Mat diff_mask2 = inner_contour_img + outer_contour_img2;
@@ -4371,18 +4361,22 @@ namespace CherngerUI
 				//in order to make mask area = 255
 				image = image + diff_mask2;
 
-				//image.SaveImage("./mask.jpg");
+				//=======================circle ignore=========================
+				Point2f center;
+				float radius;
+				Mat circle_mask = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));
+				Cv2.MinEnclosingCircle(approx_list[0], out center, out radius);
+				Cv2.Circle(circle_mask, (OpenCvSharp.Point)center, (int)(radius - CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius), 0, thickness: -1);
+				circle_mask.CopyTo(image, circle_mask);
 				//================================use threshold to find defect==========================================
 				OpenCvSharp.Point[][] contours2;
 				HierarchyIndex[] hierarchly2;
-				Mat thresh2 = image.Threshold(85, 255, ThresholdTypes.BinaryInv);
-
-				Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
+				Mat thresh2 = image.Threshold(95, 255, ThresholdTypes.BinaryInv);
+				//thresh2.SaveImage("./thresh2.jpg");
+				Mat kernel = Mat.Ones(7, 7, MatType.CV_8UC1);//改變凹角大小
 				thresh2 = thresh2.MorphologyEx(MorphTypes.Dilate, kernel);
-
+				//thresh2.SaveImage("./thresh2_Dilate.jpg");
 				Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
-
-
 
 				foreach (OpenCvSharp.Point[] contour_now in contours2)
 				{
@@ -4391,6 +4385,7 @@ namespace CherngerUI
 						Cv2.ContourArea(contour_now) < CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max &&
 						(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio)
 					{
+						//Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
 						OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
 						temp[0] = approx;
 						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);

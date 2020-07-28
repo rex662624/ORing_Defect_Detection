@@ -14,8 +14,8 @@ namespace Stop4
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images", "4.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images", "14.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -40,10 +40,10 @@ namespace Stop4
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 
             int OK_NG_Flag = 0;
-            int stop4_black_defect_area_min = 250;
+            int stop4_black_defect_area_min = 220;
             int stop4_black_defect_area_max = 20000;
-            int stop4_arclength_area_ratio = 10;
-            int stop4_ignore_radius = 0;
+            double stop4_arclength_area_ratio = 0.35;
+            int stop4_ignore_radius = 5;
             //==================================================find real oring===============================================
             Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -103,11 +103,11 @@ namespace Stop4
             //================================use threshold to find defect==========================================
             Point[][] contours2;
             HierarchyIndex[] hierarchly2;
-            Mat thresh2 = image.Threshold(85, 255, ThresholdTypes.BinaryInv);
-
-            Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
+            Mat thresh2 = image.Threshold(95, 255, ThresholdTypes.BinaryInv);
+            //thresh2.SaveImage("./thresh2.jpg");
+            Mat kernel = Mat.Ones(7, 7, MatType.CV_8UC1);//改變凹角大小
             thresh2 = thresh2.MorphologyEx(MorphTypes.Dilate, kernel);
-
+            //thresh2.SaveImage("./thresh2_Dilate.jpg");
             Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
 
 
@@ -119,6 +119,7 @@ namespace Stop4
                     Cv2.ContourArea(contour_now) < stop4_black_defect_area_max &&
                     (Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < stop4_arclength_area_ratio)
                 {
+                    //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
                     OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
                     temp[0] = approx;
                     Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
