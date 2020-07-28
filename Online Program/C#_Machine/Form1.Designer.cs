@@ -3077,7 +3077,7 @@
 			this.chart1.Text = "chart1";
 			title1.Alignment = System.Drawing.ContentAlignment.TopLeft;
 			title1.Name = "Title1";
-			title1.Text = "Pcs / 分鐘";
+			title1.Text = "OK % / 分鐘";
 			this.chart1.Titles.Add(title1);
 			// 
 			// groupBox12

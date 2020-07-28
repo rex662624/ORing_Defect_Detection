@@ -3104,24 +3104,35 @@ namespace CherngerUI
 		private void UpdateChart()
 		{
 			Console.WriteLine("更新");
-			int N = Num.TotalSuccessNum;
+			int Success_N = Num.TotalSuccessNum;
+			int Ok_N = Num.OKNum;
+			double OKpercent_in_a_minute = 0.0;
 			if (Num.ChartCount < 10)
 			{
-				if (Num.ChartCount == 0)
-					N = Num.TotalSuccessNum;
-				else
-					N -= Num.TotalSuccessChartNum;
+				if (Num.ChartCount == 0) {
+					Success_N = Num.TotalSuccessNum;
+					Ok_N = Num.OKNum;
+				}
+				else {
+					Success_N -= Num.TotalSuccessChartNum;
+					Ok_N -= Num.TotalOKChartNum;
+				}
 				Num.TotalSuccessChartNum = Num.TotalSuccessNum;
+				Num.TotalOKChartNum = Num.OKNum;
 				//Console.WriteLine("Chart: " + Num.ChartCount);
-				BeginInvoke(new Action(() => chart1.Series[0].Points[Num.ChartCount - 1].SetValueY(N)));
+				OKpercent_in_a_minute = (double)Num.TotalOKChartNum / Num.TotalSuccessChartNum;
+				BeginInvoke(new Action(() => chart1.Series[0].Points[Num.ChartCount - 1].SetValueY(OKpercent_in_a_minute)));
 				Num.ChartCount++;
 			}
 			else
 			{
 				//Console.WriteLine("Chart>>>: " + Num.ChartCount);
 				Num.ChartTime += int.Parse(ChartTimeInterval.SelectedItem.ToString());
-				N -= Num.TotalSuccessChartNum;
+
+				Success_N -= Num.TotalSuccessChartNum;
+				Ok_N -= Num.TotalOKChartNum;
 				Num.TotalSuccessChartNum = Num.TotalSuccessNum;
+				Num.TotalOKChartNum = Num.OKNum;
 
 				Num.ChartTime -= int.Parse(ChartTimeInterval.SelectedItem.ToString()) * 10;
 				chart1.ChartAreas[0].AxisX.CustomLabels.Clear();
@@ -3140,7 +3151,8 @@ namespace CherngerUI
 				BeginInvoke(new Action(() => chart1.Series[0].Points[7].SetValueY(chart1.Series[0].Points[8].YValues.First())));
 				BeginInvoke(new Action(() => chart1.Series[0].Points[8].SetValueY(chart1.Series[0].Points[9].YValues.First())));
 
-				BeginInvoke(new Action(() => chart1.Series[0].Points[9].SetValueY(N)));
+				OKpercent_in_a_minute = (double)Num.TotalOKChartNum / Num.TotalSuccessChartNum;
+				BeginInvoke(new Action(() => chart1.Series[0].Points[9].SetValueY(OKpercent_in_a_minute)));
 				//BeginInvoke(new Action(() => chart1.Series[0].Points[0].SetValueXY((Num.ChartCount - 9).ToString(), chart1.Series[0].Points[1].YValues.First())));
 				//BeginInvoke(new Action(() => chart1.Series[0].Points[1].SetValueXY((Num.ChartCount - 8).ToString(), chart1.Series[0].Points[2].YValues.First())));
 				//BeginInvoke(new Action(() => chart1.Series[0].Points[2].SetValueXY((Num.ChartCount - 7).ToString(), chart1.Series[0].Points[3].YValues.First())));
@@ -3155,7 +3167,7 @@ namespace CherngerUI
 				Num.ChartCount++;
 			}
 			BeginInvoke(new Action(() => chart1.ChartAreas[0].RecalculateAxesScale()));
-			Console.WriteLine("[每" + ChartTimeInterval.SelectedItem.ToString() + "分鐘檢測數量]: " + N);
+			//Console.WriteLine("[每" + ChartTimeInterval.SelectedItem.ToString() + "分鐘檢測數量]: " + N);
 			//if (Num.ChartCount <= 10)
 			//{
 			//	BeginInvoke(new Action(() => chart1.Series[0].Points[Num.ChartCount].SetValueXY( Num.ChartCount , N)));
@@ -3222,7 +3234,7 @@ namespace CherngerUI
 
 
 			//Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
-			if (app.UpdateChartSW.Elapsed.Seconds == 59)
+			if (app.UpdateChartSW.Elapsed.Seconds == 5)
 			{
 				//Console.WriteLine("[******Chart******]: " + app.UpdateChartSW.Elapsed.Seconds);
 				UpdateChart();
@@ -4479,6 +4491,7 @@ namespace CherngerUI
 
 		public static int TotalSuccessNum = 0;
 		public static int TotalSuccessChartNum = 0;
+		public static int TotalOKChartNum = 0 ;
 		public static int OKNum = 0;
 		public static int NGNum = 0;
 		public static int NULLNum = 0;
