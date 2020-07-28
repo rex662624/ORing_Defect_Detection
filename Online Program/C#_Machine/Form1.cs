@@ -3233,8 +3233,8 @@ namespace CherngerUI
 			//}
 
 
-			//Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
-			if (app.UpdateChartSW.Elapsed.Seconds == 5)
+			//OK percentage per minute
+			if (app.UpdateChartSW.Elapsed.Seconds == 59)
 			{
 				//Console.WriteLine("[******Chart******]: " + app.UpdateChartSW.Elapsed.Seconds);
 				UpdateChart();
@@ -4688,10 +4688,10 @@ namespace CherngerUI
 		//Stop3
 
 		//Stop4
-		public static int stop4_black_defect_area_min = 250;
+		public static int stop4_black_defect_area_min = 220;
 		public static int stop4_black_defect_area_max = 20000;
-		public static int stop4_arclength_area_ratio = 5;
-		public static int stop4_ignore_radius = 10;
+		public static double stop4_arclength_area_ratio = 0.36;
+		public static int stop4_ignore_radius = 5;
 
 	}
 	#region 檢測參數
