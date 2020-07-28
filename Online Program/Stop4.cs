@@ -15,7 +15,7 @@ namespace Stop4
 
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images", "8.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images", "4.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -39,7 +39,11 @@ namespace Stop4
         {
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 
-
+            int OK_NG_Flag = 0;
+            int stop4_black_defect_area_min = 250;
+            int stop4_black_defect_area_max = 20000;
+            int stop4_arclength_area_ratio = 10;
+            int stop4_ignore_radius = 0;
             //==================================================find real oring===============================================
             Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -60,8 +64,7 @@ namespace Stop4
                 }
 
             }
-            //==================================================outer cirle - inner circle=====================================
-            
+            //==================================================outer contour - inner contour=====================================
             // variable
             OpenCvSharp.Point[][] temp = new Point[1][];
 
@@ -74,27 +77,12 @@ namespace Stop4
 
             // outer contour
             Mat outer_contour_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
-            /*
-            Point[] outer_contour = Cv2.ConvexHull(approx_list[0]);
-            temp[0] = outer_contour;*/
-            //=======================circle ignore=========================
-            double ignore_radius = 10;
-            Point2f center;
-            float radius;
-
-            Point[] Approx = Cv2.ApproxPolyDP(approx_list[0], 0.5, true);
-            temp[0] = Approx;
-            Cv2.MinEnclosingCircle(Approx, out center, out radius);
-            Cv2.Circle(outer_contour_img, (OpenCvSharp.Point)center, (int)(radius- ignore_radius),255, thickness: -1);
-            Cv2.Circle(vis_rgb, (OpenCvSharp.Point)center, (int)(radius - ignore_radius), new Scalar(255, 0, 0), thickness: 1);
-            //Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
-            
-
-
-            //outer contour2 in order to make mask area = 255
             Mat outer_contour_img2 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
-            Cv2.Circle(outer_contour_img2, (OpenCvSharp.Point)center, (int)(radius - ignore_radius), 0, thickness: -1);
 
+            temp[0] = approx_list[0];
+            Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+            //outer contour2 in order to make mask area = 255
+            Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
             //outer - inner
             Mat diff_mask = outer_contour_img - inner_contour_img;
             Mat diff_mask2 = inner_contour_img + outer_contour_img2;
@@ -103,9 +91,15 @@ namespace Stop4
             Src.CopyTo(image, diff_mask);
             //in order to make mask area = 255
             image = image + diff_mask2;
-
+          
+            //=======================circle ignore=========================
+            Point2f center;
+            float radius;
+            Mat circle_mask = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));
+            Cv2.MinEnclosingCircle(approx_list[0], out center, out radius);
+            Cv2.Circle(circle_mask, (OpenCvSharp.Point)center, (int)(radius - stop4_ignore_radius),0, thickness: -1);
+            circle_mask.CopyTo(image, circle_mask);
             //image.SaveImage("./mask.jpg");
-
             //================================use threshold to find defect==========================================
             Point[][] contours2;
             HierarchyIndex[] hierarchly2;
@@ -116,25 +110,26 @@ namespace Stop4
 
             Cv2.FindContours(thresh2, out contours2, out hierarchly2, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
 
-            
 
-            foreach (Point[] contour_now in contours2)
+
+            foreach (OpenCvSharp.Point[] contour_now in contours2)
             {
-                /*
-                if (Cv2.ContourArea(contour_now) > 500 && 
+                if (Cv2.ContourArea(contour_now) > stop4_black_defect_area_min &&
                     Cv2.ContourArea(contour_now) < 20000 &&
-                    (Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) <10)
-                */
-                if (Cv2.ContourArea(contour_now) > 250 && Cv2.ContourArea(contour_now) < 20000)
+                    Cv2.ContourArea(contour_now) < stop4_black_defect_area_max &&
+                    (Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)) < stop4_arclength_area_ratio)
                 {
-                    
-                    Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
-                    Console.WriteLine("arc length/area: " + (Cv2.ArcLength(approx, true) / Cv2.ContourArea(approx)) + " Area: " + Cv2.ContourArea(approx));
+                    OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
                     temp[0] = approx;
                     Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                    OK_NG_Flag = 1;
                 }
 
             }
+            if (OK_NG_Flag == 0)
+                Console.WriteLine("OK");
+            else 
+                Console.WriteLine("NG");
             //vis_rgb.SaveImage("./result.jpg");
             vis_rgb.SaveImage("./result/test" + filename);
         }
