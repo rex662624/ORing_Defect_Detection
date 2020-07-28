@@ -3103,6 +3103,7 @@ namespace CherngerUI
 
 		private void UpdateChart()
 		{
+			Console.WriteLine("更新");
 			int N = Num.TotalSuccessNum;
 			if (Num.ChartCount < 10)
 			{
@@ -3220,8 +3221,8 @@ namespace CherngerUI
 			//}
 
 
-			//Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
-			if (app.UpdateChartSW.Elapsed.Seconds == 60)
+			Console.WriteLine("[************]: " + app.UpdateChartSW.Elapsed.Seconds);
+			if (app.UpdateChartSW.Elapsed.Seconds == 6)
 			{
 				Console.WriteLine("[******Chart******]: " + app.UpdateChartSW.Elapsed.Seconds);
 				UpdateChart();
