@@ -35,6 +35,11 @@ namespace UnionAoi
 			Stop2_min_inner_defect_size.Text = CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min.ToString();
 			Stop2_arclength_area_ratio.Text = CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio.ToString();
 
+			//Stop3
+			Stop3_threshold_1phase.Text = CherngerUI.ImageProcessingDefect_Value.stop3_threshold_1phase.ToString();
+			Stop3_threshold_2phase_1.Text = CherngerUI.ImageProcessingDefect_Value.stop3_threshold_2phase_1.ToString();
+			Stop3_threshold_2phase_2.Text = CherngerUI.ImageProcessingDefect_Value.stop3_threshold_2phase_2.ToString();
+
 			//Stop4 
 			Stop4_max_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max.ToString();
 			Stop4_min_area.Text = CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min.ToString();
@@ -96,6 +101,9 @@ namespace UnionAoi
 			SetupIniIP.IniWriteValue("Stop2", "inner_defect_size_min", Stop2_min_inner_defect_size.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop2", "arclength_area_ratio", Stop2_arclength_area_ratio.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 
+			SetupIniIP.IniWriteValue("Stop3", "threshold_1phase", Stop3_threshold_1phase.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop3", "threshold_2phase_1", Stop3_threshold_2phase_1.Text, CherngerUI.app.Image_ProcssingDefect_Config);
+			SetupIniIP.IniWriteValue("Stop3", "threshold_2phase_2", Stop3_threshold_2phase_2.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_min", Stop4_min_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
 			SetupIniIP.IniWriteValue("Stop4", "black_defect_area_max", Stop4_max_area.Text, CherngerUI.app.Image_ProcssingDefect_Config);
@@ -171,6 +179,24 @@ namespace UnionAoi
 			if (Stop1_arclength_area_ratio.Text != string.Empty)
 			{
 				int.TryParse(Stop1_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio);
+			}
+		}
+
+		private void Stop3_checkbox_CheckedChanged(object sender, EventArgs e)
+		{
+			if (Stop3_threshold_1phase.Text != string.Empty)
+			{
+				int.TryParse(Stop3_threshold_1phase.Text, out CherngerUI.ImageProcessingDefect_Value.stop3_threshold_2phase_1);
+			}
+
+			if (Stop3_threshold_2phase_1.Text != string.Empty)
+			{
+				int.TryParse(Stop3_threshold_2phase_1.Text, out CherngerUI.ImageProcessingDefect_Value.stop3_threshold_2phase_1);
+			}
+
+			if (Stop3_threshold_2phase_2.Text != string.Empty)
+			{
+				int.TryParse(Stop3_threshold_2phase_2.Text, out CherngerUI.ImageProcessingDefect_Value.stop3_threshold_2phase_2);
 			}
 		}
 	}

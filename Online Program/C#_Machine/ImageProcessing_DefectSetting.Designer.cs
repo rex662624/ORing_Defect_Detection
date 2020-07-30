@@ -52,25 +52,34 @@
 			this.Stop2_checkbox = new System.Windows.Forms.CheckBox();
 			this.Stop2_max_outer_defect = new System.Windows.Forms.TextBox();
 			this.Stop4 = new System.Windows.Forms.GroupBox();
+			this.label11 = new System.Windows.Forms.Label();
 			this.label10 = new System.Windows.Forms.Label();
 			this.Stop4_checkbox = new System.Windows.Forms.CheckBox();
+			this.stop4_ignore_radius = new System.Windows.Forms.TextBox();
 			this.Stop4_arclength_area_ratio = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.Stop4_min_area = new System.Windows.Forms.TextBox();
 			this.Stop4_max_area = new System.Windows.Forms.TextBox();
-			this.label11 = new System.Windows.Forms.Label();
-			this.stop4_ignore_radius = new System.Windows.Forms.TextBox();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.Stop3_checkbox = new System.Windows.Forms.CheckBox();
+			this.label12 = new System.Windows.Forms.Label();
+			this.Stop3_threshold_1phase = new System.Windows.Forms.TextBox();
+			this.label13 = new System.Windows.Forms.Label();
+			this.Stop3_threshold_2phase_1 = new System.Windows.Forms.TextBox();
+			this.label14 = new System.Windows.Forms.Label();
+			this.Stop3_threshold_2phase_2 = new System.Windows.Forms.TextBox();
 			save_4_stop_config = new System.Windows.Forms.Button();
 			this.Stop1.SuspendLayout();
 			this.Stop2.SuspendLayout();
 			this.Stop4.SuspendLayout();
+			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// save_4_stop_config
 			// 
 			save_4_stop_config.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
 			save_4_stop_config.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			save_4_stop_config.Location = new System.Drawing.Point(429, 886);
+			save_4_stop_config.Location = new System.Drawing.Point(1051, 605);
 			save_4_stop_config.Name = "save_4_stop_config";
 			save_4_stop_config.Size = new System.Drawing.Size(150, 51);
 			save_4_stop_config.TabIndex = 5;
@@ -304,12 +313,22 @@
 			this.Stop4.Controls.Add(this.Stop4_min_area);
 			this.Stop4.Controls.Add(this.Stop4_max_area);
 			this.Stop4.Font = new System.Drawing.Font("微軟正黑體", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.Stop4.Location = new System.Drawing.Point(26, 622);
+			this.Stop4.Location = new System.Drawing.Point(662, 335);
 			this.Stop4.Name = "Stop4";
 			this.Stop4.Size = new System.Drawing.Size(539, 249);
 			this.Stop4.TabIndex = 4;
 			this.Stop4.TabStop = false;
 			this.Stop4.Text = "第四站";
+			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label11.Location = new System.Drawing.Point(10, 187);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(114, 21);
+			this.label11.TabIndex = 23;
+			this.label11.Text = "忽略內圈面積: ";
 			// 
 			// label10
 			// 
@@ -331,6 +350,13 @@
 			this.Stop4_checkbox.Text = "套用";
 			this.Stop4_checkbox.UseVisualStyleBackColor = true;
 			this.Stop4_checkbox.CheckedChanged += new System.EventHandler(this.ODApplyBtn_CheckedChanged);
+			// 
+			// stop4_ignore_radius
+			// 
+			this.stop4_ignore_radius.Location = new System.Drawing.Point(134, 179);
+			this.stop4_ignore_radius.Name = "stop4_ignore_radius";
+			this.stop4_ignore_radius.Size = new System.Drawing.Size(100, 35);
+			this.stop4_ignore_radius.TabIndex = 22;
 			// 
 			// Stop4_arclength_area_ratio
 			// 
@@ -366,29 +392,92 @@
 			this.Stop4_max_area.TabIndex = 0;
 			this.Stop4_max_area.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
 			// 
-			// label11
+			// groupBox1
 			// 
-			this.label11.AutoSize = true;
-			this.label11.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-			this.label11.Location = new System.Drawing.Point(10, 187);
-			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(114, 21);
-			this.label11.TabIndex = 23;
-			this.label11.Text = "忽略內圈面積: ";
+			this.groupBox1.Controls.Add(this.label14);
+			this.groupBox1.Controls.Add(this.Stop3_threshold_2phase_2);
+			this.groupBox1.Controls.Add(this.label13);
+			this.groupBox1.Controls.Add(this.Stop3_threshold_2phase_1);
+			this.groupBox1.Controls.Add(this.label12);
+			this.groupBox1.Controls.Add(this.Stop3_checkbox);
+			this.groupBox1.Controls.Add(this.Stop3_threshold_1phase);
+			this.groupBox1.Font = new System.Drawing.Font("微軟正黑體", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.groupBox1.Location = new System.Drawing.Point(662, 36);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(539, 249);
+			this.groupBox1.TabIndex = 28;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "第三站";
 			// 
-			// stop4_ignore_radius
+			// Stop3_checkbox
 			// 
-			this.stop4_ignore_radius.Location = new System.Drawing.Point(134, 179);
-			this.stop4_ignore_radius.Name = "stop4_ignore_radius";
-			this.stop4_ignore_radius.Size = new System.Drawing.Size(100, 35);
-			this.stop4_ignore_radius.TabIndex = 22;
+			this.Stop3_checkbox.AutoSize = true;
+			this.Stop3_checkbox.Location = new System.Drawing.Point(369, 0);
+			this.Stop3_checkbox.Name = "Stop3_checkbox";
+			this.Stop3_checkbox.Size = new System.Drawing.Size(73, 30);
+			this.Stop3_checkbox.TabIndex = 7;
+			this.Stop3_checkbox.Text = "套用";
+			this.Stop3_checkbox.UseVisualStyleBackColor = true;
+			this.Stop3_checkbox.CheckedChanged += new System.EventHandler(this.Stop3_checkbox_CheckedChanged);
+			// 
+			// label12
+			// 
+			this.label12.AutoSize = true;
+			this.label12.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label12.Location = new System.Drawing.Point(140, 55);
+			this.label12.Name = "label12";
+			this.label12.Size = new System.Drawing.Size(106, 21);
+			this.label12.TabIndex = 23;
+			this.label12.Text = "第一階段閥值";
+			// 
+			// Stop3_threshold_1phase
+			// 
+			this.Stop3_threshold_1phase.Location = new System.Drawing.Point(36, 47);
+			this.Stop3_threshold_1phase.Name = "Stop3_threshold_1phase";
+			this.Stop3_threshold_1phase.Size = new System.Drawing.Size(100, 35);
+			this.Stop3_threshold_1phase.TabIndex = 22;
+			// 
+			// label13
+			// 
+			this.label13.AutoSize = true;
+			this.label13.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label13.Location = new System.Drawing.Point(140, 124);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(116, 21);
+			this.label13.TabIndex = 25;
+			this.label13.Text = "第二階段閥值1";
+			// 
+			// Stop3_threshold_2phase_1
+			// 
+			this.Stop3_threshold_2phase_1.Location = new System.Drawing.Point(36, 116);
+			this.Stop3_threshold_2phase_1.Name = "Stop3_threshold_2phase_1";
+			this.Stop3_threshold_2phase_1.Size = new System.Drawing.Size(100, 35);
+			this.Stop3_threshold_2phase_1.TabIndex = 24;
+			// 
+			// label14
+			// 
+			this.label14.AutoSize = true;
+			this.label14.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+			this.label14.Location = new System.Drawing.Point(140, 193);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(116, 21);
+			this.label14.TabIndex = 27;
+			this.label14.Text = "第二階段閥值2";
+			// 
+			// Stop3_threshold_2phase_2
+			// 
+			this.Stop3_threshold_2phase_2.Location = new System.Drawing.Point(36, 185);
+			this.Stop3_threshold_2phase_2.Name = "Stop3_threshold_2phase_2";
+			this.Stop3_threshold_2phase_2.Size = new System.Drawing.Size(100, 35);
+			this.Stop3_threshold_2phase_2.TabIndex = 26;
 			// 
 			// ImageProcessing_DefectSetting
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-			this.ClientSize = new System.Drawing.Size(605, 953);
+			this.ClientSize = new System.Drawing.Size(1256, 689);
+			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(save_4_stop_config);
 			this.Controls.Add(this.Stop4);
 			this.Controls.Add(this.Stop2);
@@ -402,6 +491,8 @@
 			this.Stop2.PerformLayout();
 			this.Stop4.ResumeLayout(false);
 			this.Stop4.PerformLayout();
+			this.groupBox1.ResumeLayout(false);
+			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -439,5 +530,13 @@
 		private System.Windows.Forms.TextBox Stop4_arclength_area_ratio;
 		private System.Windows.Forms.Label label11;
 		private System.Windows.Forms.TextBox stop4_ignore_radius;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.CheckBox Stop3_checkbox;
+		private System.Windows.Forms.Label label14;
+		private System.Windows.Forms.TextBox Stop3_threshold_2phase_2;
+		private System.Windows.Forms.Label label13;
+		private System.Windows.Forms.TextBox Stop3_threshold_2phase_1;
+		private System.Windows.Forms.Label label12;
+		private System.Windows.Forms.TextBox Stop3_threshold_1phase;
 	}
 }
