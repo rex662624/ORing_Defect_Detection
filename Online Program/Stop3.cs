@@ -19,7 +19,7 @@ namespace Stop3
 
             //讀圖
             //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "14.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "61.jpg", SearchOption.AllDirectories);
             //我已經有改filter了
             //test 31 記得看看圖
 
@@ -48,12 +48,11 @@ namespace Stop3
             Int64 OK_NG_Flag = 0;
             //=========================================================
             int threshold_1phase = 130;
-            int threshold_2phase_1 = 36;//35
-            int threshold_2phase_2 = 20;//20
+            int threshold_2phase_1 = 38;//35
+            int threshold_2phase_2 = 22;//20
             int threshold_2phase_3 = 65;
             int blur_size = 3;
             int neighbor_degree = 5;
-
             //==========================algorithm====================
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 
