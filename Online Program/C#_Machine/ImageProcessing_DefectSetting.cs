@@ -72,7 +72,7 @@ namespace UnionAoi
 
 			if (Stop4_arclength_area_ratio.Text != string.Empty)
 			{
-				int.TryParse(Stop4_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
+				double.TryParse(Stop4_arclength_area_ratio.Text, out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 			}
 
 			if (stop4_ignore_radius.Text != string.Empty)

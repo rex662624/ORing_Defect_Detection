@@ -202,7 +202,7 @@ namespace CherngerUI
 
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
-			int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
+			double.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 			int.TryParse(SetupIniIP.IniReadValue("Stop4", "ignore_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
 
 			#endregion
@@ -1068,7 +1068,7 @@ namespace CherngerUI
 
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_min", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_min);
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "black_defect_area_max", CherngerUI.app.Image_ProcssingDefect_Config_Initial), out CherngerUI.ImageProcessingDefect_Value.stop4_black_defect_area_max);
-					int.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
+					double.TryParse(SetupIniIP.IniReadValue("Stop4", "arclength_area_ratio", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_arclength_area_ratio);
 					int.TryParse(SetupIniIP.IniReadValue("Stop4", "ignore_radius", CherngerUI.app.Image_ProcssingDefect_Config), out CherngerUI.ImageProcessingDefect_Value.stop4_ignore_radius);
 
 					SetupIniIP.IniWriteValue("Stop1", "outer_defect_size_max", CherngerUI.ImageProcessingDefect_Value.stop1_out_defect_size_max.ToString(), CherngerUI.app.Image_ProcssingDefect_Config);
