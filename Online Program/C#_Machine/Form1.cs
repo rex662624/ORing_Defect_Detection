@@ -3720,10 +3720,10 @@ namespace CherngerUI
 				// if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
 				RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
 				if (stop == 1)
-					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
+					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
 						continue;
 					else if (stop == 2)
-						if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) < CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
+						if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
 							continue;
 
 				//===============================local majority vote===============================
@@ -3862,7 +3862,6 @@ namespace CherngerUI
 
 			// Subtraction 
 			Mat diff_image = convex_mask_img - contour_mask_img;
-
 
 			//Opening
 			Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
@@ -4047,7 +4046,7 @@ namespace CherngerUI
 					//MSER  
 					List<OpenCvSharp.Point[][]> MSER_Big = null;
 					Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(3, 3), 0, 0);//=============difference from stop1
-					My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 110, mean_in_area_threshold: 130);
+					My_MSER(6, 200, 20000, 1.1, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 180, mean_in_area_threshold: 180);
 					
 					//OK or NG
 
@@ -4055,7 +4054,9 @@ namespace CherngerUI
 					for (int i = 0; i < nLabels; i++)
 					{
 						int area = stats[i, 4];
-						if (area < 200000 && area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max && area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
+						if (area < 200000 
+							&& area < CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_max 
+							&& area > CherngerUI.ImageProcessingDefect_Value.stop2_out_defect_size_min)
 						{
 
 							OK_NG_Flag = 1;
