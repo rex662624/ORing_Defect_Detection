@@ -4,18 +4,25 @@ using System.Collections.Generic;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System.Threading;
+using NumpyDotNet;
+using System.Linq;
 
 namespace Stop2
 {
     class Program
     {
+        public static int stop2_inner_circle_radius = 0;
+        public static int stop2_out_defect_size_min = 200;
+        public static int stop2_out_defect_size_max = 20000;
+        public static int stop2_inner_defect_size_min = 500;
+        public static int stop2_arclength_area_ratio = 10;
+
         static void Main(string[] args)
         {
-            //量時間
 
             //讀圖
             string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "22.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "8.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -33,6 +40,10 @@ namespace Stop2
         }
         static void Stop2_Detector(Mat Src, string filename)
         {
+            //========================================================================================
+
+            //========================================================================================
+
             Int64 OK_NG_Flag = 0;
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
             //Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
@@ -58,7 +69,7 @@ namespace Stop2
             List<OpenCvSharp.Point[][]> MSER_Big = null;
             Thread t1 = new Thread(delegate ()
             {
-                My_MSER(6, 200, 20000, 0.65, ref Src, ref vis_rgb, 0, out MSER_Big);
+                My_MSER(6, 200, 20000, 1.1, ref Src, ref vis_rgb, 0, out MSER_Big);
             });
 
             t1.Start();
@@ -75,24 +86,39 @@ namespace Stop2
             else
             {
                 //Console.WriteLine("NG");
-                OK_NG_Flag = 1;
                 // draw outer defect by stats
                 for (int i = 0; i < nLabels; i++)
                 {
+                    
                     int area = stats[i, 4];
-                    if (area < 200000)
+                    //Console.WriteLine(area);
+                    if (area < 200000 
+                        && area < stop2_out_defect_size_max 
+                        && area > stop2_out_defect_size_min)
                     {
+                        OK_NG_Flag = 1;
                         vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
                     }
                 }
                 foreach (OpenCvSharp.Point[][] temp in MSER_Big)
                 {
+                    OK_NG_Flag = 1;
                     Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 2);
                 }
 
             }
+            if (OK_NG_Flag == 1)
+            {
+                Console.WriteLine("NG");
+                vis_rgb.SaveImage("./result/NG/test" + filename);
+            }
+            else
+            { 
+                Console.WriteLine("OK");
+                vis_rgb.SaveImage("./result/OK/test" + filename);
+            }
             //==================================================================
-            vis_rgb.SaveImage("./result/test" + filename);
+
             watch.Stop();
             //印出時間
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
@@ -134,7 +160,7 @@ namespace Stop2
             //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
             contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
             Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius, 255, thickness: -1);
+            Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius + stop2_inner_circle_radius, 255, thickness: -1);
             //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
             return contours_final;
@@ -191,8 +217,6 @@ namespace Stop2
             for (int i = 0; i < 4; i++)
             {
                 neighbor_img[i] = new Mat();
-                var imageCenter = new Point2f(img.Cols / 2f, img.Rows / 2f);
-                var rotationMat = Cv2.GetRotationMatrix2D(imageCenter, 100, 1.3);
                 Cv2.WarpAffine(img, neighbor_img[i], shift_mat[i], img.Size());
                 //neighbor_img[i].SaveImage("./shift_image" + i + ".jpg");
             }
@@ -209,9 +233,10 @@ namespace Stop2
                 //===============================threshold for arc length and area===============================
                 // if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
                 RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
-                //Console.WriteLine(rotateRect.Size.Height/ rotateRect.Size.Width);
-                if (Cv2.ContourArea(Approx) < 500 || (rotateRect.Size.Height / rotateRect.Size.Width )<0.1|| (rotateRect.Size.Height / rotateRect.Size.Width) > 10)
-                    continue;
+                //Console.WriteLine(rotateRect.Size.Width/ rotateRect.Size.Height + " " + rotateRect.Size.Height/rotateRect.Size.Width);
+                //Console.WriteLine(Cv2.ContourArea(Approx));
+                if (Cv2.ContourArea(Approx) < stop2_inner_defect_size_min || (rotateRect.Size.Width/rotateRect.Size.Height)> stop2_arclength_area_ratio || (rotateRect.Size.Height / rotateRect.Size.Width) > stop2_arclength_area_ratio)
+                        continue;
                 //Console.WriteLine("Width/Height Ratio: "+ rotateRect.Size.Width / rotateRect.Size.Height + " Len/area Ratio: " + (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) + " Area: " + Cv2.ContourArea(Approx));
 
                 //===============================local majority vote===============================
@@ -261,17 +286,19 @@ namespace Stop2
 
                         mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
                         //compute min:
-                        //neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
+                        neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
                         //Console.WriteLine(min_neighbor[i] + " " + mean_neighbor[i]);
 
                     }
+                    //Console.WriteLine("standard: " + min_in_area+" " + mean_in_area);
+                    //Console.WriteLine("===================");
                     int vote = 0;
                     for (int i = 0; i < 4; i++)
                     {
                         if (mean_in_area > mean_neighbor[i])
                             vote++;
                     }
-                    if (vote > 1 || min_in_area > 110 || mean_in_area > 130)
+                    if (vote > 1)
                         continue;
                     else
                         //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
@@ -299,20 +326,24 @@ namespace Stop2
             Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
 
+            //convex_mask_img.SaveImage("1.jpg");
 
             // Contour
             temp[0] = contours_final[0];
             Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
 
+            //contour_mask_img.SaveImage("2.jpg");
+
             // Subtraction 
             Mat diff_image = convex_mask_img - contour_mask_img;
 
-
+           // diff_image.SaveImage("3.jpg");
             //Opening
-            Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
+            Mat kernel = Mat.Ones(3, 3, MatType.CV_8UC1);//改變凹角大小
             diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
 
+            //diff_image.SaveImage("4.jpg");
             //diff_image.SaveImage("./result/test" + fileindex + ".jpg");
             //Connected Component
             var labelMat = new MatOfInt();
