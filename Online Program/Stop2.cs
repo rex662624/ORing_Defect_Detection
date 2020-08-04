@@ -15,14 +15,14 @@ namespace Stop2
         public static int stop2_out_defect_size_min = 200;
         public static int stop2_out_defect_size_max = 20000;
         public static int stop2_inner_defect_size_min = 500;
-        public static int stop2_arclength_area_ratio = 10;
+        public static int stop2_arclength_area_ratio = 9;
 
         static void Main(string[] args)
         {
 
             //讀圖
             string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "8.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "1029.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -55,27 +55,20 @@ namespace Stop2
             //mask the inner part noise of src
             int nLabels = 0;//number of labels
             int[,] stats = null;
-            Thread t3 = new Thread(delegate ()
-            {
+            
                 List<OpenCvSharp.Point[]> contours_final = Mask_innercicle2(ref Src);
 
                 //Find outer defect            
                 FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-            });
+            
+            
             //MSER  
             //=============difference from stop1
             Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(3, 3), 0, 0);
             //================
             List<OpenCvSharp.Point[][]> MSER_Big = null;
-            Thread t1 = new Thread(delegate ()
-            {
-                My_MSER(6, 200, 20000, 1.1, ref Src, ref vis_rgb, 0, out MSER_Big);
-            });
-
-            t1.Start();
-            t3.Start();
-            t1.Join();
-            t3.Join();
+            
+                My_MSER(6, 200, 20000, 1.0, ref Src, ref vis_rgb, 0, out MSER_Big);
 
             //OK or NG
             if (MSER_Big.Count == 0 && nLabels <= 1)//nLabels 1 represent outer defect
@@ -118,7 +111,7 @@ namespace Stop2
                 vis_rgb.SaveImage("./result/OK/test" + filename);
             }
             //==================================================================
-
+            
             watch.Stop();
             //印出時間
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
@@ -130,7 +123,7 @@ namespace Stop2
         static List<OpenCvSharp.Point[]> Mask_innercicle2(ref Mat img)
         {
 
-            Mat thresh1 = img.Threshold(230, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -146,7 +139,7 @@ namespace Stop2
                 }
 
             }
-
+            //thresh1.SaveImage("./thresold.jpg");
             ///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
             OpenCvSharp.Point[] contours_approx_innercircle;
@@ -235,13 +228,15 @@ namespace Stop2
                 RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
                 //Console.WriteLine(rotateRect.Size.Width/ rotateRect.Size.Height + " " + rotateRect.Size.Height/rotateRect.Size.Width);
                 //Console.WriteLine(Cv2.ContourArea(Approx));
-                if (Cv2.ContourArea(Approx) < stop2_inner_defect_size_min || (rotateRect.Size.Width/rotateRect.Size.Height)> stop2_arclength_area_ratio || (rotateRect.Size.Height / rotateRect.Size.Width) > stop2_arclength_area_ratio)
-                        continue;
+                if (Cv2.ContourArea(Approx) > 10000 || Cv2.ContourArea(Approx) < stop2_inner_defect_size_min || (rotateRect.Size.Width/rotateRect.Size.Height)> stop2_arclength_area_ratio || (rotateRect.Size.Height / rotateRect.Size.Width) > stop2_arclength_area_ratio )
+                    continue;
+
+                //Console.WriteLine((rotateRect.Size.Width / rotateRect.Size.Height) + " " + (rotateRect.Size.Height / rotateRect.Size.Width)+" "+ Cv2.ContourArea(Approx));
                 //Console.WriteLine("Width/Height Ratio: "+ rotateRect.Size.Width / rotateRect.Size.Height + " Len/area Ratio: " + (Cv2.ArcLength(Approx, true) / Cv2.ContourArea(Approx)) + " Area: " + Cv2.ContourArea(Approx));
 
                 //===============================local majority vote===============================
                 // Convex hull
-                add_convex_hull[0] = Approx;
+                add_convex_hull[0] = Convex_hull;
                 temp[0] = Approx;
                 if (big_flag == 0)//small area: local majority vote
                 {
