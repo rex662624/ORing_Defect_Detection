@@ -10,31 +10,37 @@ namespace Stop1_multi_thread
 {
     class Program
     {
+        static int stop1_inner_circle_radius = 0;
+        static int stop1_out_defect_size_min = 70;
+        static int stop1_out_defect_size_max = 20000;
+        static int stop1_inner_defect_size_min = 20;
+        static int stop1_arclength_area_ratio = 25;
         static void Main(string[] args)
         {
             //量時間
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "113.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "11.jpg", SearchOption.AllDirectories);
             //debug
-            int fileindex = 0;
+            //int fileindex = 0;
 
             foreach (string filename in filenamelist)
             {
-                fileindex++;
+                //fileindex++;
                 Mat src = Cv2.ImRead(filename, ImreadModes.Grayscale);
 
                 Console.WriteLine(filename);
-                Stop1_Detect(src, fileindex);
+                Stop1_Detect(src, filename.Substring(9));//fileindex);
 
             }
-
+            
             Console.ReadLine();
         }
-        static void Stop1_Detect(Mat src, int fileindex)
+        static void Stop1_Detect(Mat src, string fileindex)
         {
-
+            int OK_NG_flag = 0;
+            
             Mat vis_rgb = src.CvtColor(ColorConversionCodes.GRAY2RGB);
             //Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
 
@@ -50,19 +56,19 @@ namespace Stop1_multi_thread
                 List<Point[]> contours_final = Mask_innercicle(ref src);
 
                 //Find outer defect            
-                FindContour_and_outer_defect(src, contours_final, ref nLabels, fileindex, out stats);
+                FindContour_and_outer_defect(src, contours_final, ref nLabels, out stats);
             });
             //MSER  
             List<Point[][]> MSER_Big = null;
             List<Point[][]> MSER_Small = null;
             Thread t1 = new Thread(delegate ()
             {
-                My_MSER(5, 800, 20000, 1.5, ref src, ref vis_rgb, 1, out MSER_Big);
+                My_MSER(5, 800, 20000, 1.1, ref src, ref vis_rgb, 1, out MSER_Big);
             });
 
             Thread t2 = new Thread(delegate ()
             {
-                My_MSER(6, 120, 800, 1.6, ref src, ref vis_rgb, 0, out MSER_Small);
+                My_MSER(6, 120, 800, 1.8, ref src, ref vis_rgb, 0, out MSER_Small);
             });
 
             t1.Start();
@@ -72,36 +78,36 @@ namespace Stop1_multi_thread
             t2.Join();
             t3.Join();
 
-            //OK or NG
-            if (MSER_Big.Count == 0 && MSER_Small.Count == 0 && nLabels <=1)//nLabels 1 represent outer defect
+            //OK or NG            
+            // draw outer defect by stats
+            for (int i = 0; i < nLabels; i++)
             {
-                Console.WriteLine("OK");
-                
-            }
-            else
-            {
-                Console.WriteLine("NG");
-            
-                // draw outer defect by stats
-                for (int i = 0; i < nLabels; i++)
+                int area = stats[i, 4];
+                if (area < 200000 && area < stop1_out_defect_size_max && area > stop1_out_defect_size_min)
                 {
-                    int area = stats[i, 4];
-                    if (area < 200000)
-                    {
-                        vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
-                    }
-                }
-                foreach(Point[][] temp in MSER_Big)
-                {
-                    Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
-                }
-                foreach (Point[][] temp in MSER_Small)
-                {
-                    Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                    vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+                    OK_NG_flag = 1;
                 }
             }
+            foreach(Point[][] temp in MSER_Big)
+            {
+                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                OK_NG_flag = 1;
+            }
+            foreach (Point[][] temp in MSER_Small)
+            {
+                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                OK_NG_flag = 1;
+            }
+
+            Console.WriteLine(OK_NG_flag == 1 ? "NG" : "OK");
+
             //src.SaveImage("./result/test" + fileindex + ".jpg");
-            vis_rgb.SaveImage("./result/test" + fileindex + ".jpg");
+            if(OK_NG_flag == 1)
+                vis_rgb.SaveImage("./result/NG/test" + fileindex);
+            else
+                vis_rgb.SaveImage("./result/OK/test" + fileindex);
+
             //==================================================================
             watch.Stop();
 
@@ -170,15 +176,24 @@ namespace Stop1_multi_thread
             //for each contour, apply local majority vote
             foreach (Point[] now_contour in contours)
             {
+                
                 OpenCvSharp.Point[][] temp = new Point[1][];
 
                 Point[] Convex_hull = Cv2.ConvexHull(now_contour);
                 Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
 
+                RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
+                //Debug
+                //Console.WriteLine(Cv2.ContourArea(Approx)+" "+ rotateRect.Size.Height / rotateRect.Size.Width+ " "+rotateRect.Size.Width / rotateRect.Size.Height);
+
+                if (Cv2.ContourArea(Approx) < stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > stop1_arclength_area_ratio)
+                    continue;
+
                 // Convex hull
                 temp[0] = Approx;
                 if (big_flag == 0)//small area: local majority vote
                 {
+                    
                     //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
                     //inside the area
                     double mean_in_area = 0, min_in_area = 0;
@@ -230,8 +245,11 @@ namespace Stop1_multi_thread
                         if (mean_in_area > mean_neighbor[i])
                             vote++;
                     }
-                    if (vote > 2 || min_in_area > 100 || mean_in_area > 130)
+                    if (vote > 2 || min_in_area > 100 || mean_in_area > 130) { 
+                        //Debug
+                        //Console.WriteLine(vote + " " + min_in_area + " ", min_in_area);
                         continue;
+                    }
                     else
                         //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
                         final_area.Add(temp);
@@ -239,6 +257,7 @@ namespace Stop1_multi_thread
                 }
                 else
                 {
+
                     //Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
                     final_area.Add(temp);
                 }
@@ -283,14 +302,14 @@ namespace Stop1_multi_thread
             //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
             contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
             Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-            Cv2.Circle(img, (Point)center, (int)radius, 255, thickness: -1);
+            Cv2.Circle(img, (Point)center, (int)radius+ stop1_inner_circle_radius, 255, thickness: -1);
             //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
             return contours_final;
         }
 
         //Find outer defect
-        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, int fileindex, out int [,] stats)
+        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, out int [,] stats)
         {
                 // variable
                 OpenCvSharp.Point[][] temp = new Point[1][];
@@ -316,7 +335,8 @@ namespace Stop1_multi_thread
             Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
             diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
 
-            //diff_image.SaveImage("./result/test" + fileindex + ".jpg");
+            //diff_image.SaveImage("./mask.jpg");
+            
             //Connected Component
             var labelMat = new MatOfInt();
             var statsMat = new MatOfInt();// Row: number of labels Column: 5
