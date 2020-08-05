@@ -11,7 +11,7 @@ namespace Stop2
 {
     class Program
     {
-        public static int stop2_inner_circle_radius = 0;
+        public static int stop2_inner_circle_radius = 5;
         public static int stop2_out_defect_size_min = 200;
         public static int stop2_out_defect_size_max = 20000;
         public static int stop2_inner_defect_size_min = 500;
@@ -21,8 +21,8 @@ namespace Stop2
         {
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "1029.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "54.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -68,7 +68,7 @@ namespace Stop2
             //================
             List<OpenCvSharp.Point[][]> MSER_Big = null;
             
-                My_MSER(6, 200, 20000, 1.0, ref Src, ref vis_rgb, 0, out MSER_Big);
+                My_MSER(6, 200, 20000, 0.8, ref Src, ref vis_rgb, 0, out MSER_Big);
 
             //OK or NG
             if (MSER_Big.Count == 0 && nLabels <= 1)//nLabels 1 represent outer defect
@@ -122,7 +122,8 @@ namespace Stop2
         //mask the inner part of circle 
         static List<OpenCvSharp.Point[]> Mask_innercicle2(ref Mat img)
         {
-
+            Cv2.GaussianBlur(img, img, new OpenCvSharp.Size(15, 15), 0, 0);
+            //img = img.Threshold(250, 255, ThresholdTypes.Binary);
             Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -315,30 +316,35 @@ namespace Stop2
             OpenCvSharp.Point[][] temp = new Point[1][];
 
 
-            // Convex hull
-            Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
-            temp[0] = Convex_hull;
-            Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-            Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
-
-            //convex_mask_img.SaveImage("1.jpg");
 
             // Contour
             temp[0] = contours_final[0];
             Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
 
-            //contour_mask_img.SaveImage("2.jpg");
+            contour_mask_img.SaveImage("2_1.jpg");
+            //Mat kernel_contour = Mat.Ones(5, 5, MatType.CV_8UC1);
+            //contour_mask_img = contour_mask_img.MorphologyEx(MorphTypes.Dilate, kernel_contour);
+            //contour_mask_img.SaveImage("2_2.jpg");
+
+
+            // Convex hull
+            Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
+            temp[0] = Convex_hull;
+            Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
+
+            convex_mask_img.SaveImage("1.jpg");
 
             // Subtraction 
             Mat diff_image = convex_mask_img - contour_mask_img;
 
-           // diff_image.SaveImage("3.jpg");
+            diff_image.SaveImage("3.jpg");
             //Opening
             Mat kernel = Mat.Ones(3, 3, MatType.CV_8UC1);//改變凹角大小
             diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
 
-            //diff_image.SaveImage("4.jpg");
+            diff_image.SaveImage("4.jpg");
             //diff_image.SaveImage("./result/test" + fileindex + ".jpg");
             //Connected Component
             var labelMat = new MatOfInt();
