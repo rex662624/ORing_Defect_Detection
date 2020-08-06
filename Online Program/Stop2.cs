@@ -15,14 +15,14 @@ namespace Stop2
         public static int stop2_out_defect_size_min = 200;
         public static int stop2_out_defect_size_max = 20000;
         public static int stop2_inner_defect_size_min = 500;
-        public static int stop2_arclength_area_ratio = 9;
+        public static int stop2_arclength_area_ratio = 20;
 
         static void Main(string[] args)
         {
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "54.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "374.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -64,11 +64,11 @@ namespace Stop2
             
             //MSER  
             //=============difference from stop1
-            Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(3, 3), 0, 0);
+            Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);
             //================
             List<OpenCvSharp.Point[][]> MSER_Big = null;
             
-                My_MSER(6, 200, 20000, 0.8, ref Src, ref vis_rgb, 0, out MSER_Big);
+                My_MSER(6, stop2_inner_defect_size_min, 20000, 1.0, ref Src, ref vis_rgb, 0, out MSER_Big);
 
             //OK or NG
             if (MSER_Big.Count == 0 && nLabels <= 1)//nLabels 1 represent outer defect
@@ -122,9 +122,16 @@ namespace Stop2
         //mask the inner part of circle 
         static List<OpenCvSharp.Point[]> Mask_innercicle2(ref Mat img)
         {
-            Cv2.GaussianBlur(img, img, new OpenCvSharp.Size(15, 15), 0, 0);
+
+            
+
+            Mat img_copy = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            img.CopyTo(img_copy);
+            Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
+
             //img = img.Threshold(250, 255, ThresholdTypes.Binary);
-            Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_copy.Threshold(190, 255, ThresholdTypes.Binary);
+            thresh1.SaveImage("./thresold.jpg");
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -154,6 +161,8 @@ namespace Stop2
             //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
             contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
             Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
+
+
             Cv2.Circle(img, (OpenCvSharp.Point)center, (int)radius + stop2_inner_circle_radius, 255, thickness: -1);
             //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
 
