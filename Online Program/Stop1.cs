@@ -20,8 +20,8 @@ namespace Stop1_multi_thread
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "10.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "10.jpg", SearchOption.AllDirectories);
             //debug
             //int fileindex = 0;
 
@@ -55,7 +55,14 @@ namespace Stop1_multi_thread
             List<Point[]> contours_final = Mask_innercicle(ref src);
             //Find outer defect            
             FindContour_and_outer_defect(src, contours_final, ref nLabels, out stats);
-            
+
+            //=================image_crop
+            var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
+            src = new Mat(src, biggestContourRect);
+            OpenCvSharp.Point offset_bounding_rec = biggestContourRect.TopLeft;
+            //output_mat.SaveImage("rec.jpg");
+            //=============================
+
             //MSER  
             //Cv2.GaussianBlur(src, src, new OpenCvSharp.Size(3, 3), 0, 0);
 
@@ -77,12 +84,12 @@ namespace Stop1_multi_thread
             }
             foreach(Point[][] temp in MSER_Big)
             {
-                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3,offset: offset_bounding_rec);
                 OK_NG_flag = 1;
             }
             foreach (Point[][] temp in MSER_Small)
             {
-                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3, offset: offset_bounding_rec);
                 OK_NG_flag = 1;
             }
 
@@ -292,19 +299,10 @@ namespace Stop1_multi_thread
 
             }
 
-            var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
-            Cv2.Rectangle(img,
-        new OpenCvSharp.Point(biggestContourRect.X, biggestContourRect.Y),
-        new OpenCvSharp.Point(biggestContourRect.X + biggestContourRect.Width, biggestContourRect.Y + biggestContourRect.Height),
-        new Scalar(0, 0, 0), 2);
-
-            img.SaveImage("rec.jpg");
             ///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
             Point[] contours_approx_innercircle;
-
             var contour_innercircle = contours_final[1];
-
             //temp[0] = contour_now;
 
             Point2f center;
@@ -343,6 +341,7 @@ namespace Stop1_multi_thread
             img.CopyTo(image, diff_mask);
             //in order to make mask area = 255
             img = image + diff_mask2;
+
 
             return contours_final;
         }
