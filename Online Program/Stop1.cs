@@ -10,7 +10,7 @@ namespace Stop1_multi_thread
 {
     class Program
     {
-        static int stop1_inner_circle_radius = 5;
+        static int stop1_inner_circle_radius = 0;
         static int stop1_out_defect_size_min = 300;
         static int stop1_out_defect_size_max = 20000;
         static int stop1_inner_defect_size_min = 500;
@@ -20,8 +20,8 @@ namespace Stop1_multi_thread
             //量時間
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "53.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "10.jpg", SearchOption.AllDirectories);
             //debug
             //int fileindex = 0;
 
@@ -61,7 +61,7 @@ namespace Stop1_multi_thread
 
             List<Point[][]> MSER_Big = null;
             List<Point[][]> MSER_Small = null;
-            My_MSER(6, 1200, 20000, 0.7, ref src, ref vis_rgb, 1, out MSER_Big);
+            My_MSER(6, 800, 20000, 0.7, ref src, ref vis_rgb, 1, out MSER_Big);
             My_MSER(6, 120, 800, 1.5, ref src, ref vis_rgb, 0, out MSER_Small);
     
             //OK or NG            
@@ -139,6 +139,8 @@ namespace Stop1_multi_thread
         //MyMSER
         static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag,out List<Point[][]> final_area )
         {
+            //img.SaveImage("img_detected.jpg");
+
             final_area = new List<Point[][]>();
             Point[][] contours;
             Rect[] bboxes;
@@ -172,7 +174,18 @@ namespace Stop1_multi_thread
                 //Debug
                 //Console.WriteLine(Cv2.ContourArea(Approx)+" "+ rotateRect.Size.Height / rotateRect.Size.Width+ " "+rotateRect.Size.Width / rotateRect.Size.Height);
 
-                if (Cv2.ContourArea(Approx) < stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > stop1_arclength_area_ratio)
+                if (Cv2.ContourArea(Approx) > 10000 || (Cv2.ContourArea(Approx) < stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > stop1_arclength_area_ratio))
+                    continue;
+
+                //======================intensity in the area
+                temp[0] = Approx;
+                double mean_in_area_temp = 0, min_in_area_temp = 0;
+                Mat mask_img_temp = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                Cv2.DrawContours(mask_img_temp, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+                mean_in_area_temp = img.Mean(mask_img_temp)[0];
+                img.MinMaxLoc(out min_in_area_temp, out _, out _, out _, mask_img_temp);
+                //Console.WriteLine(min_in_area_temp + " " + mean_in_area_temp);
+                if (min_in_area_temp > 100 || mean_in_area_temp > 130)
                     continue;
 
                 // Convex hull
@@ -187,6 +200,7 @@ namespace Stop1_multi_thread
                     Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
                     mean_in_area = img.Mean(mask_img)[0];
                     img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+
                     //Console.WriteLine(min_in_area + " " + mean_in_area);
 
                     //test 
@@ -278,6 +292,13 @@ namespace Stop1_multi_thread
 
             }
 
+            var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
+            Cv2.Rectangle(img,
+        new OpenCvSharp.Point(biggestContourRect.X, biggestContourRect.Y),
+        new OpenCvSharp.Point(biggestContourRect.X + biggestContourRect.Width, biggestContourRect.Y + biggestContourRect.Height),
+        new Scalar(0, 0, 0), 2);
+
+            img.SaveImage("rec.jpg");
             ///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
             Point[] contours_approx_innercircle;
