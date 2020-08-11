@@ -1764,33 +1764,7 @@ namespace CherngerUI
 					s2 = Value.Result_2.Dequeue();
 					s3 = Value.Result_3.Dequeue();
 					s4 = Value.Result_4.Dequeue();
-					if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
-					{
-						if (app.IsAdjust)
-						{
-							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
-							app.NullWarning++;
-							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
-							BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
-							BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
-							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
-							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
-							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
-
-							if (app.NullWarning >= app.NullWarningTarget)
-							{
-								lock (StartButton)
-								{
-									BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
-								}
-							}
-						}
-						Thread.Sleep(50);
-					}
-					else if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
+					if (s1 == "NG" || s2 == "NG" || s3 == "NG" || s4 == "NG")
 					{
 						try
 						{
@@ -1881,6 +1855,32 @@ namespace CherngerUI
 						}
 						Thread.Sleep(50);
 
+					}
+					else if (s1 == "NULL" || s2 == "NULL" || s3 == "NULL" || s4 == "NULL")
+					{
+						if (app.IsAdjust)
+						{
+							BeginInvoke(new Action(() => { UpdateBtn("NULL", ref Num.TotalNum_Temp); }));
+							app.NullWarning++;
+							BeginInvoke(new Action(() => { OKNumPercentlabel.Text = Num.OKdRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { NGNumPercentlabel.Text = Num.NGRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { NULLNumPercentlabel.Text = Num.NULLRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { OKNumlabel.Text = Num.OKNum.ToString(); }));
+							BeginInvoke(new Action(() => { NGNumlabel.Text = Num.NGNum.ToString(); }));
+							BeginInvoke(new Action(() => { NULLNumlabel.Text = Num.NULLNum.ToString(); }));
+							BeginInvoke(new Action(() => { YieldRatelabel.Text = Num.YieldRate.ToString("P"); }));
+							BeginInvoke(new Action(() => { TotalNumlabel.Text = Num.TotalNum.ToString(); }));
+							BeginInvoke(new Action(() => { SuccessNumlabel.Text = Num.TotalSuccessNum.ToString(); }));
+
+							if (app.NullWarning >= app.NullWarningTarget)
+							{
+								lock (StartButton)
+								{
+									BeginInvoke(new Action(() => { StartButton.PerformClick(); }));
+								}
+							}
+						}
+						Thread.Sleep(50);
 					}
 					else if (s1 == "OK" && s2 == "OK" && s3 == "OK" && s4 == "OK")
 					{
@@ -2648,22 +2648,22 @@ namespace CherngerUI
 
 			if (radioButton4.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, Num.TotalNumSave_1.ToString(), app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, Num.TotalNumSave_1.ToString(), app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//", Picturetype.jpg);
 			}
 			else if (radioButton5.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, Num.TotalNumSave_1.ToString(), app.SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, Num.TotalNumSave_1.ToString(), app.SaveHistoryImgpath + "CCD-1//" + SaveMode + "//", Picturetype.jpg);
 
-				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-1//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-1//" + SaveMode + "//");
 				//儲存暫時檢測圖
-				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_1).ToString(), app.Detect_SaveHistoryImgpath + "CCD-1//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_1).ToString(), app.Detect_SaveHistoryImgpath + "CCD-1//" + SaveMode + "//", Picturetype.jpg);
 			}
 		}
 		private void DoAoi_2(Mat Src, Mat Dst, int CameraID, string SaveMode)
@@ -2671,20 +2671,20 @@ namespace CherngerUI
 			SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_2 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-2//", Picturetype.jpg);
 			if (radioButton4.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//", Picturetype.jpg);
 			}
 			else if (radioButton5.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.SaveHistoryImgpath + "CCD-2//" + SaveMode + "//", Picturetype.jpg);
 
-				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-2//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-2//" + SaveMode + "//");
 				//儲存暫時檢測圖
 				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_2).ToString(), app.Detect_SaveHistoryImgpath + "CCD-2//" + app.SavingMode + "//", Picturetype.jpg);
 			}
@@ -2694,22 +2694,22 @@ namespace CherngerUI
 			SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_3 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-3//", Picturetype.jpg);
 			if (radioButton4.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//", Picturetype.jpg);
 			}
 			else if (radioButton5.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.SaveHistoryImgpath + "CCD-3//" + SaveMode + "//", Picturetype.jpg);
 
-				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-3//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-3//" + SaveMode + "//");
 				//儲存暫時檢測圖
-				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.Detect_SaveHistoryImgpath + "CCD-3//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_3).ToString(), app.Detect_SaveHistoryImgpath + "CCD-3//" + SaveMode + "//", Picturetype.jpg);
 			}
 		}
 		private void DoAoi_4(Mat Src, Mat Dst, int CameraID, string SaveMode)
@@ -2717,22 +2717,22 @@ namespace CherngerUI
 			SaveIng(Dst, SavingMode.Decrease, (Num.TotalNumSave_4 % (app.Column * app.Row)).ToString(), app.SaveTmpImgpath + "CCD-4//", Picturetype.jpg);
 			if (radioButton4.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//", Picturetype.jpg);
 			}
 			else if (radioButton5.Checked)
 			{
-				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//");
 				//儲存暫時原圖
-				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Src, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.SaveHistoryImgpath + "CCD-4//" + SaveMode + "//", Picturetype.jpg);
 
-				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//")) //若不存在新創資料夾
-					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//");
+				if (!Directory.Exists(app.Detect_SaveHistoryImgpath + "CCD-4//" + SaveMode + "//")) //若不存在新創資料夾
+					Directory.CreateDirectory(app.Detect_SaveHistoryImgpath + "CCD-4//" + SaveMode + "//");
 				//儲存暫時檢測圖
-				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.Detect_SaveHistoryImgpath + "CCD-4//" + app.SavingMode + "//", Picturetype.jpg);
+				SaveIng(Dst, SavingMode.Origin, (Num.TotalNumSave_4).ToString(), app.Detect_SaveHistoryImgpath + "CCD-4//" + SaveMode + "//", Picturetype.jpg);
 			}
 		}
 		#endregion
@@ -3360,7 +3360,7 @@ namespace CherngerUI
 			MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
 			// exception
 			mser.DetectRegions(img, out contours, out bboxes);
-
+			
 			//====================================Local Majority Vote
 
 			// to speed up, create four shift image first
@@ -3385,11 +3385,31 @@ namespace CherngerUI
 				// if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
 				RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
 				if (stop == 1)
-					if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
+				{
+					//Console.WriteLine(CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min);
+					if (Cv2.ContourArea(Approx) > 10000 || Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop1_arclength_area_ratio)
 						continue;
-					else if (stop == 2)
-						if (Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
-							continue;
+					//===============================threshold for too high value========================
+					temp[0] = Approx;
+					double mean_in_area_temp = 0, min_in_area_temp = 0;
+					Mat mask_img_temp = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+					Cv2.DrawContours(mask_img_temp, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+					mean_in_area_temp = img.Mean(mask_img_temp)[0];
+					img.MinMaxLoc(out min_in_area_temp, out _, out _, out _, mask_img_temp);
+					//Console.WriteLine(min_in_area_temp + " " + mean_in_area_temp);
+					if (min_in_area_temp > 100 || mean_in_area_temp > 130)
+						continue;
+
+
+				}
+				else if (stop == 2)
+				{ 
+					if (Cv2.ContourArea(Approx) > 10000 || Cv2.ContourArea(Approx) < CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > CherngerUI.ImageProcessingDefect_Value.stop2_arclength_area_ratio)
+						continue;
+				}
+
+				
+
 
 				//===============================local majority vote===============================
 
@@ -3404,18 +3424,7 @@ namespace CherngerUI
 					Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
 					mean_in_area = img.Mean(mask_img)[0];
 					img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
-					//Console.WriteLine(min_in_area + " " + mean_in_area);
 
-					//test 
-					/*
-                    Mat mask2 = img.LessThan(230);
-                    for (int i = 0; i < img.Cols; i++) {
-                        for (int j = 0; j < img.Rows; j++) 
-                            if(mask2.At<bool>(i, j)==false)
-                                Console.Write(mask2.At<bool>(i,j)+ " ");
-                        Console.Write("\n");
-                    }
-                    */
 					//neighbor
 					double[] mean_neighbor = { 255, 255, 255, 255 };
 					double[] min_neighbor = { 255, 255, 255, 255 };
@@ -3446,7 +3455,9 @@ namespace CherngerUI
 						if (mean_in_area > mean_neighbor[i])
 							vote++;
 					}
-					if (vote > vote_threshold || min_in_area > min_in_area_threshold || mean_in_area > mean_in_area_threshold)
+					if( (vote > vote_threshold || min_in_area > min_in_area_threshold || mean_in_area > mean_in_area_threshold)&&stop==1)
+						continue;
+					else if (vote > vote_threshold && stop==2)
 						continue;
 					else
 						//Cv2.Polylines(img_rgb, temp, true, new Scalar(0, 0, 255), 1);
@@ -3467,8 +3478,12 @@ namespace CherngerUI
 		//mask the inner part of circle 
 		static List<OpenCvSharp.Point[]> Mask_innercicle1(ref Mat img)
 		{
+			Mat img_copy = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			img.CopyTo(img_copy);
+			Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
 
-			Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
+			Mat thresh1 = img_copy.Threshold(200, 255, ThresholdTypes.Binary);
+
 			OpenCvSharp.Point[][] contours;
 			HierarchyIndex[] hierarchly;
 			Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -3500,8 +3515,32 @@ namespace CherngerUI
 			//Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
 			contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
 			Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-			Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
-			//Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
+			//Cv2.Circle(img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
+			//==================================================outer contour - inner contour=====================================
+			// variable
+			OpenCvSharp.Point[][] temp = new OpenCvSharp.Point[1][];
+
+
+			// inner contour
+			Mat inner_contour_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			Cv2.Circle(inner_contour_img, (OpenCvSharp.Point)center, (int)(radius + CherngerUI.ImageProcessingDefect_Value.stop1_inner_circle_radius), 255, thickness: -1);
+
+			// outer contour
+			Mat outer_contour_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			Mat outer_contour_img2 = new Mat(img.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
+
+			temp[0] = contours_final[0];
+			Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+			//outer contour2 in order to make mask area = 255
+			Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
+			//outer - inner
+			Mat diff_mask = outer_contour_img - inner_contour_img;
+			Mat diff_mask2 = inner_contour_img + outer_contour_img2;
+
+			Mat image = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			img.CopyTo(image, diff_mask);
+			//in order to make mask area = 255
+			img = image + diff_mask2;
 
 			return contours_final;
 		}
@@ -3555,6 +3594,9 @@ namespace CherngerUI
 			{
 				Int64 OK_NG_Flag = 0;
 				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+
+				Mat Src_saveImage = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+				Src.CopyTo(Src_saveImage);
 				//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
 
 				var watch = new System.Diagnostics.Stopwatch();
@@ -3574,11 +3616,19 @@ namespace CherngerUI
 				{
 					//Find outer defect            
 					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+
+					//=================image_crop
+					var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
+					Src = new Mat(Src, biggestContourRect);
+					OpenCvSharp.Point offset_bounding_rec = biggestContourRect.TopLeft;
+					//output_mat.SaveImage("rec.jpg");
+					//=============================
+					
 					//MSER  
 					List<OpenCvSharp.Point[][]> MSER_Big = null;
 					List<OpenCvSharp.Point[][]> MSER_Small = null;
-					My_MSER(5, 800, 20000, 1.1, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
-					My_MSER(6, 120, 800, 1.5, ref Src, ref vis_rgb, 0, 0, out MSER_Small);
+					My_MSER(6, 800, 20000, 0.7, ref Src, ref vis_rgb, 1, 1, out MSER_Big);
+					My_MSER(6, 120, 800, 1.5, ref Src, ref vis_rgb, 0, 1, out MSER_Small);
 
 					//OK or NG
 					// draw outer defect by stats
@@ -3594,12 +3644,12 @@ namespace CherngerUI
 					foreach (OpenCvSharp.Point[][] temp in MSER_Big)
 					{
 						OK_NG_Flag = 1;
-						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+						Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3, offset: offset_bounding_rec);
 					}
 					foreach (OpenCvSharp.Point[][] temp in MSER_Small)
 					{
 						OK_NG_Flag = 1;
-						Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+						Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3, offset: offset_bounding_rec);
 					}
 				}
 				//==================================================================
@@ -3616,7 +3666,7 @@ namespace CherngerUI
 					//Thread.Sleep(50);
 					BeginInvoke(new Action(() => { cherngerPictureBox1.Image = DST.ToBitmap(); }));
 					#region 存圖
-					DoAoi_1(Src, DST, 1, app.SavingMode);
+					DoAoi_1(Src_saveImage, DST, 1, app.SavingMode);
 					#endregion
 
 					#region 輸出結果
@@ -3644,7 +3694,11 @@ namespace CherngerUI
 		static List<OpenCvSharp.Point[]> Mask_innercicle2(ref Mat img)
 		{
 
-			Mat thresh1 = img.Threshold(230, 255, ThresholdTypes.Binary);
+			Mat img_copy = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+			img.CopyTo(img_copy);
+			Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
+
+			Mat thresh1 = img_copy.Threshold(210, 255, ThresholdTypes.Binary);
 
 			//thresh1.SaveImage("./threshold.jpg");
 			//img.SaveImage("./image.jpg");
@@ -3691,6 +3745,7 @@ namespace CherngerUI
 		{
 			lock (app.LockStop2)
 			{
+				Mat Original_Src = Src;
 				Int64 OK_NG_Flag = 0;
 				Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
 				//Console.WriteLine(vis_rgb.Size()+"  "+vis_rgb.Channels());
@@ -3710,8 +3765,8 @@ namespace CherngerUI
 					FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
 					//MSER  
 					List<OpenCvSharp.Point[][]> MSER_Big = null;
-					Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(3, 3), 0, 0);//=============difference from stop1
-					My_MSER(6, 200, 20000, 1.1, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 180, mean_in_area_threshold: 180);
+					Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(5, 5), 0, 0);//=============difference from stop1
+					My_MSER(6, CherngerUI.ImageProcessingDefect_Value.stop2_inner_defect_size_min, 20000, 1.0, ref Src, ref vis_rgb, 0, 2, out MSER_Big, vote_threshold: 1, min_in_area_threshold: 180, mean_in_area_threshold: 180);
 					
 					//OK or NG
 
@@ -3739,7 +3794,8 @@ namespace CherngerUI
 					//==================================================================
 				}
 				++Num.TotalNumSave_2;
-
+				//close Stop2 
+				OK_NG_Flag = 0;
 				ImgAI_2.Enqueue(vis_rgb);
 				OutputAI_2.Enqueue(OK_NG_Flag);
 
@@ -3751,7 +3807,7 @@ namespace CherngerUI
 					//Thread.Sleep(50);
 					BeginInvoke(new Action(() => { cherngerPictureBox2.Image = DST.ToBitmap(); }));
 					#region 存圖
-					DoAoi_2(Src, DST, 1, app.SavingMode);
+					DoAoi_2(Original_Src, DST, 1, app.SavingMode);
 					#endregion
 
 					#region 輸出結果
@@ -3783,10 +3839,10 @@ namespace CherngerUI
 			//=========================================================
 			int blur_size = 3;
 			int neighbor_degree = 5;
-
+			
 			//==========================algorithm====================
 			Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
-
+			
 			Mat thresh1 = Src.Threshold(70, 255, ThresholdTypes.Binary);
 
 			Mat kernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new OpenCvSharp.Size(4, 3));
@@ -3954,9 +4010,11 @@ namespace CherngerUI
 			}
 			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
 			++Num.TotalNumSave_3;
+			//close Stop2 
+			OK_NG_Flag = 0;
 			ImgAI_3.Enqueue(vis_rgb);
 			OutputAI_3.Enqueue(OK_NG_Flag);
-
+			
 			//Console.WriteLine("ReceiveByte: " + Recv_Byte + " " + "OK_NG_Flag3: " + OK_NG_Flag + "Stop: " + Stop);
 			//========================================================
 			this.Invoke((EventHandler)delegate
@@ -4082,11 +4140,12 @@ namespace CherngerUI
 				}
 			}
 			++Num.TotalNumSave_4;
-			//===============收OK或是NG的數字: 收到0代表OK 收到1代表NG
-			//byte[] OK_NG_Flag_Buf = new byte[8];
-			//ms.Position = 0;
+
+			//close Stop4
+			OK_NG_Flag = 0;
 			ImgAI_4.Enqueue(vis_rgb);
 			OutputAI_4.Enqueue(OK_NG_Flag);
+
 			//========================================================
 			this.Invoke((EventHandler)delegate
 			{
