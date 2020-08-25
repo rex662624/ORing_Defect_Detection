@@ -21,7 +21,7 @@ namespace Stop2_New
 
             //讀圖
             string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "21.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -53,21 +53,25 @@ namespace Stop2_New
             //==========================algorithm===============================
 
             //========================================================================================
+            List<OpenCvSharp.Point[]> contours_final = contour_inner_outer(Src);
             Mat Src_saveImage = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             Src.CopyTo(Src_saveImage);
             //Mat _enhanced_image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             //Cv2.GaussianBlur(Src, image, new OpenCvSharp.Size(0, 0), 10);
             //Cv2.AddWeighted(Src, 2, image, -1, 0, image);
             Cv2.GaussianBlur(Src, Src, new OpenCvSharp.Size(3, 3), 0, 0);
-            Cv2.AdaptiveThreshold(Src, Src, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 51, 140 / 10);
+            Cv2.AdaptiveThreshold(Src, Src, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 45, 105 / 10);
 
             Mat Src_255 = new Mat(Src.Size(), MatType.CV_8UC1, new Scalar(255));
             Cv2.Subtract(Src_255, Src, Src);
 
-            Denoise(Src, Src, filename);
 
-            //Src.SaveImage("./enhance/" + filename);
-            
+            //denoise to eliminate noise
+            Denoise(ref Src, filename, contours_final);
+            Find_Contour_and_Extract_Defect(Src, Src, filename);
+
+            Src.SaveImage("./enhance/" + filename);
+
 
             //==================================================================
 
@@ -78,7 +82,34 @@ namespace Stop2_New
 
         }
 
-        static void Denoise(Mat Src, Mat Dst, string filename)
+        static List<OpenCvSharp.Point[]> contour_inner_outer (Mat Src)
+        {
+            Mat img_copy = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+            Src.CopyTo(img_copy);
+            Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
+
+            //img = img.Threshold(250, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_copy.Threshold(250, 255, ThresholdTypes.Binary);
+            thresh1.SaveImage("./thresold.jpg");
+            OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchly;
+            Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+            // find final circle 
+            List<OpenCvSharp.Point[]> contours_final = new List<OpenCvSharp.Point[]>();
+
+            foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                if (Cv2.ContourArea(contour_now) > 1000000 && Cv2.ContourArea(contour_now) < 2500000)
+                {
+                    contours_final.Add(contour_now);
+                }
+
+            }
+            return contours_final;
+        }
+
+        static void Denoise(ref Mat Src, string filename, List<OpenCvSharp.Point[]> contours_final)
         {
 
 
@@ -101,8 +132,72 @@ namespace Stop2_New
 
             }
 
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(13, 7));
+            Src = Src.MorphologyEx(MorphTypes.Close, kernel);
+
+            //=========================draw outer and inner contour
+            
+            temp[0] = contours_final[0];
+            Cv2.DrawContours(Src, temp, -1, 0, 40);
+            temp[0] = contours_final[1];
+            Cv2.DrawContours(Src, temp, -1, 0, 40);
+
+            
             Src.SaveImage("./enhance/" + filename);
         }
+
+        static void Find_Contour_and_Extract_Defect(Mat Src, Mat Dst, string filename)
+        {
+
+            Mat defect_image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+
+            Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
+            Point[][] contours;
+            HierarchyIndex[] hierarchly;
+            Cv2.FindContours(Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+            OpenCvSharp.Point[][] temp = new Point[1][];
+
+            // Extract defect candidate
+            foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                if (Cv2.ContourArea(contour_now) > 150)
+                {
+                    //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
+                    OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+                    temp[0] = approx;
+                    //Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
+                    Cv2.DrawContours(defect_image, temp, -1, 255, -1);
+                }
+
+            }
+            /*
+            foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                if (Cv2.ContourArea(contour_now) > 150)
+                {
+                    //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
+                    OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+                    temp[0] = approx;
+                    //Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
+                    Cv2.DrawContours(defect_image, temp, -1, 255, -1);
+                }
+
+            }*/
+            defect_image.SaveImage("./contour/" + filename);
+
+            
+
+
+
+        }
+        
+        static void Distance_between_contour_and_center(Mat Src, Mat Dst, string filename)
+        {
+
+            
+
+        }
+
 
     }
 }
