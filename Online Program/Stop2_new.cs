@@ -20,8 +20,8 @@ namespace Stop2_New
         {
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "26.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -50,9 +50,8 @@ namespace Stop2_New
 
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
-            //==========================algorithm===============================
+            //=======================================================================================
 
-            //========================================================================================
             List<OpenCvSharp.Point[]> contours_final = contour_inner_outer(Src);
             Mat Src_saveImage = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             Src.CopyTo(Src_saveImage);
@@ -68,7 +67,7 @@ namespace Stop2_New
 
             //denoise to eliminate noise
             Denoise(ref Src, filename, contours_final);
-            Find_Contour_and_Extract_Defect(Src, Src, filename, contours_final);
+            Find_Contour_and_Extract_Defect(Src, vis_rgb, filename, contours_final,OK_NG_Flag);
 
             Src.SaveImage("./enhance/" + filename);
 
@@ -146,7 +145,7 @@ namespace Stop2_New
             Src.SaveImage("./enhance/" + filename);
         }
 
-        static void Find_Contour_and_Extract_Defect(Mat Src, Mat Dst, string filename, List<OpenCvSharp.Point[]> contours_final)
+        static void Find_Contour_and_Extract_Defect(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, Int64 OK_NG_Flag)
         {
             //=================================Find outer circle============================
             Point2f center;
@@ -159,7 +158,6 @@ namespace Stop2_New
 
             Mat defect_image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
 
-            Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
             Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -172,37 +170,44 @@ namespace Stop2_New
                 {
                     //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
                     OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
-                    temp[0] = approx;
-                    //Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
-                    Cv2.DrawContours(defect_image, temp, -1, 255, -1);
                     // find the distance between contour and center
-                    Console.WriteLine("=======");
-                    
-                    Distance_between_contour_and_center(center, approx);
-                    Console.WriteLine("=======");
+                    if (Distance_between_contour_and_center(center, approx)>12)
+                    {
+                        temp[0] = approx;
+                        Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
+                        //Cv2.DrawContours(defect_image, temp, -1, 255, -1);
+                        OK_NG_Flag = 1;
+                    }
                 }
 
             }
-            
-            defect_image.SaveImage("./contour/" + filename);
-
-            
+            if (OK_NG_Flag == 0)
+                vis_rgb.SaveImage("./OK/" + filename);
+            else
+                vis_rgb.SaveImage("./NG/" + filename);
 
 
 
         }
 
-        static void Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
+        static double Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
         {
+
+            List<double> diff_list = new List<double>() ;
             int x1 = (int) center.X;
             int y1 = (int) center.Y;
             foreach (OpenCvSharp.Point contour_point in contour)
             {
                 int x2 = contour_point.X;
                 int y2 = contour_point.Y;
-                Console.WriteLine(Math.Sqrt(Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2), 2)));
+                diff_list.Add(Math.Sqrt(Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2), 2)));
+                //Console.WriteLine(Math.Sqrt(Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2), 2)));
             }
-            
+
+            //Console.WriteLine("\nMax: " + diff_list.Max());
+            //Console.WriteLine("Min: " + diff_list.Min());
+            return diff_list.Max() - diff_list.Min();
+
 
         }
 
