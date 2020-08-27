@@ -20,8 +20,8 @@ namespace Stop2_New
         {
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "26.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "74.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -170,12 +170,16 @@ namespace Stop2_New
                 {
                     //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
                     OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+                    temp[0] = approx;
+                    Cv2.DrawContours(defect_image, temp, -1, 255, -1);
+                    defect_image.SaveImage("./contour/" + filename);
+
+                    
                     // find the distance between contour and center
-                    if (Distance_between_contour_and_center(center, approx)>12)
+                    if (Distance_between_contour_and_center(center, approx))
                     {
-                        temp[0] = approx;
+                        
                         Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
-                        //Cv2.DrawContours(defect_image, temp, -1, 255, -1);
                         OK_NG_Flag = 1;
                     }
                 }
@@ -190,23 +194,45 @@ namespace Stop2_New
 
         }
 
-        static double Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
+        static bool Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
         {
-
+            double diff = 0 ;
+            bool glass_flag = false;
             List<double> diff_list = new List<double>() ;
+            List<int> x_list = new List<int>();
+            List<int> y_list = new List<int>();
             int x1 = (int) center.X;
             int y1 = (int) center.Y;
             foreach (OpenCvSharp.Point contour_point in contour)
             {
-                int x2 = contour_point.X;
+                int x2 = contour_point.X; 
                 int y2 = contour_point.Y;
+                x_list.Add(x2);
+                y_list.Add(y2);
                 diff_list.Add(Math.Sqrt(Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2), 2)));
                 //Console.WriteLine(Math.Sqrt(Math.Pow((x1 - x2), 2) + Math.Pow((y1 - y2), 2)));
             }
 
+            int x_max = x_list.Max();
+            int x_min = x_list.Min();
+            int y_max = y_list.Max();
+            int y_min = y_list.Min();
+            //Console.WriteLine("x_max " + x_max + " x_min " + x_min + " y_max " + y_max + " y_min " + y_min);
+            // 玻璃上的裂縫
+
+            if ((y_max < 700 && y_max > 630 && y_min < 700 && y_min > 630))
+            {
+                glass_flag = true;
+            }
             //Console.WriteLine("\nMax: " + diff_list.Max());
             //Console.WriteLine("Min: " + diff_list.Min());
-            return diff_list.Max() - diff_list.Min();
+            diff = diff_list.Max() - diff_list.Min();
+            //Console.WriteLine(diff);
+            //Console.WriteLine(diff_list.Max());
+
+            //RotatedRect rotateRect = Cv2.MinAreaRect(contour);
+            //Console.WriteLine(rotateRect.Size.Width + " "+ rotateRect.Size.Height);
+            return !(glass_flag) && (diff>10 || diff_list.Max()>700);
 
 
         }
