@@ -69,9 +69,9 @@ namespace Stop2_New
             Denoise(ref Src, filename, contours_final);
 
             List<OpenCvSharp.Point[]> MSER_Big = null;
-            My_MSER(6, stop2_inner_defect_size_min, 20000, 1.0, Src_saveImage, vis_rgb, 0, out MSER_Big,contours_final);
-            
-            Find_Contour_and_Extract_Defect(Src, vis_rgb, filename, contours_final,OK_NG_Flag, MSER_Big);
+            My_MSER(6, stop2_inner_defect_size_min, 20000, 1.0, Src_saveImage, vis_rgb, 0, out MSER_Big, contours_final);
+
+            Find_Contour_and_Extract_Defect(Src, vis_rgb, filename, contours_final, OK_NG_Flag, MSER_Big);
 
             Src.SaveImage("./enhance/" + filename);
 
@@ -85,7 +85,7 @@ namespace Stop2_New
 
         }
 
-        static List<OpenCvSharp.Point[]> contour_inner_outer (Mat Src)
+        static List<OpenCvSharp.Point[]> contour_inner_outer(Mat Src)
         {
             Mat img_copy = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             Src.CopyTo(img_copy);
@@ -139,13 +139,13 @@ namespace Stop2_New
             Src = Src.MorphologyEx(MorphTypes.Close, kernel);
 
             //=========================draw outer and inner contour
-            
+
             temp[0] = contours_final[0];
             Cv2.DrawContours(Src, temp, -1, 0, 40);
             temp[0] = contours_final[1];
             Cv2.DrawContours(Src, temp, -1, 0, 40);
 
-            
+
             Src.SaveImage("./enhance/" + filename);
         }
 
@@ -177,7 +177,7 @@ namespace Stop2_New
             // Extract defect candidate
             foreach (OpenCvSharp.Point[] contour_now in final_candidate)
             {
-                if (Cv2.ContourArea(contour_now) > 150 )
+                if (Cv2.ContourArea(contour_now) > 150)
                 {
                     //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
                     OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
@@ -185,11 +185,11 @@ namespace Stop2_New
                     Cv2.DrawContours(defect_image, temp, -1, 255, -1);
                     defect_image.SaveImage("./contour/" + filename);
 
-                    
+
                     // find the distance between contour and center
                     if (Distance_between_contour_and_center(center, approx))
                     {
-                        
+
                         Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 1);
                         OK_NG_Flag = 1;
                     }
@@ -208,16 +208,16 @@ namespace Stop2_New
 
         static bool Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
         {
-            double diff = 0 ;
+            double diff = 0;
             bool glass_flag = false;
-            List<double> diff_list = new List<double>() ;
+            List<double> diff_list = new List<double>();
             List<int> x_list = new List<int>();
             List<int> y_list = new List<int>();
-            int x1 = (int) center.X;
-            int y1 = (int) center.Y;
+            int x1 = (int)center.X;
+            int y1 = (int)center.Y;
             foreach (OpenCvSharp.Point contour_point in contour)
             {
-                int x2 = contour_point.X; 
+                int x2 = contour_point.X;
                 int y2 = contour_point.Y;
                 x_list.Add(x2);
                 y_list.Add(y2);
@@ -244,7 +244,7 @@ namespace Stop2_New
 
             //RotatedRect rotateRect = Cv2.MinAreaRect(contour);
             //Console.WriteLine(rotateRect.Size.Width + " "+ rotateRect.Size.Height);
-            return !(glass_flag) && (diff>10 || diff_list.Max()>700);
+            return !(glass_flag) && (diff > 10 || diff_list.Max() > 700);
 
 
         }
@@ -265,7 +265,7 @@ namespace Stop2_New
             //for each contour, apply local majority vote
             foreach (Point[] now_contour in contours)
             {
-                    final_area.Add(now_contour);
+                final_area.Add(now_contour);
             }
 
 
