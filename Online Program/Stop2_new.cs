@@ -20,8 +20,8 @@ namespace Stop2_New
         {
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "74.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "31.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -67,7 +67,11 @@ namespace Stop2_New
 
             //denoise to eliminate noise
             Denoise(ref Src, filename, contours_final);
-            Find_Contour_and_Extract_Defect(Src, vis_rgb, filename, contours_final,OK_NG_Flag);
+
+            List<OpenCvSharp.Point[]> MSER_Big = null;
+            My_MSER(6, stop2_inner_defect_size_min, 20000, 1.0, Src_saveImage, vis_rgb, 0, out MSER_Big,contours_final);
+            
+            Find_Contour_and_Extract_Defect(Src, vis_rgb, filename, contours_final,OK_NG_Flag, MSER_Big);
 
             Src.SaveImage("./enhance/" + filename);
 
@@ -145,7 +149,7 @@ namespace Stop2_New
             Src.SaveImage("./enhance/" + filename);
         }
 
-        static void Find_Contour_and_Extract_Defect(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, Int64 OK_NG_Flag)
+        static void Find_Contour_and_Extract_Defect(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, Int64 OK_NG_Flag, List<OpenCvSharp.Point[]> MSER_Big)
         {
             //=================================Find outer circle============================
             Point2f center;
@@ -163,8 +167,15 @@ namespace Stop2_New
             Cv2.FindContours(Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             OpenCvSharp.Point[][] temp = new Point[1][];
 
-            // Extract defect candidate
+            //把現在找出來的瑕疵list 和MSER找出來的合成一個 candidate list
+            List<OpenCvSharp.Point[]> final_candidate = new List<Point[]>();
             foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                final_candidate.Add(contour_now);
+            }
+            final_candidate = final_candidate.Concat(MSER_Big).ToList();
+            // Extract defect candidate
+            foreach (OpenCvSharp.Point[] contour_now in final_candidate)
             {
                 if (Cv2.ContourArea(contour_now) > 150 )
                 {
@@ -179,12 +190,13 @@ namespace Stop2_New
                     if (Distance_between_contour_and_center(center, approx))
                     {
                         
-                        Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3);
+                        Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 1);
                         OK_NG_Flag = 1;
                     }
                 }
 
             }
+
             if (OK_NG_Flag == 0)
                 vis_rgb.SaveImage("./OK/" + filename);
             else
@@ -236,7 +248,28 @@ namespace Stop2_New
 
 
         }
+        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, Mat img, Mat img_rgb, int big_flag, out List<OpenCvSharp.Point[]> final_area, List<OpenCvSharp.Point[]> contours_final)
+        {
+            OpenCvSharp.Point[][] temp = new Point[1][];
+            temp[0] = contours_final[0];
+            Cv2.DrawContours(img, temp, -1, 255, 40);
+            temp[0] = contours_final[1];
+            Cv2.DrawContours(img, temp, -1, 255, 40);
 
+            final_area = new List<OpenCvSharp.Point[]>();
+            Point[][] contours;
+            Rect[] bboxes;
+            MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
+            mser.DetectRegions(img, out contours, out bboxes);
+
+            //for each contour, apply local majority vote
+            foreach (Point[] now_contour in contours)
+            {
+                    final_area.Add(now_contour);
+            }
+
+
+        }
 
     }
 }
