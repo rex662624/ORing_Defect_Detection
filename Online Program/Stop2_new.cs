@@ -60,7 +60,7 @@ namespace Stop2_New
             //================outer defect====================================
             FindContour_and_outer_defect(Src,vis_rgb, contours_final, ref OK_NG_Flag);
 
-            //====================inner defect==============================================
+            //====================Adaptive threshold inner defect==============================================
             //用adaptive threshold 濾出瑕疵
             Cv2.GaussianBlur(Src_copy, Src_copy, new OpenCvSharp.Size(3, 3), 0, 0);
             Cv2.AdaptiveThreshold(Src_copy, Src_copy, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 45, 105 / 10);
@@ -73,8 +73,17 @@ namespace Stop2_New
             //denoise to eliminate noise
             Denoise(ref Src_copy, filename, contours_final);
             //use the ad
-            Find_Contour_and_Extract_Defect(Src_copy, vis_rgb, filename, contours_final, ref OK_NG_Flag);
+            Find_Defect_Contour_and_Extract(Src_copy, vis_rgb, filename, contours_final, ref OK_NG_Flag);
+            //====================MSER=========================================================================
+            Mat img_MSER = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+            Src.CopyTo(img_MSER);
+            OpenCvSharp.Point offset_bounding_rec;
 
+            MSER_Preprocessing(ref img_MSER, out offset_bounding_rec, contours_final);
+            img_MSER.SaveImage("./mser_proprecessing/" + filename);
+
+            My_MSER(6, stop2_inner_defect_size_min, 20000, 0.9, img_MSER, vis_rgb, 0, contours_final,ref  OK_NG_Flag, offset_bounding_rec);
+                
             //Src_copy.SaveImage("./enhance/" + filename);
 
 
@@ -186,7 +195,6 @@ namespace Stop2_New
 
 
         }
-
         static List<OpenCvSharp.Point[]> contour_inner_outer(Mat Src)
         {
             Mat img_copy = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
@@ -213,7 +221,6 @@ namespace Stop2_New
             }
             return contours_final;
         }
-
         static void Denoise(ref Mat Src, string filename, List<OpenCvSharp.Point[]> contours_final)
         {
 
@@ -250,8 +257,7 @@ namespace Stop2_New
 
             //Src.SaveImage("./enhance/" + filename);
         }
-
-        static void Find_Contour_and_Extract_Defect(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, ref Int64 OK_NG_Flag)
+        static void Find_Defect_Contour_and_Extract(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, ref Int64 OK_NG_Flag)
         {
             //==============================找到圓心=======================
             Point2f center;
@@ -266,7 +272,7 @@ namespace Stop2_New
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             OpenCvSharp.Point[][] temp = new Point[1][];
-
+            
             // Extract defect candidate 利用和圓心的距離還有面積
             foreach (OpenCvSharp.Point[] contour_now in contours)
             {
@@ -300,7 +306,6 @@ namespace Stop2_New
 
 
         }
-
         static bool Distance_between_contour_and_center(OpenCvSharp.Point2f center, OpenCvSharp.Point[] contour)
         {
             double diff = 0;
@@ -405,9 +410,70 @@ namespace Stop2_New
                         OK_NG_Flag = 1;
                         vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
                     }
+
+                    /* small area defect
+                    else if (area < stop2_out_defect_size_min)//small area
+                    {
+                        OK_NG_Flag = 1;
+                        vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Red, 3);
+                    }*/
                 }
 
             }
+
+
+        }
+        static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, Mat Src, Mat vis_rgb, int big_flag, List<OpenCvSharp.Point[]> contours_final, ref Int64 OK_NG_Flag, OpenCvSharp.Point offset_bounding_rec)
+        {
+            OpenCvSharp.Point[][] temp = new Point[1][];
+            
+            List<OpenCvSharp.Point[]> final_area = new List<OpenCvSharp.Point[]>();
+            Point[][] contours;
+            Rect[] bboxes;
+            MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
+            mser.DetectRegions(Src, out contours, out bboxes);
+
+            //for each contour, apply local majority vote
+            foreach (Point[] now_contour in contours)
+            {
+                temp[0] = now_contour;
+                //final_area.Add(now_contour);
+                OK_NG_Flag = 1;
+                Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(255, 0, 0), 3, offset: offset_bounding_rec);// offset: offset_bounding_rec
+            }
+
+
+
+        }
+
+        static void MSER_Preprocessing(ref Mat img, out OpenCvSharp.Point offset_bounding_rec, List<OpenCvSharp.Point[]> contours_final)
+        {
+            OpenCvSharp.Point[][] temp = new Point[1][];
+
+            Cv2.GaussianBlur(img, img, new OpenCvSharp.Size(7, 7), 0, 0);
+
+            /*
+            //忽略內圈和外圈一些面積
+            OpenCvSharp.Point[][] temp = new Point[1][];
+            temp[0] = contours_final[0];
+            Cv2.DrawContours(img_copy, temp, -1, 255, 40);
+            temp[0] = contours_final[1];
+            Cv2.DrawContours(img_copy, temp, -1, 255, 40);
+            */
+            
+            //忽略外圈一些面積
+            temp[0] = contours_final[1];
+            Cv2.DrawContours(img, temp, -1, 255, 100);
+            //temp[0] = contours_final[0];
+            //Cv2.DrawContours(img, temp, -1, 255, 20);
+            
+            //200原因:外圈預留空間
+            var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
+            var expand_rect = new Rect(biggestContourRect.TopLeft.X - 200, biggestContourRect.TopLeft.Y - 200, biggestContourRect.Width + 200, biggestContourRect.Height + 200);
+            img = new Mat(img, expand_rect);
+            offset_bounding_rec = expand_rect.TopLeft;
+            
+
 
 
         }
