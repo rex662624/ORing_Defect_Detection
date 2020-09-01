@@ -10,6 +10,8 @@ namespace Stop2_New
 {
     class Program
     {
+        public static int OK_Count = 0;
+        public static int NG_Count = 0;
         public static int stop2_inner_circle_radius = 0;
         public static int stop2_out_defect_size_min = 200;
         public static int stop2_out_defect_size_max = 20000;
@@ -20,8 +22,8 @@ namespace Stop2_New
         {
 
             //讀圖
-            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "199.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -36,6 +38,9 @@ namespace Stop2_New
 
                 //================================
             }
+
+            Console.WriteLine(OK_Count);
+            Console.WriteLine(NG_Count);
 
             Console.ReadLine();
         }
@@ -58,7 +63,7 @@ namespace Stop2_New
             Src.CopyTo(Src_copy);
 
             //================outer defect====================================
-            FindContour_and_outer_defect(Src, vis_rgb, contours_final, ref OK_NG_Flag);
+            FindContour_and_outer_defect(Src,vis_rgb, contours_final, ref OK_NG_Flag);
 
             //====================Adaptive threshold inner defect==============================================
             //用adaptive threshold 濾出瑕疵
@@ -81,23 +86,23 @@ namespace Stop2_New
 
             MSER_Preprocessing(ref img_MSER, out offset_bounding_rec, contours_final);
             img_MSER.SaveImage("./mser_proprecessing/" + filename);
-
-            My_MSER(6, stop2_inner_defect_size_min, 20000, 0.9, img_MSER, vis_rgb, 0, contours_final, ref OK_NG_Flag, offset_bounding_rec);
-
+            //6 0.9
+            My_MSER(7, stop2_inner_defect_size_min, 20000, 1.2, img_MSER, vis_rgb, 0, contours_final,ref  OK_NG_Flag, offset_bounding_rec);
+                
             //Src_copy.SaveImage("./enhance/" + filename);
 
 
 
-            if (OK_NG_Flag == 0)
-            {
+            if (OK_NG_Flag == 0) {
 
                 Console.WriteLine("OK");
                 vis_rgb.SaveImage("./OK/" + filename);
+                OK_Count++;
             }
-            else
-            {
+            else {
                 Console.WriteLine("NG");
                 vis_rgb.SaveImage("./NG/" + filename);
+                NG_Count++;
             }
             //==================================================================
 
@@ -116,7 +121,8 @@ namespace Stop2_New
             img.CopyTo(img_copy);
             Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
 
-            Mat thresh1 = img_copy.Threshold(200, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_copy.Threshold(250, 255, ThresholdTypes.Binary);
+            //thresh1.SaveImage("threshold.jpg");
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -132,7 +138,7 @@ namespace Stop2_New
                 }
 
             }
-
+            
             OpenCvSharp.Point[] contours_approx_innercircle;
 
             var contour_innercircle = contours_final[1];
@@ -168,14 +174,14 @@ namespace Stop2_New
             img.CopyTo(image, diff_mask);
             //in order to make mask area = 255
             img = image + diff_mask2;
-
+            
 
             return contours_final;
         }
         static void FitCircle(Mat img, Mat vis_rgb, List<OpenCvSharp.Point[]> contours_final, string filename)
         {
             //https://blog.csdn.net/weixin_41049188/article/details/92422241
-
+            
             OpenCvSharp.Point[][] temp = new Point[1][];
             temp[0] = contours_final[0];
 
@@ -265,7 +271,7 @@ namespace Stop2_New
             Point2f center;
             float radius;
             Cv2.MinEnclosingCircle(contours_final[0], out center, out radius);
-
+            
             //=============================================================
 
             Mat defect_image = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
@@ -274,7 +280,7 @@ namespace Stop2_New
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
             OpenCvSharp.Point[][] temp = new Point[1][];
-
+            
             // Extract defect candidate 利用和圓心的距離還有面積
             foreach (OpenCvSharp.Point[] contour_now in contours)
             {
@@ -350,7 +356,7 @@ namespace Stop2_New
 
 
         }
-        static void FindContour_and_outer_defect(Mat img, Mat vis_rgb, List<Point[]> contours_final, ref Int64 OK_NG_Flag)
+        static void FindContour_and_outer_defect(Mat img, Mat vis_rgb,List<Point[]> contours_final,ref Int64 OK_NG_Flag)
         {
             // variable
             OpenCvSharp.Point[][] temp = new Point[1][];
@@ -425,18 +431,123 @@ namespace Stop2_New
 
 
         }
+        static Mat[] set_shift_image(ref Mat img)
+        {
+            float[,,] data = new float[4, 2, 3] {   { { 1,0,15},    { 0,1,-15}  },
+                                                {   { 1,0,15},    { 0,1,15}   },
+                                                {   { 1,0,-15},   { 0,1,-15}  },
+                                                {   { 1,0,-15},   { 0,1,15}   }
+                                            };
+
+            Mat[] out_image = new Mat[4];
+            for (int i = 0; i < 4; i++)
+            {
+                out_image[i] = new Mat(2, 3, MatType.CV_32F);
+                out_image[i].Set(0, 0, data[i, 0, 0]);
+                out_image[i].Set(0, 1, data[i, 0, 1]);
+                out_image[i].Set(0, 2, data[i, 0, 2]);
+                out_image[i].Set(1, 0, data[i, 1, 0]);
+                out_image[i].Set(1, 1, data[i, 1, 1]);
+                out_image[i].Set(1, 2, data[i, 1, 2]);
+                /*
+                Console.WriteLine(out_image[i].At<float>(0, 0));
+                Console.WriteLine(out_image[i].At<float>(0, 1));
+                Console.WriteLine(out_image[i].At<float>(0, 2));
+                Console.WriteLine(out_image[i].At<float>(1, 0));
+                Console.WriteLine(out_image[i].At<float>(1, 1));
+                Console.WriteLine(out_image[i].At<float>(1, 2));
+                */
+
+            }
+
+            return out_image;
+
+        }
         static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, Mat Src, Mat vis_rgb, int big_flag, List<OpenCvSharp.Point[]> contours_final, ref Int64 OK_NG_Flag, OpenCvSharp.Point offset_bounding_rec)
         {
             OpenCvSharp.Point[][] temp = new Point[1][];
-
+            
             List<OpenCvSharp.Point[]> final_area = new List<OpenCvSharp.Point[]>();
             Point[][] contours;
             Rect[] bboxes;
             MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
             mser.DetectRegions(Src, out contours, out bboxes);
 
+            //====================================Local Majority Vote
+
+            // to speed up, create four shift image first
+            var shift_mat = set_shift_image(ref Src);
+            Mat[] neighbor_img = new Mat[4];
+            for (int i = 0; i < 4; i++)
+            {
+                neighbor_img[i] = new Mat();
+                Cv2.WarpAffine(Src, neighbor_img[i], shift_mat[i], Src.Size());
+            }
+
             //for each contour, apply local majority vote
             foreach (Point[] now_contour in contours)
+            {
+                OpenCvSharp.Point[][] add_convex_hull = new Point[1][];//We need to draw the bounding box of the defect, so using convex hull is needed.
+                Point[] Convex_hull = Cv2.ConvexHull(now_contour);
+                Point[] Approx = Cv2.ApproxPolyDP(now_contour, 0.5, true);
+
+                //===============================threshold for arc length and area===============================
+                // if the arc length / area too large, that means the shape is thin. (maybe can ad width and height to make them more ensure)
+                RotatedRect rotateRect = Cv2.MinAreaRect(Approx);
+                if (Cv2.ContourArea(Approx) > 10000 || Cv2.ContourArea(Approx) < stop2_inner_defect_size_min || (rotateRect.Size.Width / rotateRect.Size.Height) > stop2_arclength_area_ratio || (rotateRect.Size.Height / rotateRect.Size.Width) > stop2_arclength_area_ratio)
+                    continue;
+
+                //===============================local majority vote===============================
+                // Convex hull
+                add_convex_hull[0] = Convex_hull;
+                temp[0] = Approx;
+                if (big_flag == 0)//small area: local majority vote
+                {
+                    //inside the area
+                    double mean_in_area = 0, min_in_area = 0;
+                    Mat mask_img = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+                    Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+                    mean_in_area = Src.Mean(mask_img)[0];
+                    Src.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+                    
+                    //neighbor
+                    double[] mean_neighbor = { 255, 255, 255, 255 };
+                    double[] min_neighbor = { 255, 255, 255, 255 };
+                    for (int i = 0; i < 4; i++)
+                    {
+                        // create final mask
+                        Mat mask2 = neighbor_img[i].LessThan(225).ToMat();
+                        mask2.ConvertTo(mask2, MatType.CV_8U, 1.0 / 255.0);
+
+                        Mat mask_final = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+                        mask_img.CopyTo(mask_final, mask2);
+
+
+                        mean_neighbor[i] = neighbor_img[i].Mean(mask_final)[0];
+                        //compute min:
+                        neighbor_img[i].MinMaxLoc(out min_neighbor[i], out _, out _, out _, mask_img);
+
+                    }
+                    int vote = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (mean_in_area > mean_neighbor[i])
+                            vote++;
+                    }
+                    if (vote > 1)
+                        continue;
+                    else
+                        final_area.Add(Approx);
+
+                }
+                else
+                {
+                    final_area.Add(Approx);
+                }
+            }
+
+
+            foreach (Point[] now_contour in final_area)
             {
                 temp[0] = now_contour;
                 //final_area.Add(now_contour);
@@ -445,8 +556,8 @@ namespace Stop2_New
             }
 
 
-
         }
+
         static void MSER_Preprocessing(ref Mat img, out OpenCvSharp.Point offset_bounding_rec, List<OpenCvSharp.Point[]> contours_final)
         {
             OpenCvSharp.Point[][] temp = new Point[1][];
@@ -461,19 +572,19 @@ namespace Stop2_New
             temp[0] = contours_final[1];
             Cv2.DrawContours(img_copy, temp, -1, 255, 40);
             */
-
+            
             //忽略外圈一些面積
             temp[0] = contours_final[1];
             Cv2.DrawContours(img, temp, -1, 255, 100);
             //temp[0] = contours_final[0];
             //Cv2.DrawContours(img, temp, -1, 255, 20);
-
+            
             //200原因:外圈預留空間
             var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
             var expand_rect = new Rect(biggestContourRect.TopLeft.X - 200, biggestContourRect.TopLeft.Y - 200, biggestContourRect.Width + 200, biggestContourRect.Height + 200);
             img = new Mat(img, expand_rect);
             offset_bounding_rec = expand_rect.TopLeft;
-
+            
 
 
 
