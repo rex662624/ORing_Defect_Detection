@@ -22,8 +22,8 @@ namespace Stop2_New
         {
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
             //debug
             int fileindex = 0;
 
@@ -74,7 +74,6 @@ namespace Stop2_New
             Mat Src_255 = new Mat(Src_copy.Size(), MatType.CV_8UC1, new Scalar(255));
             Cv2.Subtract(Src_255, Src_copy, Src_copy);
 
-
             //denoise to eliminate noise
             Denoise(ref Src_copy, filename, contours_final);
             //use the ad
@@ -121,7 +120,7 @@ namespace Stop2_New
             img.CopyTo(img_copy);
             Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
 
-            Mat thresh1 = img_copy.Threshold(250, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_copy.Threshold(200, 255, ThresholdTypes.Binary);
             //thresh1.SaveImage("threshold.jpg");
             OpenCvSharp.Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -232,7 +231,7 @@ namespace Stop2_New
         static void Denoise(ref Mat Src, string filename, List<OpenCvSharp.Point[]> contours_final)
         {
 
-
+            
             Mat vis_rgb = Src.CvtColor(ColorConversionCodes.GRAY2RGB);
             Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -258,12 +257,12 @@ namespace Stop2_New
             //=========================draw outer and inner contour
 
             temp[0] = contours_final[0];
-            Cv2.DrawContours(Src, temp, -1, 0, 40);
+            Cv2.DrawContours(Src, temp, -1, 0, 30);
             temp[0] = contours_final[1];
-            Cv2.DrawContours(Src, temp, -1, 0, 40);
+            Cv2.DrawContours(Src, temp, -1, 0, 30);
 
 
-            //Src.SaveImage("./enhance/" + filename);
+            Src.SaveImage("./enhance/" + filename);
         }
         static void Find_Defect_Contour_and_Extract(Mat Src, Mat vis_rgb, string filename, List<OpenCvSharp.Point[]> contours_final, ref Int64 OK_NG_Flag)
         {
@@ -557,7 +556,6 @@ namespace Stop2_New
 
 
         }
-
         static void MSER_Preprocessing(ref Mat img, out OpenCvSharp.Point offset_bounding_rec, List<OpenCvSharp.Point[]> contours_final)
         {
             OpenCvSharp.Point[][] temp = new Point[1][];
