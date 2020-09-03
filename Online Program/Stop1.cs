@@ -127,8 +127,8 @@ namespace Stop1_multi_thread
                 if (i == 1) image = src;
                 else if (i == 2) image = src2;
                 else image = src3;
-                My_MSER(8, 800, 20000, 3, ref image, ref vis_rgb, 1, out MSER_Big);// 6 1.3
-                My_MSER(6, 120, 800, 1.7, ref image, ref vis_rgb, 0, out MSER_Small);
+                My_MSER(8, 800, 20000, 4, ref image, ref vis_rgb, 1, out MSER_Big);// 8 3
+                My_MSER(6, 120, 800, 4, ref image, ref vis_rgb, 0, out MSER_Small);//6  2.5
                 //OK or NG            
                 // draw outer defect by stats            
                 foreach(Point[][] temp in MSER_Big)
