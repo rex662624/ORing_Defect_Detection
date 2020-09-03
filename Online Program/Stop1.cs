@@ -11,17 +11,17 @@ namespace Stop1_multi_thread
     class Program
     {
         static int stop1_inner_circle_radius = 0;
-        static int stop1_out_defect_size_min = 70;
+        static int stop1_out_defect_size_min = 300;
         static int stop1_out_defect_size_max = 20000;
-        static int stop1_inner_defect_size_min = 20;
-        static int stop1_arclength_area_ratio = 25;
+        static int stop1_inner_defect_size_min = 500;
+        static int stop1_arclength_area_ratio = 20;
         static void Main(string[] args)
         {
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "11.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "10.jpg", SearchOption.AllDirectories);
             //debug
             //int fileindex = 0;
 
@@ -51,33 +51,26 @@ namespace Stop1_multi_thread
             //mask the inner part noise of src
             int nLabels = 0;//number of labels
             int[,] stats = null ;
-            Thread t3 = new Thread(delegate ()
-            {
-                List<Point[]> contours_final = Mask_innercicle(ref src);
 
-                //Find outer defect            
-                FindContour_and_outer_defect(src, contours_final, ref nLabels, out stats);
-            });
+            List<Point[]> contours_final = Mask_innercicle(ref src);
+            //Find outer defect            
+            FindContour_and_outer_defect(src, contours_final, ref nLabels, out stats);
+
+            //=================image_crop
+            var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
+            src = new Mat(src, biggestContourRect);
+            OpenCvSharp.Point offset_bounding_rec = biggestContourRect.TopLeft;
+            //output_mat.SaveImage("rec.jpg");
+            //=============================
+
             //MSER  
+            //Cv2.GaussianBlur(src, src, new OpenCvSharp.Size(3, 3), 0, 0);
+
             List<Point[][]> MSER_Big = null;
             List<Point[][]> MSER_Small = null;
-            Thread t1 = new Thread(delegate ()
-            {
-                My_MSER(5, 800, 20000, 1.1, ref src, ref vis_rgb, 1, out MSER_Big);
-            });
-
-            Thread t2 = new Thread(delegate ()
-            {
-                My_MSER(6, 120, 800, 1.8, ref src, ref vis_rgb, 0, out MSER_Small);
-            });
-
-            t1.Start();
-            t2.Start();
-            t3.Start();
-            t1.Join();
-            t2.Join();
-            t3.Join();
-
+            My_MSER(6, 800, 20000, 0.7, ref src, ref vis_rgb, 1, out MSER_Big);
+            My_MSER(6, 120, 800, 1.5, ref src, ref vis_rgb, 0, out MSER_Small);
+    
             //OK or NG            
             // draw outer defect by stats
             for (int i = 0; i < nLabels; i++)
@@ -91,12 +84,12 @@ namespace Stop1_multi_thread
             }
             foreach(Point[][] temp in MSER_Big)
             {
-                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3,offset: offset_bounding_rec);
                 OK_NG_flag = 1;
             }
             foreach (Point[][] temp in MSER_Small)
             {
-                Cv2.Polylines(vis_rgb, temp, true, new Scalar(0, 0, 255), 1);
+                Cv2.DrawContours(vis_rgb, temp, -1, new Scalar(0, 0, 255), 3, offset: offset_bounding_rec);
                 OK_NG_flag = 1;
             }
 
@@ -153,14 +146,16 @@ namespace Stop1_multi_thread
         //MyMSER
         static void My_MSER(int my_delta, int my_minArea, int my_maxArea, double my_maxVariation, ref Mat img, ref Mat img_rgb, int big_flag,out List<Point[][]> final_area )
         {
+            //img.SaveImage("img_detected.jpg");
+
             final_area = new List<Point[][]>();
             Point[][] contours;
             Rect[] bboxes;
             MSER mser = MSER.Create(delta: my_delta, minArea: my_minArea, maxArea: my_maxArea, maxVariation: my_maxVariation);
             mser.DetectRegions(img, out contours, out bboxes);
-
+            
             //====================================Local Majority Vote
-
+            
             // to speed up, create four shift image first
             var shift_mat = set_shift_image(ref img);
             Mat[] neighbor_img = new Mat[4];
@@ -186,7 +181,18 @@ namespace Stop1_multi_thread
                 //Debug
                 //Console.WriteLine(Cv2.ContourArea(Approx)+" "+ rotateRect.Size.Height / rotateRect.Size.Width+ " "+rotateRect.Size.Width / rotateRect.Size.Height);
 
-                if (Cv2.ContourArea(Approx) < stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > stop1_arclength_area_ratio)
+                if (Cv2.ContourArea(Approx) > 10000 || (Cv2.ContourArea(Approx) < stop1_inner_defect_size_min || ((rotateRect.Size.Height / rotateRect.Size.Width)) > stop1_arclength_area_ratio || ((rotateRect.Size.Width / rotateRect.Size.Height)) > stop1_arclength_area_ratio))
+                    continue;
+
+                //======================intensity in the area
+                temp[0] = Approx;
+                double mean_in_area_temp = 0, min_in_area_temp = 0;
+                Mat mask_img_temp = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+                Cv2.DrawContours(mask_img_temp, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
+                mean_in_area_temp = img.Mean(mask_img_temp)[0];
+                img.MinMaxLoc(out min_in_area_temp, out _, out _, out _, mask_img_temp);
+                //Console.WriteLine(min_in_area_temp + " " + mean_in_area_temp);
+                if (min_in_area_temp > 100 || mean_in_area_temp > 130)
                     continue;
 
                 // Convex hull
@@ -201,6 +207,7 @@ namespace Stop1_multi_thread
                     Cv2.DrawContours(mask_img, temp, -1, 255, thickness: -1);//notice the difference between temp = Approx and Convex_hull
                     mean_in_area = img.Mean(mask_img)[0];
                     img.MinMaxLoc(out min_in_area, out _, out _, out _, mask_img);
+
                     //Console.WriteLine(min_in_area + " " + mean_in_area);
 
                     //test 
@@ -270,8 +277,11 @@ namespace Stop1_multi_thread
         //mask the inner part of circle 
         static List<Point[]> Mask_innercicle(ref Mat img)
         {
+            Mat img_copy = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            img.CopyTo(img_copy);
+            Cv2.GaussianBlur(img_copy, img_copy, new OpenCvSharp.Size(15, 15), 0, 0);
 
-            Mat thresh1 = img.Threshold(200, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_copy.Threshold(200, 255, ThresholdTypes.Binary);
             Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -292,9 +302,7 @@ namespace Stop1_multi_thread
             ///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
             Point[] contours_approx_innercircle;
-
             var contour_innercircle = contours_final[1];
-
             //temp[0] = contour_now;
 
             Point2f center;
@@ -302,8 +310,38 @@ namespace Stop1_multi_thread
             //Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Green, thickness: -1);
             contours_approx_innercircle = Cv2.ApproxPolyDP(contour_innercircle, 0.001, true);//speedup
             Cv2.MinEnclosingCircle(contours_approx_innercircle, out center, out radius);
-            Cv2.Circle(img, (Point)center, (int)radius+ stop1_inner_circle_radius, 255, thickness: -1);
+            //Cv2.Circle(img, (Point)center, (int)radius+ stop1_inner_circle_radius, 255, thickness: -1);
             //Cv2.Circle(vis_rgb, (Point)center, (int)radius, Scalar.White, thickness: -1);
+
+            //==================================================outer contour - inner contour=====================================
+            // variable
+            OpenCvSharp.Point[][] temp = new Point[1][];
+
+
+            // inner contour
+            Mat inner_contour_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            //Point[] inner_contour = Cv2.ConvexHull(contours_final[1]);
+            //temp[0] = inner_contour;
+            //Cv2.DrawContours(inner_contour_img, temp, -1, 255, -1);
+            Cv2.Circle(inner_contour_img, (Point)center, (int)radius + stop1_inner_circle_radius, 255, thickness: -1);
+
+            // outer contour
+            Mat outer_contour_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            Mat outer_contour_img2 = new Mat(img.Size(), MatType.CV_8UC1, new Scalar(255));//initilize Mat with the value 255
+
+            temp[0] = contours_final[0];
+            Cv2.DrawContours(outer_contour_img, temp, -1, 255, -1);
+            //outer contour2 in order to make mask area = 255
+            Cv2.DrawContours(outer_contour_img2, temp, -1, 0, -1);
+            //outer - inner
+            Mat diff_mask = outer_contour_img - inner_contour_img;
+            Mat diff_mask2 = inner_contour_img + outer_contour_img2;
+
+            Mat image = Mat.Zeros(img.Size(), MatType.CV_8UC1);
+            img.CopyTo(image, diff_mask);
+            //in order to make mask area = 255
+            img = image + diff_mask2;
+
 
             return contours_final;
         }
@@ -311,13 +349,13 @@ namespace Stop1_multi_thread
         //Find outer defect
         static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, out int [,] stats)
         {
-                // variable
-                OpenCvSharp.Point[][] temp = new Point[1][];
+            // variable
+            OpenCvSharp.Point[][] temp = new Point[1][];
 
 
-                // Convex hull
-                Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
-                temp[0] = Convex_hull;
+            // Convex hull
+            Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
+            temp[0] = Convex_hull;
             Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
 
