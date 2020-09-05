@@ -236,6 +236,7 @@ namespace SensorTechnology
 				DateTime time_start = DateTime.Now;//計時開始 取得目前時間
 				Mat Src = new Mat();
 				//Console.WriteLine("[ID]: " + CameraUserName);
+
 				try
 				{
 					int CameraID = int.Parse(CameraUserName.Substring(CameraUserName.Length - 2)) - 1;
