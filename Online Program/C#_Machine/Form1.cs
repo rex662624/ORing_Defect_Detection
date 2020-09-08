@@ -3497,11 +3497,14 @@ namespace CherngerUI
 				}
 
 			}
+			if (contours_final.Count < 2)
+				return contours_final;
 			///OpenCvSharp.Point[][] temp = new Point[1][];//for draw on image
 
 			OpenCvSharp.Point[] contours_approx_innercircle;
 			var contour_innercircle = contours_final[1];
-			//temp[0] = contour_now;
+
+				//temp[0] = contour_now;
 
 			Point2f center;
 			float radius;
@@ -3947,7 +3950,14 @@ namespace CherngerUI
 
 			//200原因:外圈預留空間
 			var biggestContourRect = Cv2.BoundingRect(contours_final[0]);
-			var expand_rect = new Rect(biggestContourRect.TopLeft.X - 200, biggestContourRect.TopLeft.Y - 200, biggestContourRect.Width + 200, biggestContourRect.Height + 200);
+			int x_topleft = Math.Max(biggestContourRect.TopLeft.X - 200, 0);
+			int y_topleft = Math.Max(biggestContourRect.TopLeft.Y - 200, 0);
+			int x_bottomright = Math.Min((x_topleft +(biggestContourRect.Width + 200)), img.Width);
+			int y_bottomright = Math.Min((y_topleft +(biggestContourRect.Height + 200)), img.Height);
+			int width = x_bottomright - x_topleft;
+			int height = y_bottomright - y_topleft;
+			//Console.WriteLine(x_topleft + " "+ y_topleft + " " + width + " " + height + " ");
+			var expand_rect = new Rect(x_topleft, y_topleft, width, height);
 			img = new Mat(img, expand_rect);
 			offset_bounding_rec = expand_rect.TopLeft;
 
