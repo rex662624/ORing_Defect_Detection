@@ -25,8 +25,8 @@ namespace Stop1_multi_thread
             //量時間
 
             //讀圖
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
+            string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "2.jpg", SearchOption.AllDirectories);
             if (Directory.Exists("result\\NG"))
             {
                 Directory.Delete("result\\NG", true);
@@ -72,14 +72,14 @@ namespace Stop1_multi_thread
             //========================== preprocessing to extract the ROI ===============================
 
             //mask the inner part noise of Src
-            int nLabels = 0;//number of labels
-            int[,] stats = null ;
             //會把Src的ROI切出來(圓的外面和裡面切掉)存回ROI, return 內外圓輪廓
             List<Point[]> contours_final = Mask_innercicle(ref Src);
 
 
             //========================= 找contour ===================================================
             //Find outer defect return 應該要畫的區域
+            int nLabels = 0;//number of labels
+            int[,] stats = null;
             FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
             //====================Adaptive threshold inner defect==============================================
             List<Point[][]> Apaptive_Defect = AdaptiveThreshold_Based_Extract_Defect(Src, contours_final);
@@ -329,10 +329,9 @@ namespace Stop1_multi_thread
             // find final circle 
             List<Point[]> contours_final = new List<Point[]>();
 
-            foreach (Point[] contour_now in contours)
+            foreach (OpenCvSharp.Point[] contour_now in contours)
             {
-                //if (np.array(contours[i]).shape[0] > 1500 and cv2.contourArea(contours[i]) < 5000000):
-                if (contour_now.Length > 1500 && Cv2.ContourArea(contour_now) < 5000000)
+                if (Cv2.ContourArea(contour_now) > 1000000 && Cv2.ContourArea(contour_now) < 2500000)
                 {
                     contours_final.Add(contour_now);
                 }
@@ -430,6 +429,7 @@ namespace Stop1_multi_thread
         }
         static List<Point[][]> AdaptiveThreshold_Based_Extract_Defect(Mat Src, List<OpenCvSharp.Point[]> contours_final)
         {
+            
             //=========prepare adaptive threshold input
             Mat Adaptive_Src = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             //用adaptive threshold 濾出瑕疵
@@ -469,7 +469,7 @@ namespace Stop1_multi_thread
             temp[0] = contours_final[0];
             Cv2.DrawContours(Adaptive_Src, temp, -1, 0, 30);
             temp[0] = contours_final[1];
-            Cv2.DrawContours(Adaptive_Src, temp, -1, 0, 30);
+            Cv2.DrawContours(Adaptive_Src, temp, -1, 0, 45);
 
             //Adaptive_Src.SaveImage("a.jpg");
             //上面已經得到defect圖，用Find_Defect_Contour_and_Extract萃取出來
