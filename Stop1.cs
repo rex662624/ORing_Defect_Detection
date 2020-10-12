@@ -26,7 +26,7 @@ namespace Stop1_multi_thread
 
             //讀圖
             string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "2.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
             if (Directory.Exists("result\\NG"))
             {
                 Directory.Delete("result\\NG", true);
@@ -75,15 +75,28 @@ namespace Stop1_multi_thread
             //會把Src的ROI切出來(圓的外面和裡面切掉)存回ROI, return 內外圓輪廓
             List<Point[]> contours_final = Mask_innercicle(ref Src);
 
-
+            
             //========================= 找contour ===================================================
             //Find outer defect return 應該要畫的區域
             int nLabels = 0;//number of labels
             int[,] stats = null;
             FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
-            //====================Adaptive threshold inner defect==============================================
-            List<Point[][]> Apaptive_Defect = AdaptiveThreshold_Based_Extract_Defect(Src, contours_final);
 
+
+
+
+            //====================Adaptive threshold inner defect==============================================
+            //List<Point[][]> Apaptive_Defect = AdaptiveThreshold_Based_Extract_Defect(Src, contours_final);
+            List<Point[][]> canny_defect = canny_test(Src, contours_final, fileindex);
+
+            foreach (Point[][] temp in canny_defect)
+            {
+
+                Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Red, -1);
+                OK_NG_flag = 1;
+            }
+
+            /*
             //=====================================================================================================
             //=================image_crop
             
@@ -117,6 +130,7 @@ namespace Stop1_multi_thread
                 Cv2.DrawContours(vis_rgb, temp, -1, Scalar.Blue, 3);
                 OK_NG_flag = 1;
             }
+            */
 
             for (int i = 0; i < nLabels; i++)
             {
@@ -129,9 +143,9 @@ namespace Stop1_multi_thread
                     OK_NG_flag = 1;
                 }
             }
-
+            
             Console.WriteLine(OK_NG_flag == 1 ? "NG" : "OK");
-
+            
             //Src.SaveImage("./result/test" + fileindex + ".jpg");
             if(OK_NG_flag == 1) { 
                 vis_rgb.SaveImage("./result/NG/test" + fileindex);
@@ -141,12 +155,58 @@ namespace Stop1_multi_thread
                 Src_copy.SaveImage("./result/OK/test" + fileindex);
                 OK_count++;
             }
-
+            
             //==================================================================
             watch.Stop();
 
             //印出時間
             Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
+        }
+
+        static List<Point[][]> canny_test(Mat Src, List<OpenCvSharp.Point[]> contours_final, string fileindex)
+        {
+            Mat Canny_Src = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
+            //用adaptive threshold 濾出瑕疵
+            Cv2.Blur(Src, Canny_Src, new OpenCvSharp.Size(3, 3));
+
+            Cv2.Canny(Canny_Src, Canny_Src, 111, 0);
+
+
+            Mat kernel = Mat.Ones(5, 5, MatType.CV_8UC1);//改變凹角大小
+            Canny_Src = Canny_Src.MorphologyEx(MorphTypes.Close, kernel);
+
+            OpenCvSharp.Point[][] temp = new Point[1][];
+
+            temp[0] = contours_final[0];
+            Cv2.DrawContours(Canny_Src, temp, -1, 0, 10);
+            temp[0] = contours_final[1];
+            Cv2.DrawContours(Canny_Src, temp, -1, 0, 10);
+
+            // denoise
+            Point[][] contours;
+            HierarchyIndex[] hierarchly;
+            Cv2.FindContours(Canny_Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+
+            List<OpenCvSharp.Point[][]> final_area = new List<OpenCvSharp.Point[][]>();
+           //Mat img_temp = Mat.Zeros(Canny_Src.Size(), MatType.CV_8UC1);
+            foreach (OpenCvSharp.Point[] contour_now in contours)
+            {
+                if (Cv2.ContourArea(contour_now) > 100)
+                {
+                    OpenCvSharp.Point[][] temp_final = new Point[1][];//記得放在裡面宣告
+                    //Console.WriteLine("Arc Length: " + (Cv2.ArcLength(contour_now, true) + " Area: " + Cv2.ContourArea(contour_now))+" Length/Area:" +(Cv2.ArcLength(contour_now, true) / Cv2.ContourArea(contour_now)));
+                    OpenCvSharp.Point[] approx = Cv2.ApproxPolyDP(contour_now, 0.000, true);
+                    temp_final[0] = approx;
+                    //Cv2.DrawContours(img_temp, temp, -1, 255, -1);
+                    final_area.Add(temp_final);
+                }
+
+            }
+
+
+            //img_temp.SaveImage("./result/OK/test" + fileindex);
+            return final_area;
 
         }
 
@@ -319,9 +379,12 @@ namespace Stop1_multi_thread
         static List<Point[]> Mask_innercicle(ref Mat img)
         {
             Mat img_gaussian = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-            Cv2.GaussianBlur(img, img_gaussian, new OpenCvSharp.Size(15, 15), 0, 0);
+            Cv2.GaussianBlur(img, img_gaussian, new OpenCvSharp.Size(21, 21), 0, 0);
 
             Mat thresh1 = img_gaussian.Threshold(200, 255, ThresholdTypes.Binary);
+
+            //thresh1.SaveImage("threshold.jpg");
+
             Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(thresh1, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
@@ -430,23 +493,35 @@ namespace Stop1_multi_thread
         static List<Point[][]> AdaptiveThreshold_Based_Extract_Defect(Mat Src, List<OpenCvSharp.Point[]> contours_final)
         {
             
+            
             //=========prepare adaptive threshold input
             Mat Adaptive_Src = Mat.Zeros(Src.Size(), MatType.CV_8UC1);
             //用adaptive threshold 濾出瑕疵
             Cv2.GaussianBlur(Src, Adaptive_Src, new OpenCvSharp.Size(3, 3), 0, 0);
-            
+
+            /*//=====================================1008test== mask inner and outer to black===================================
+            OpenCvSharp.Point[][] test = new Point[1][];
+            test[0] = contours_final[1];
+            Cv2.DrawContours(Adaptive_Src, test, -1, 0, -1);
+            Cv2.DrawContours(Adaptive_Src, test, -1, 0, 10);
+            Adaptive_Src.SaveImage("adaptive_prepocessing.jpg");
+            //==================================================================================
+            */
+
             Cv2.AdaptiveThreshold(Adaptive_Src, Adaptive_Src, 255, AdaptiveThresholdTypes.GaussianC, ThresholdTypes.Binary, 45, 105 / 10);
-            
+            Adaptive_Src.SaveImage("adaptive.jpg");
+
             //讓黑白相反(not opetation)
             Mat Src_255 = new Mat(Adaptive_Src.Size(), MatType.CV_8UC1, new Scalar(255));
             Cv2.Subtract(Src_255, Adaptive_Src, Adaptive_Src);
 
-            
+
             // denoise
+            OpenCvSharp.Point[][] temp = new Point[1][];
             Point[][] contours;
             HierarchyIndex[] hierarchly;
             Cv2.FindContours(Adaptive_Src, out contours, out hierarchly, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
-            OpenCvSharp.Point[][] temp = new Point[1][];
+            
 
             foreach (OpenCvSharp.Point[] contour_now in contours)
             {
@@ -461,17 +536,17 @@ namespace Stop1_multi_thread
 
             }
             
-            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(13, 7));
-            Adaptive_Src = Adaptive_Src.MorphologyEx(MorphTypes.Close, kernel);
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(13, 7));
+            //Adaptive_Src = Adaptive_Src.MorphologyEx(MorphTypes.Close, kernel);
 
             //=========================吃掉邊界=======================================
-
+            
             temp[0] = contours_final[0];
             Cv2.DrawContours(Adaptive_Src, temp, -1, 0, 30);
             temp[0] = contours_final[1];
             Cv2.DrawContours(Adaptive_Src, temp, -1, 0, 45);
-
-            //Adaptive_Src.SaveImage("a.jpg");
+            
+            Adaptive_Src.SaveImage("a.jpg");
             //上面已經得到defect圖，用Find_Defect_Contour_and_Extract萃取出來
             return Find_Defect_Contour_and_Extract(Src, Adaptive_Src, contours_final);
         }
