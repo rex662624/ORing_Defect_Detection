@@ -15,7 +15,7 @@ namespace Stop1_multi_thread
         static int NG_count = 0;
 
         static int stop1_inner_circle_radius = 0;
-        static int stop1_out_defect_size_min = 450;
+        static int stop1_out_defect_size_min = 150;
         static int stop1_out_defect_size_max = 20000;
         static int stop1_inner_defect_size_min = 500;
         static int stop1_arclength_area_ratio = 15;
@@ -26,7 +26,7 @@ namespace Stop1_multi_thread
 
             //讀圖
             string[] filenamelist = Directory.GetFiles(@".\images\", "*.jpg", SearchOption.AllDirectories);
-            //string[] filenamelist = Directory.GetFiles(@".\images\", "1.jpg", SearchOption.AllDirectories);
+            //string[] filenamelist = Directory.GetFiles(@".\images\", "1008NG2 (81).jpg", SearchOption.AllDirectories);
             if (Directory.Exists("result\\NG"))
             {
                 Directory.Delete("result\\NG", true);
@@ -78,13 +78,18 @@ namespace Stop1_multi_thread
             
             //========================= 找contour ===================================================
             //Find outer defect return 應該要畫的區域
-            int nLabels = 0;//number of labels
-            int[,] stats = null;
-            FindContour_and_outer_defect(Src, contours_final, ref nLabels, out stats);
+            int nLabels_outer = 0;//number of labels
+            int[,] stats_outer = null;
+            FindContour_and_outer_defect(Src, contours_final, ref nLabels_outer, out stats_outer,"outer");
 
 
+            int nLabels_inner = 0;//number of labels
+            int[,] stats_inner = null;
+            FindContour_and_outer_defect(Src, contours_final, ref nLabels_inner, out stats_inner,"inner");
 
-
+            //=======================================================================================================
+            var ellipsecontour = Cv2.FitEllipse(contours_final[0]);
+            Cv2.Ellipse(vis_rgb, ellipsecontour, Scalar.Red, 2);
             //====================Adaptive threshold inner defect==============================================
             //List<Point[][]> Apaptive_Defect = AdaptiveThreshold_Based_Extract_Defect(Src, contours_final);
             List<Point[][]> canny_defect = canny_test(Src, contours_final, fileindex);
@@ -132,27 +137,43 @@ namespace Stop1_multi_thread
             }
             */
 
-            for (int i = 0; i < nLabels; i++)
+            //inner  毛邊
+            for (int i = 0; i < nLabels_inner; i++)
             {
 
-                int area = stats[i, 4];
+                int area = stats_inner[i, 4];
 
                 if (area < 200000 && area < stop1_out_defect_size_max && area > stop1_out_defect_size_min)
                 {
-                    vis_rgb.Rectangle(new Rect(stats[i, 0], stats[i, 1], stats[i, 2], stats[i, 3]), Scalar.Green, 3);
+                    //Console.WriteLine(area);
+                    vis_rgb.Rectangle(new Rect(stats_inner[i, 0], stats_inner[i, 1], stats_inner[i, 2], stats_inner[i, 3]), Scalar.Green, 3);
                     OK_NG_flag = 1;
                 }
             }
-            
+            //outer  毛邊
+            for (int i = 0; i < nLabels_outer; i++)
+            {
+
+                int area = stats_outer[i, 4];
+
+                if (area < 200000 && area < stop1_out_defect_size_max && area > stop1_out_defect_size_min)
+                {
+                    //Console.WriteLine(area);
+                    vis_rgb.Rectangle(new Rect(stats_outer[i, 0], stats_outer[i, 1], stats_outer[i, 2], stats_outer[i, 3]), Scalar.Green, 3);
+                    OK_NG_flag = 1;
+                }
+            }
+
             Console.WriteLine(OK_NG_flag == 1 ? "NG" : "OK");
-            
+
+
             //Src.SaveImage("./result/test" + fileindex + ".jpg");
-            if(OK_NG_flag == 1) { 
+            if (OK_NG_flag == 1) { 
                 vis_rgb.SaveImage("./result/NG/test" + fileindex);
                 NG_count++;
             }
             else {
-                Src_copy.SaveImage("./result/OK/test" + fileindex);
+                vis_rgb.SaveImage("./result/OK/test" + fileindex);
                 OK_count++;
             }
             
@@ -183,6 +204,8 @@ namespace Stop1_multi_thread
             temp[0] = contours_final[1];
             Cv2.DrawContours(Canny_Src, temp, -1, 0, 10);
 
+            //Canny_Src.SaveImage("./result/OK/canny" + fileindex);
+
             // denoise
             Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -192,6 +215,7 @@ namespace Stop1_multi_thread
            //Mat img_temp = Mat.Zeros(Canny_Src.Size(), MatType.CV_8UC1);
             foreach (OpenCvSharp.Point[] contour_now in contours)
             {
+
                 if (Cv2.ContourArea(contour_now) > 100)
                 {
                     OpenCvSharp.Point[][] temp_final = new Point[1][];//記得放在裡面宣告
@@ -375,15 +399,16 @@ namespace Stop1_multi_thread
             return final_area;
 
         }
+        
         //mask the inner part of circle 
         static List<Point[]> Mask_innercicle(ref Mat img)
         {
             Mat img_gaussian = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.GaussianBlur(img, img_gaussian, new OpenCvSharp.Size(21, 21), 0, 0);
 
-            Mat thresh1 = img_gaussian.Threshold(200, 255, ThresholdTypes.Binary);
+            Mat thresh1 = img_gaussian.Threshold(180, 255, ThresholdTypes.Binary);
 
-            //thresh1.SaveImage("threshold.jpg");
+            thresh1.SaveImage("threshold.jpg");
 
             Point[][] contours;
             HierarchyIndex[] hierarchly;
@@ -449,34 +474,49 @@ namespace Stop1_multi_thread
             return contours_final;
         }
         //Find outer defect
-        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, out int [,] stats)
+        static void FindContour_and_outer_defect(Mat img, List<Point[]> contours_final, ref int nLabels, out int [,] stats, string mode)
         {
             // variable
             OpenCvSharp.Point[][] temp = new Point[1][];
-
-
+            //0: 內圈 ; 1: 外圈
+            OpenCvSharp.Point[] contour_now;
+            if (mode == "inner") { 
+                contour_now = contours_final[0];
+            }
+            else
+            {
+                contour_now = contours_final[1];
+            }
             // Convex hull
-            Point[] Convex_hull = Cv2.ConvexHull(contours_final[0]);
-            temp[0] = Convex_hull;
+
+
+            var ellipsecontour = Cv2.FitEllipse(contour_now);
+
             Mat convex_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
-            Cv2.DrawContours(convex_mask_img, temp, -1, 255, -1);
+            Cv2.Ellipse(convex_mask_img, ellipsecontour, 255, -1);
 
 
             // Contour
-            temp[0] = contours_final[0];
+            temp[0] = contour_now;
             Mat contour_mask_img = Mat.Zeros(img.Size(), MatType.CV_8UC1);
             Cv2.DrawContours(contour_mask_img, temp, -1, 255, -1);
 
-            // Subtraction 
-            Mat diff_image = convex_mask_img - contour_mask_img;
+
+            Mat diff_image = contour_mask_img ^ convex_mask_img;
 
 
             //Opening
-            Mat kernel = Mat.Ones(2, 2, MatType.CV_8UC1);//改變凹角大小
+            Mat kernel = Mat.Ones(4, 4, MatType.CV_8UC1);//改變凹角大小
             diff_image = diff_image.MorphologyEx(MorphTypes.Open, kernel);
 
-            diff_image.SaveImage("./mask.jpg");
-            
+
+            //=========================吃掉邊界=======================================
+            //temp[0] = contour_now;
+            //Cv2.DrawContours(diff_image, temp, -1, 0, 3);
+            //================================================================
+            convex_mask_img.SaveImage("./" + mode + "convex" + ".jpg");
+            contour_mask_img.SaveImage("./" + mode + "contour" + ".jpg");
+            diff_image.SaveImage("./" + mode + "mask" + ".jpg");
             //Connected Component
             var labelMat = new MatOfInt();
             var statsMat = new MatOfInt();// Row: number of labels Column: 5
