@@ -2575,6 +2575,7 @@
 			this.cherngerPictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.cherngerPictureBox1.TabIndex = 0;
 			this.cherngerPictureBox1.TabStop = false;
+			this.cherngerPictureBox1.Click += new System.EventHandler(this.cherngerPictureBox1_Click);
 			// 
 			// panel3
 			// 
